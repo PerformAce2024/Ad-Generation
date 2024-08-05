@@ -1,5 +1,3 @@
-const urlSection = document.getElementById("urlSection");
-
 async function onClickHandler() {
   const googlePlayURL = document.getElementById("google-play-url").value;
   const appleAppURL = document.getElementById("apple-app-url").value;
@@ -54,17 +52,43 @@ document.addEventListener("DOMContentLoaded", (event) => {
   btn.addEventListener("click", onClickHandler);
 });
 
+// Function to display phrases
 function displayPhrases(phrases) {
-  const container = document.getElementById("phrases-container");
-  container.innerHTML = ""; // Clear previous phrases
-
-  if (Array.isArray(phrases) && phrases.length > 0) {
-    phrases.forEach((phrase) => {
-      const phraseElement = document.createElement("p");
-      phraseElement.textContent = phrase;
-      container.appendChild(phraseElement);
-    });
-  } else {
-    container.innerHTML = "No phrases available.";
+  const phrasesContainer = document.getElementById('phrases-list');
+  if (!phrasesContainer) {
+    console.error('phrasesContainer not found');
+    return;
   }
+
+  phrasesContainer.innerHTML = ''; // Clear previous phrases
+
+  // Create table structure
+  const table = document.createElement('table');
+  table.className = 'min-w-full divide-y divide-gray-200 overflow-x-auto';
+
+  // Create table header
+  const thead = document.createElement('thead');
+  thead.className = 'bg-gray-50';
+  thead.innerHTML = `
+    <tr>
+      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phrase</th>
+      <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Source</th>
+    </tr>`;
+  table.appendChild(thead);
+
+  // Create table body
+  const tbody = document.createElement('tbody');
+  tbody.className = 'bg-white divide-y divide-gray-200 overflow-x-auto';
+
+  phrases.forEach(phrase => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900 overflow-x-auto">${phrase}</td>
+      <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500 overflow-x-auto">GrowthZ</td>
+    `;
+    tbody.appendChild(row);
+  });
+
+  table.appendChild(tbody);
+  phrasesContainer.appendChild(table);
 }
