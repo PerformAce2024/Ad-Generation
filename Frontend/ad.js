@@ -21,7 +21,7 @@ async function onClickHandler() {
         redirect: "follow",
       };
   
-      const requestUrl = "http://127.0.0.1:8000/generate-phrases";
+      const requestUrl = "https://www.growthz.ai//generate-phrases";
   
       const response = await fetch(requestUrl, requestOptions);
   

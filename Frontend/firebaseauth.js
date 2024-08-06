@@ -1,18 +1,9 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
 import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
 
-// const firebaseConfig = {
-//    apiKey: "AIzaSyAyzUpcpMvuEwCVqecdFoa_QpR93QGKQJc",
-//     authDomain: "login-40928.firebaseapp.com",
-//     projectId: "login-40928",
-//     storageBucket: "login-40928.appspot.com",
-//     messagingSenderId: "345628289335",
-//     appId: "1:345628289335:web:6d27be01b586fb27ad92b2",
-//     measurementId: "G-6WKXM1GEVW"
-// };
-
+// Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyDSt7NQZlFcOSmerHV2-K6zUgnbv2Hn5Bs",
     authDomain: "performacemedia-750e2.firebaseapp.com",
@@ -21,10 +12,12 @@ const firebaseConfig = {
     messagingSenderId: "337335887216",
     appId: "1:337335887216:web:ae64b1b44dcd9e69065bb5",
     measurementId: "G-2KJQ4YTQLB"
-  };
+};
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const auth = getAuth();
+const db = getFirestore();
 
 function showMessage(message, divId) {
     var messageDiv = document.getElementById(divId);
@@ -37,7 +30,7 @@ function showMessage(message, divId) {
 }
 
 function isBlockedEmailDomain(email) {
-    const blockedDomains = ["gmail.com", , "yahoo.com", "outlook.com", "hotmail.com","aol.com","icloud.com"]; // Add more blocked domains as needed
+    const blockedDomains = ["gmail.com", "yahoo.com", "outlook.com", "hotmail.com", "aol.com", "icloud.com"]; // Add more blocked domains as needed
     const emailDomain = email.split('@')[1];
     return blockedDomains.includes(emailDomain);
 }
@@ -54,9 +47,6 @@ signUp.addEventListener('click', (event) => {
         showMessage('Email address from this domain is not allowed.', 'signUpMessage');
         return;
     }
-
-    const auth = getAuth();
-    const db = getFirestore();
 
     createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
@@ -97,8 +87,6 @@ signIn.addEventListener('click', (event) => {
         return;
     }
 
-    const auth = getAuth();
-
     signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
             showMessage('Login is successful', 'signInMessage');
@@ -116,18 +104,16 @@ signIn.addEventListener('click', (event) => {
         });
 });
 
-
-
 const logoutButton = document.getElementById('logout'); 
 logoutButton.addEventListener('click', () => {
-  console.log('Logout button clicked'); // Debug line
-  localStorage.removeItem('loggedInUserId');
-  signOut(auth)
-  .then(() => {
-    console.log('User signed out successfully');
-    window.location.href = 'index.html';
-  })
-  .catch((error) => {
-    console.error('Error Signing out:', error);
-  });
+    console.log('Logout button clicked'); // Debug line
+    localStorage.removeItem('loggedInUserId');
+    signOut(auth)
+        .then(() => {
+            console.log('User signed out successfully');
+            window.location.href = 'index.html';
+        })
+        .catch((error) => {
+            console.error('Error Signing out:', error);
+        });
 });
