@@ -153,7 +153,7 @@ app.post("/generate-phrases", async (req, res) => {
 
     // Send response with phrases
     res.status(200).json(uspPhrases);
-  } catch (Error retrieving phrases.error) {
+  } catch (error) {
     console.error("Error generating USP phrases:", error);
     res.status(500).send("Error generating USP phrases");
   }
