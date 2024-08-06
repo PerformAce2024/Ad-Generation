@@ -8,7 +8,7 @@ import { fileURLToPath } from "url";
 const app = express();
 app.use(express.json());
 app.use(cors({
-  origin: "https://www.growthz.ai/" // Replace with your actual Vercel frontend domain
+  origin: "https://www.growthz.ai" // Replace with your actual Vercel frontend domain
 }));
 
 // Derive __dirname
@@ -153,7 +153,7 @@ app.post("/generate-phrases", async (req, res) => {
 
     // Send response with phrases
     res.status(200).json(uspPhrases);
-  } catch (error) {
+  } catch (Error retrieving phrases.error) {
     console.error("Error generating USP phrases:", error);
     res.status(500).send("Error generating USP phrases");
   }
