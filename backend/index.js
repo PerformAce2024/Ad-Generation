@@ -137,11 +137,17 @@ app.get("/", (req, res) => {
 app.post("/generate-phrases", async (req, res) => {
   const { google_play, apple_app } = req.body;
 
+  if (!google_play) {
+    return res.status(400).send("Google Play Store URL is mandatory");
+  }
+
   try {
     // Scrape reviews from both sources
     const googlePlayReviews = await scrapeGooglePlayReviews(google_play);
-    const appleStoreReviews = await scrapeAppleStoreReviews(apple_app);
-
+    const appleStoreReviews = apple_app
+      ? await scrapeAppleStoreReviews(apple_app)
+      : [];
+      
     // Combine and format reviews for prompt
     const combinedReviews = combineReviews(
       googlePlayReviews,
