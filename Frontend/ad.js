@@ -92,4 +92,11 @@ async function onClickHandler() {
     table.appendChild(tbody);
     phrasesContainer.appendChild(table);
   }
+
+
+  document.getElementById('reset-password-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const email = document.getElementById('reset-email').value;
+    resetPassword(email);
+  });
   
