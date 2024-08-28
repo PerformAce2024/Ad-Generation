@@ -1,0 +1,9 @@
+@font-face {
+  font-family: Denton;
+  src: url(Denton\ Test\ Medium\ 500.otf);
+}
+body {
+  font-family: "Denton", sans-serif;
+  background: #131313;
+  color: white;
+}

@@ -1,235 +1,48 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "poppins", sans-serif;
-  }
-  
-  body {
-    background-color: #f9f0a0;
-    background: linear-gradient(to right, #f8ff9c, #fff697);
-  }
-  
-  .container {
-    background: #fff;
-    width: 450px;
-    padding: 1.5rem;
-    margin: 50px auto;
-    border-radius: 10px;
-    box-shadow: 0 20px 35px rgba(39, 35, 6, 0.9);
-  }
-  
-  form {
-    margin: 0 2rem;
-  }
-  
-  .form-title {
-    font-size: 1.5rem;
-    font-weight: bold;
-    text-align: center;
-    padding: 1.3rem;
-    margin-bottom: 0.4rem;
-    color: #914F1E;
-  }
-  
-  input {
-    color: inherit;
-    width: 100%;
-    background-color: transparent;
-    border: none;
-    border-bottom: 1px solid #f8ffb6;
-    padding-left: 1.5rem;
-    font-size: 15px;
-  }
-  
-  .input-group {
-    padding: 1% 0;
-    position: relative;
-  }
-  
-  .input-group i {
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+.container {
+    max-width: 1200px;
+}
+
+main {
     position: absolute;
-    color: #914F1E;
-  }
-  
-  input:focus {
-    background-color: transparent;
-    outline: transparent;
-    border-bottom: 2px solid #914F1E;
-  }
-  
-  input::placeholder {
-    color: transparent;
-  }
-  
-  label {
-    color: #757575;
-    position: relative;
-    left: 1.2em;
-    top: -1.3em;
-    cursor: auto;
-    transition: 0.3s ease all;
-  }
-  
-  input:focus ~ label,
-  input:not(:placeholder-shown) ~ label {
-    top: -3em;
-    color: #914F1E;
-    font-size: 15px;
-  }
-  
-  .recover {
-    text-align: right;
-    font-size: 1rem;
-    margin-bottom: 1rem;
-  }
-  
-  .recover a {
-    text-decoration: none;
-    color: #914F1E;
-    font-weight: 500;
-  }
-  
-  .recover a:hover {
-    color: #914F1E;
-    text-decoration: underline;
-  }
-  
-  button {
-    font-size: 1.1rem;
-    padding: 8px 0;
-    border-radius: 5px;
-    outline: none;
-    border: none;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     width: 100%;
-    background: #ffa823;
-    color: white;
-    cursor: pointer;
-    transition: 0.9s;
-  }
-  
-  button:hover {
-    background: #914F1E;
-  }
-  
-  .or {
-    font-size: 1.1rem;
-    margin-top: 0.5rem;
-    text-align: center;
-  }
-  
-  .icons {
-    text-align: center;
-  }
-  
-  .icons i {
-    color: #ffa823;
-    padding: 0.8rem 1.5rem;
-    border-radius: 10px;
-    font-size: 1.5rem;
-    cursor: pointer;
-    border: 2px solid #dfe9f5;
-    margin: 0 15px;
-    transition: 1s;
-  }
-  
-  .icons i:hover {
-    background: #914F1E;
-    font-size: 1.6rem;
-    border: 2px solid #ffa823;
-  }
-  
-  .links {
-    display: flex;
-    justify-content: space-around;
-    padding: 0 4rem;
-    margin-top: 0.9rem;
+}
+
+.changebox {
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: top;
     font-weight: bold;
-    color: #914F1E;
-  }
-  
-  #signUpButton,
-  #signInButton {
-    color: #ffa823;
-    border: none;
-    background-color: transparent;
-    font-size: 1rem;
-    font-weight: bold;
-  }
-  
-  #signUpButton:hover,
-  #signInButton:hover {
-    text-decoration: underline;
-    color: #914F1E;
-  }
-  
-  .messageDiv {
-    background-color: #914F1E;
-    color: white;
-    padding: 10px 20px;
-    margin: 10px;
-    border-radius: 5px;
-    font-size: 1rem;
-    opacity: 0;
-    animation: fadeOut 7s forwards;
-  }
-  
-  .logout-button {
-    display: inline-flex;
-    align-items: center;
-    background-color: #f3f4f6; /* bg-gray-100 */
-    border: 0;
-    padding: 0.25rem 0.75rem; /* py-1 px-3 */
-    outline: none;
-    border-radius: 0.375rem; /* rounded */
-    font-size: 1rem; /* text-base */
-    margin-top: 1rem; /* mt-4 */
-  }
-  
-  .logout-button:hover {
-    background-color: #e5e7eb; /* hover:bg-gray-200 */
-  }
-  
-  .logout-icon {
-    transition: transform 0.3s ease;
-  }
-  
-  .logout-button:hover .logout-icon {
-    transform: rotate(180deg);
-  }
-  
-  /* #phrases-container {
-    padding: 20px;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    max-width: 600px;
-    margin: 20px auto;
-  }
-  
-  #phrases-container h2 {
-    font-size: 1.5em;
-    color: #333;
-    margin-bottom: 10px;
-    text-align: center;
-  }
-  
-  #phrases-list {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  #phrases-list li {
-    padding: 10px;
-    margin: 5px 0;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  }
-  
-  #phrases-list li:nth-child(even) {
-    background-color: #f1f1f1;
-  } */
-  
+    color: #3B82F6;
+}
+
+.changebox span {
+    display: block;
+    line-height: 1.2em;
+    white-space: nowrap;
+}
+
+h1 {
+    font-size: 2.5rem; /* Adjust as needed */
+    line-height: 1.2;
+}
+
+@media (max-width: 1023px) {
+    h1 {
+        font-size: 2rem; /* Adjust for smaller screens */
+    }
+}
+
+@media (min-width: 1024px) {
+    h1 {
+        font-size: 2.5rem; /* Adjust for larger screens */
+    }
+}

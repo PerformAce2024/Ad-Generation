@@ -17,14 +17,8 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth();
 const db = getFirestore();
 
-function showMessage(message, divId) {
-    var messageDiv = document.getElementById(divId);
-    messageDiv.style.display = "block";
-    messageDiv.innerHTML = message;
-    messageDiv.style.opacity = 1;
-    setTimeout(function () {
-        messageDiv.style.opacity = 0;
-    }, 5000);
+function showMessage(message) {
+    alert(message);
 }
 
 function isBlockedEmailDomain(email) {
@@ -42,7 +36,7 @@ signUp.addEventListener('click', (event) => {
     const companyName = document.getElementById('cName').value;
 
     if (isBlockedEmailDomain(email)) {
-        showMessage('Email address from this domain is not allowed.', 'signUpMessage');
+        showMessage('Email address from this domain is not allowed.');
         return;
     }
     createUserWithEmailAndPassword(auth, email, password)
@@ -58,11 +52,11 @@ signUp.addEventListener('click', (event) => {
                 .then(() => {
                     alert("Email sent succesfully")
                 });
-            showMessage('Account Created Successfully', 'signUpMessage');
+            showMessage('Account Created Successfully');
             const docRef = doc(db, "users", user.uid);
             setDoc(docRef, userData)
                 .then(() => {
-                    window.location.href = 'index.html';
+                    window.location.href = 'login.html';
                 })
                 .catch((error) => {
                     console.error("Error writing document", error);
@@ -71,9 +65,9 @@ signUp.addEventListener('click', (event) => {
         .catch((error) => {
             const errorCode = error.code;
             if (errorCode === 'auth/email-already-in-use') {
-                showMessage('Email Address Already Exists !!!', 'signUpMessage');
+                showMessage('Email Address Already Exists !!!');
             } else {
-                showMessage('Unable to create User', 'signUpMessage');
+                showMessage('Unable to create User');
             }
         });
 });
@@ -85,11 +79,9 @@ signIn.addEventListener('click', (event) => {
     const password = document.getElementById('password').value;
 
     if (isBlockedEmailDomain(email)) {
-        showMessage('Email address from this domain is not allowed.', 'signInMessage');
+        showMessage('Email address from this domain is not allowed.');
         return;
     }
-
-    const auth = getAuth();
 
     signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
@@ -97,37 +89,43 @@ signIn.addEventListener('click', (event) => {
 
         // Check if the user's email is verified
         if (user.emailVerified) {
-            showMessage('Login is successful', 'signInMessage');
+            // showMessage('Login successful');
             localStorage.setItem('loggedInUserId', user.uid);
-            window.location.href = 'homepage.html';
+            window.location.href = 'ad-gen.html';
         } else {
             // If the email is not verified, show an alert and do not proceed to the homepage
-            alert('Verify your email first');
-            // auth.signOut(); // Optional: sign out the user if not verified
+            showMessage('Please verify your email before signing in.');
+            auth.signOut(); // Sign out the user if not verified
         }
     })
     .catch((error) => {
         const errorCode = error.code;
         if (errorCode === 'auth/invalid-credential') {
-            showMessage('Incorrect Email or Password', 'signInMessage');
+            showMessage('Incorrect email or password.');
+        } else if (errorCode === 'auth/user-not-found') {
+            showMessage('No account exists with this email.');
         } else {
-            showMessage('Account does not exist', 'signInMessage');
+            showMessage('An error occurred during sign-in. Please try again.');
         }
+        console.error('Sign-in error:', error);
     });
-    const forgetPass = document.querySelector('.forgetPassword');
+});
 
-
-    let forgotPass = () => {
-        sendPasswordResetEmail(auth, email)
-            .then(() => {
-                alert("A Password Reset Link has been sent to your email");
-            })
-            .catch((error) => {
-                console.log(error.code);
-                console.log(error.message);
-            });
-    };
-
-    forgetPass.addEventListener('click', forgotPass);
-
+// Move this outside of the signIn event listener
+const forgetPass = document.querySelector('.forgetPassword');
+forgetPass.addEventListener('click', (event) => {
+    event.preventDefault();
+    const email = document.getElementById('email').value;
+    if (!email) {
+        showMessage('Please enter your email address first.');
+        return;
+    }
+    sendPasswordResetEmail(auth, email)
+        .then(() => {
+            showMessage("A password reset link has been sent to your email.");
+        })
+        .catch((error) => {
+            console.error('Password reset error:', error);
+            showMessage("An error occurred. Please try again.");
+        });
 });

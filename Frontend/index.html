@@ -3,84 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register & Login</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>growthZ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="style.css">
-    <script type="module" src="firebaseauth.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
-<body>
-    <div class="container" id="signup" style="display:none;">
-      <h1 class="form-title">Register</h1>
-      <form method="post" action="">
-        <div id="signUpMessage" class="messageDiv" style="display:none;"></div>
-        <div class="input-group">
-           <i class="fas fa-user"></i>
-           <input type="text"  id="fName" placeholder="Full Name" required>
-           <label for="fname">Full Name</label>
+<body class="bg-gray-900 text-white">
+    <header class="container mx-auto px-4 py-6 flex justify-between items-center z-20 relative">
+        <div class="text-2xl font-bold">growthZ.ai</div>
+        
+        <!-- Hamburger menu for mobile -->
+        <button id="menu-toggle" class="lg:hidden text-white focus:outline-none">
+            <i class="fas fa-bars text-2xl"></i>
+        </button>
+        
+        <!-- Desktop menu -->
+        <nav class="hidden lg:flex space-x-6">
+            <a href="#" class="hover:text-blue-500">Product</a>
+            <a href="#" class="hover:text-blue-500">Solutions</a>
+            <a href="#" class="hover:text-blue-500">Templates</a>
+            <a href="#" class="hover:text-blue-500">Pricing</a>
+            <a href="#" class="hover:text-blue-500">Enterprise</a>
+            <a href="#" class="hover:text-blue-500">Resources</a>
+        </nav>
+        
+        <div class="hidden lg:flex space-x-4">
+            <button class="hover:text-blue-500"><a href="login.html">LOGIN</a></button>
+            <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Get Started</button>
         </div>
-        <div class="input-group">
-            <i class="fas fa-user"></i>
-            <input type="text"  id="cName" placeholder="Company Name" required>
-            <label for="cName">Company Name</label>
+    </header>
+
+    <!-- Mobile menu (hidden by default) -->
+    <div id="mobile-menu" class="fixed inset-0 bg-gray-900 z-10 hidden">
+        <div class="flex flex-col items-center justify-center h-full space-y-6">
+            <a href="#" class="text-xl hover:text-blue-500">Product</a>
+            <a href="#" class="text-xl hover:text-blue-500">Solutions</a>
+            <a href="#" class="text-xl hover:text-blue-500">Templates</a>
+            <a href="#" class="text-xl hover:text-blue-500">Pricing</a>
+            <a href="#" class="text-xl hover:text-blue-500">Enterprise</a>
+            <a href="#" class="text-xl hover:text-blue-500">Resources</a>
+            <button class="text-xl hover:text-blue-500">Login</button>
+            <button class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">Get Started</button>
         </div>
-        <div class="input-group">
-            <i class="fas fa-envelope"></i>
-            <input type="email"  id="rEmail" placeholder="Email" required>
-            <label for="rEmail">Email</label>
-        </div>
-        <div class="input-group">
-            <i class="fas fa-lock"></i>
-            <input type="password" id="rPassword"  placeholder="Password" required>
-            <label for="rPassword">Password</label>
-        </div>
-       <button class="btn" id="submitSignUp" >Sign Up</button>
-      </form>
-      <p class="or">
-        ----------or--------
-      </p>
-      <div class="icons">
-        <i class="fab fa-google"></i>
-        <!-- <i class="fab fa-facebook"></i> -->
-      </div>
-      <div class="links">
-        <p>Already Have Account ?</p>
-        <button id="signInButton">Sign In</button>
-      </div>
     </div>
 
-  <div class="container" id="signIn">
-        <h1 class="form-title">Sign In</h1>
-        <form method="post" action="">
-          <div id="signInMessage" class="messageDiv" style="display:none;"></div>
-
-          <div class="input-group">
-              <i class="fas fa-envelope"></i>
-              <input type="email"  id="email" placeholder="Email" required>
-              <label for="email">Email</label>
-          </div>
-          <div class="input-group">
-              <i class="fas fa-lock"></i>
-            <input type="password" id="password"  placeholder="Password" required>
-              <label for="password">Password</label>
-          </div>
-          <p class="recover" >
-            <a href="#" class="forgetPassword">Forget Password</a>
-          </p>
-         <button  class="btn"  id="submitSignIn">Sign In</button>
-        </form>
-        <p class="or">
-          <br>
-          <!-- ----------or-------- -->
-        </p>
-        <div class="icons">
-          <i class="fab fa-google"></i>
-          <!-- <i class="fab fa-facebook"></i> -->
-        </div>
-        <div class="links">
-          <p>Don't have account yet?</p>
-          <button id="signUpButton">Sign Up</button>
-        </div>
+    <main class="flex items-center justify-center min-h-screen px-4">
+      <div class="text-center">
+          <p class="text-xl mb-6">Introducing generative AI presentation software for the workplace</p>
+          <h1 class="text-4xl md:text-6xl font-bold mb-8">
+            It's 
+            <span class="changebox inline-block align-top lg:changebox-animate">
+                <span>beautiful</span>
+                <span>amazing</span>
+                <span>powerful</span>
+            </span>
+            what you can do<br>with a little <span class="text-blue-500">ai</span>.
+        </h1>
+          <button class="bg-blue-500 text-white px-8 py-3 rounded-full text-xl hover:bg-blue-600">Sign Up Now</button>
       </div>
-      <script src="script.js"></script>
+  </main>
+    <script src="script.js"></script>
+    <div class="gradient-bg absolute left-0 top-0 -z-10 h-full w-full overflow-hidden opacity-[20%] blur-3xl"
+    style="background: linear-gradient(40deg, rgb(17, 19, 21), rgb(17, 19, 21));">
+        <div class="h-full w-full">
+            <div class="Mix-blend-hard-light absolute -left-[25%] -top-[15%] h-[140%] w-[140%] origin-center opacity-100"
+            style="background: radial-gradient(circle, rgba(133, 127, 249, 0.8) 0px, rgba(133, 127, 249, 0) 50%) no-repeat;">
+            </div>
+            <div class="Mix-blend-hard-light absolute -left-[15%] -top-[35%] h-[100%] w-[100%] opacity-100"
+            style="background: radial-gradient(circle, rgba(189, 140, 255, 0.8) 0px, rgba(189, 140, 255, 0) 50%) no-repeat; transform-origin: calc(50% - 400px) center;">
+            </div>
+            <div class="Mix-blend-hard-light absolute -top-[15%] left-[15%] h-[220%] w-[220%] opacity-70"
+            style="background: radial-gradient(circle, rgba(189, 140, 255, 0.8) 0px, rgba(189, 140, 255, 0) 50%) no-repeat; transform-origin: calc(50% - 200px) center;">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('menu-toggle').addEventListener('click', function() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
+    </script>
 </body>
 </html>
