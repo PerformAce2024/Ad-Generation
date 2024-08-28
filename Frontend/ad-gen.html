@@ -4,16 +4,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Communications</title>
+  <title>growthZ.ai</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="ad-gen.css">
   <script type="module" src="./ad-gen.js"></script>
-  <!-- <script>
-    const loggedInUserId=localStorage.getItem('loggedInUserId');
-    if(!loggedInUserId){
+  <script>
+    const loggedInUserId = localStorage.getItem('loggedInUserId');
+    if (!loggedInUserId) {
       window.location.href = 'login.html';
     }
-  </script> -->
+  </script>
 </head>
 
 
@@ -74,17 +74,17 @@
             URL<span class="required" style="color: red;">*</span></label>
           <input id="google-play-url"
             class="text-base text-white placeholder:text-white[0.3] bg-white/[0.1] backdrop-blur-sm focus:bg-white/[0.1] focus:outline-none border-0 h-[52px] w-full truncate relative block w-full appearance-none rounded-lg p-2"
-            placeholder="Enter your Google playstore URL." autocomplete="off" required>
+            placeholder="Enter Google Play Store URL." autocomplete="off" required>
         </div>
         <div class="relative flex-grow w-full">
           <label for="text" class="leading-7  text-white-600 flex justify-center mb-2">Enter App Store URL</label>
           <input id="apple-app-url"
             class="text-base text-white placeholder:text-white[0.3] bg-white/[0.1] backdrop-blur-sm focus:bg-white/[0.1] focus:outline-none border-0 h-[52px] w-full truncate relative block w-full appearance-none rounded-lg p-2"
-            placeholder="Enter your Google playstore URL." autocomplete="off">
+            placeholder="Enter App Store URL." autocomplete="off">
         </div>
-        <button id="AdButton" onclick="onClickHandler()" class=" rounded-full text-white bg-[#5c54ff] border-0 border-none shadow-md relative isolate inline-flex
-          items-center justify-center gap-x-2 text-base/6 font-semibold hover:opacity-80 px-6 py-3 sm:text-sm/6 flex-1
-          cursor-pointer">Generate AD</button>
+        <button id="AdButton" onclick="onClickHandler()"
+          class="logout-btn rounded-full text-white bg-[#5c54ff] border-0 border-none relative text-base/6 font-semibold hover:opacity-80 px-4 py-2 sm:text-sm/6 cursor-pointer">Generate
+          Communications!</button>
       </div>
     </div>
   </section>
@@ -105,7 +105,7 @@
 
   <section>
     <div id="phrases-container">
-      <div id="phrases-list" class="overflow-x-auto"></div>
+      <div id="phrases-list" class="overflow-x-auto overflow-hidden"></div>
     </div>
   </section>
 

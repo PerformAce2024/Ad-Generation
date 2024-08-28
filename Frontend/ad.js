@@ -42,7 +42,7 @@ async function onClickHandler() {
     } catch (error) {
       console.error("Error:", error);
       document.getElementById("phrases-container").innerHTML =
-        "Error retrieving phrases.";
+        "Error retrieving phrases. Please check your connection or try again later.";
     }
   }
   
@@ -94,9 +94,9 @@ async function onClickHandler() {
   }
 
 
-  document.getElementById('reset-password-form').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const email = document.getElementById('reset-email').value;
-    resetPassword(email);
-  });
+  // document.getElementById('reset-password-form').addEventListener('submit', function(event) {
+  //   event.preventDefault();
+  //   const email = document.getElementById('reset-email').value;
+  //   resetPassword(email);
+  // });
   
