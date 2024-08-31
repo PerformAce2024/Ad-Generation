@@ -1,10 +1,11 @@
 async function onClickHandler() {
     const googlePlayURL = document.getElementById("google-play-url").value;
     const appleAppURL = document.getElementById("apple-app-url").value;
-  
+    const loader = document.getElementById("loader");
     console.log(googlePlayURL);
     console.log(appleAppURL);
-  
+  // Show the loader
+loader.classList.remove("hidden");
     try {
       var myHeaders = new Headers();
       myHeaders.append("Content-Type", "application/json");
@@ -31,7 +32,8 @@ async function onClickHandler() {
   
       const phrases = await response.json();
       console.log("Phrases received:", phrases);
-  
+  // Hide the loader
+loader.classList.add("hidden");
       if (Array.isArray(phrases) && phrases.length > 0) {
         displayPhrases(phrases);
       } else {
@@ -41,6 +43,7 @@ async function onClickHandler() {
       }
     } catch (error) {
       console.error("Error:", error);
+      loader.classList.add("hidden");
       document.getElementById("phrases-container").innerHTML =
         "Error retrieving phrases. Please check your connection or try again later.";
     }

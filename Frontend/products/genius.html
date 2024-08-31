@@ -13,7 +13,7 @@
     <style>
         @font-face {
             font-family: Denton;
-            src: url(/Ad-Generation/Frontend/fonts/Denton\ Test\ Medium\ 500.otf);
+            src: url(../fonts/Denton\ Test\ Medium\ 500.otf);
         }
 
         body {
@@ -28,23 +28,23 @@
             font-size: 2rem;
             padding: 1rem 3rem;
             transition: all 0.2s ease;
-            background-color: #9f7aea; /* Tailwind's purple-500 */
+            background-color: #4CAF50; /* Tailwind's purple-500 */
             color: white;
             border-radius: 9999px; /* Full rounded corners */
             display: inline-block;
             position: relative;
             border: none;
-            box-shadow: 0 4px 0 #805ad5; /* Tailwind's purple-600 for 3D effect */
+            box-shadow: 0 4px 0 #388E3C; /* Tailwind's purple-600 for 3D effect */
             transform: translateY(-8px);
         }
 
         .responsive-button:hover {
-            background-color: #805ad5; /* Tailwind's purple-600 */
+            background-color: #388E3C; /* Tailwind's purple-600 */
         }
 
         .responsive-button:active {
             transform: translateY(0);
-            box-shadow: 0 0 0 #805ad5;
+            box-shadow: 0 0 0 #388E3C;
         }
 
         /* Adjustments for mobile view */
@@ -67,7 +67,7 @@
 
 <body class="min-h-screen">
     <div class="min-h-screen flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8">
-        <h1 class="baffle text-title text-5xl sm:text-7xl md:text-8xl lg:text-9xl xl:text-[10rem] font-medium text-purple-500 text-center leading-none">Genius</h1>
+        <h1 class="baffle text-title text-5xl sm:text-7xl md:text-8xl lg:text-9xl xl:text-[10rem] font-medium text-green-400 text-center leading-none">Genius</h1>
         <h2 class="baffle text-subtitle text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-medium max-w-4xl mx-auto mt-6 sm:mt-8 lg:mt-10 text-center leading-tight">Automate marketing communication</h2>
     </div>
 
@@ -75,7 +75,7 @@
         <p class="content responsive-text text-3xl sm:text-4xl md:text-5xl lg:text-6xl max-w-3xl lg:max-w-4xl xl:max-w-5xl mx-auto mt-12 leading-tight text-center">
             Leave behind the time-consuming days of traditional market research. Genius swiftly captures and analyzes consumer sentiment, empowering you to create targeted, impactful marketing campaigns in real time.
         </p>
-        <a href="login.html" class="responsive-button mt-20">
+        <a href="../login.html" class="responsive-button mt-20">
             Sign Up Now
         </a>
     </div>
