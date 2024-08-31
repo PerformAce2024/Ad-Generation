@@ -1,36 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>growthZ.ai</title>
+    <title>growthZ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-900 text-white tracking-[0.15rem]">
+
+<body class="bg-gray-900 text-white tracking-[0.15rem] overflow-hidden">
     <header class="container mx-auto px-4 py-6 flex justify-between items-center z-20 relative">
-        <div class="text-sm font-bold">growthZ.ai</div>
-        
+        <div style="width: 150px;"><img src="/Ad-Generation/Frontend/images/logo.png" alt="growthZ.ai" srcset=""></div>
+
         <!-- Hamburger menu for mobile -->
         <button id="menu-toggle" class="lg:hidden text-white focus:outline-none">
             <i class="fas fa-bars text-2xl"></i>
         </button>
-        
+
         <!-- Desktop menu -->
-        <nav class="hidden lg:flex space-x-6 text-sm">
-            <a href="#" class="hover:text-blue-500">Products</a>
+        <nav class="hidden lg:flex space-x-6 text-xl">
+            <div class="dropdown">
+                <a href="#" class="hover:text-blue-500 flex items-center">
+                    Products
+                    <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                    </svg>
+                </a>
+                <div class="dropdown-content">
+                    <a href="/products/genius.html"><span class="text-green-400">G</span>enius</a>
+                    <a href="/products/rainbow.html"><span class="text-green-400">R</span>ainbow</a>
+                    <a href="/products/opus.html"><span class="text-green-400">O</span>pus</a>
+                    <a href="/products/wildcard.html"><span class="text-green-400">W</span>ildcard</a>
+                    <a href="/products/thrive.html"><span class="text-green-400">T</span>hrive</a>
+                    <a href="/products/hawkeye.html"><span class="text-green-400">H</span>awkeye</a>
+                </div>
+            </div>
             <a href="#" class="hover:text-blue-500">Tools</a>
-            <a href="#" class="hover:text-blue-500">Resouces</a>
-            <a href="#" class="hover:text-blue-500">Career</a>
+            <a href="#" class="hover:text-blue-500">Partners</a>
             <a href="#" class="hover:text-blue-500">Pricing</a>
+            <!-- <a href="#" class="hover:text-blue-500">Enterprise</a> -->
             <a href="#" class="hover:text-blue-500">About Us</a>
         </nav>
-        <!-- DENA HAI -->
-        <div class="hidden lg:flex space-x-4 text-sm">
+
+        <div class="hidden lg:flex space-x-4 text-xl">
             <button class="hover:text-blue-500"><a href="login.html">Login</a></button>
-            <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"><a href="login.html">Get Started</a></button>
+            <button class="bg-green-400 text-white px-4 py-2 rounded hover:bg-green-700 text-bold" style="font-weight: 600;"><a href="login.html">Get
+                    Started</a></button>
         </div>
     </header>
 
@@ -38,51 +56,70 @@
     <div id="mobile-menu" class="fixed inset-0 bg-gray-900 z-10 hidden">
         <div class="flex flex-col items-center justify-center h-full space-y-6">
             <a href="#" class="text-xl hover:text-blue-500">Product</a>
-            <a href="#" class="text-xl hover:text-blue-500">Solutions</a>
-            <a href="#" class="text-xl hover:text-blue-500">Templates</a>
-            <a href="#" class="text-xl hover:text-blue-500">Pricing</a>
-            <a href="#" class="text-xl hover:text-blue-500">Enterprise</a>
+            <a href="#" class="text-xl hover:text-blue-500">Tools</a>
             <a href="#" class="text-xl hover:text-blue-500">Partners</a>
+            <a href="#" class="text-xl hover:text-blue-500">Pricing</a>
+            <!-- <a href="#" class="text-xl hover:text-blue-500">Enterprise</a> -->
+            <a href="#" class="text-xl hover:text-blue-500">About Us</a>
             <button class="text-xl hover:text-blue-500"><a href="login.html">Login</a></button>
-            <button class="bg-bluv-500 text-white px-6 py-2 rounded hover:bg-blue-600"><a href="login.html">Get Started</a></button>
+            <button class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"><a href="logi.html">Get Started</a></button>
         </div>
     </div>
 
-    <main class="flex items-center justify-center min-h-screen px-4">
-      <div class="text-center">
-          <p class="text-2xl mb-7">Your own in-house growth engine.</p>
-          <h1 class="text-5xl md:text-5xl font-bold mb-8">
-            <span id="left-text">Automate</span> 
-            <span class="changebox inline-block align-top lg:changebox-animate">
-                <span> communication</span>
-                <span>craft creatives</span>
-                <!-- <span>campaigns</span> -->
-            </span>
-            <span id="right-text">& achieve</span><br>explosive growth, all at <br>optimum customer Acquisition cost.
-        </h1>
-          <button class="bg-blue-500 text-white px-8 py-3 rounded-full text-xl hover:bg-blue-600"><a href="login.html">Sign Up Now</a></button>
-      </div>
-  </main>
+    <main class="flex  items-center justify-center min-h-screen px-4">
+        <div class="text-center content-wrapper">
+            <h1 class="text-3xl md:text-4xl lg:text-7xl font-bold mb-4">
+                Automate AD <br>
+                <div class="changebox inline-block overflow-hidden align-bottom text-green-400">
+                    <span>communication</span>
+                    <span>creatives</span>
+                    <span>campaign</span>
+                    <span>optimization</span>
+                </div>
+            </h1>
+            <p class="text-2xl md:text-2xl mb-7">Your own in-house growth engine.</p>
+            <a href="login.html"
+                class="inline-block bg-green-400 text-white px-10 py-5 rounded-full hover:bg-green-700 transition duration-300 text-xl" style="font-weight: 600;">
+                Sign Up Now
+            </a>
+        </div>
+    </main>
     <script src="script.js"></script>
     <div class="gradient-bg absolute left-0 top-0 -z-10 h-full w-full overflow-hidden opacity-[20%] blur-3xl"
-    style="background: linear-gradient(40deg, rgb(17, 19, 21), rgb(17, 19, 21));">
+        style="background: linear-gradient(40deg, rgb(17, 19, 21), rgb(17, 19, 21));">
         <div class="h-full w-full">
             <div class="Mix-blend-hard-light absolute -left-[25%] -top-[15%] h-[140%] w-[140%] origin-center opacity-100"
-            style="background: radial-gradient(circle, rgba(133, 127, 249, 0.8) 0px, rgba(133, 127, 249, 0) 50%) no-repeat;">
+                style="background: radial-gradient(circle, rgba(133, 127, 249, 0.8) 0px, rgba(133, 127, 249, 0) 50%) no-repeat;">
             </div>
             <div class="Mix-blend-hard-light absolute -left-[15%] -top-[35%] h-[100%] w-[100%] opacity-100"
-            style="background: radial-gradient(circle, rgba(189, 140, 255, 0.8) 0px, rgba(189, 140, 255, 0) 50%) no-repeat; transform-origin: calc(50% - 400px) center;">
+                style="background: radial-gradient(circle, rgba(189, 140, 255, 0.8) 0px, rgba(189, 140, 255, 0) 50%) no-repeat; transform-origin: calc(50% - 400px) center;">
             </div>
             <div class="Mix-blend-hard-light absolute -top-[15%] left-[15%] h-[220%] w-[220%] opacity-70"
-            style="background: radial-gradient(circle, rgba(189, 140, 255, 0.8) 0px, rgba(189, 140, 255, 0) 50%) no-repeat; transform-origin: calc(50% - 200px) center;">
+                style="background: radial-gradient(circle, rgba(189, 140, 255, 0.8) 0px, rgba(189, 140, 255, 0) 50%) no-repeat; transform-origin: calc(50% - 200px) center;">
             </div>
         </div>
     </div>
 
     <script>
-        document.getElementById('menu-toggle').addEventListener('click', function() {
-            document.getElementById('mobile-menu').classList.toggle('hidden');
+        document.addEventListener('DOMContentLoaded', function () {
+            const menuToggle = document.getElementById('menu-toggle');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const dropdowns = document.querySelectorAll('.dropdown');
+
+            menuToggle.addEventListener('click', function () {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            dropdowns.forEach(dropdown => {
+                dropdown.addEventListener('click', function (e) {
+                    if (window.innerWidth < 1024) {
+                        e.preventDefault();
+                        this.classList.toggle('active');
+                    }
+                });
+            });
         });
     </script>
 </body>
+
 </html>

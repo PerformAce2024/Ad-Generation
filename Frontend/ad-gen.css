@@ -7,3 +7,14 @@ body {
   background: #131313;
   color: white;
 }
+.logout-btn {
+  transition: all 0.1s ease-in-out;
+  position: relative;
+  top: 0;
+  box-shadow: 0 4px 6px rgba(92, 84, 255, 0.3);
+}
+.logout-btn:active {
+  top: 2px;
+  box-shadow: 0 1px 3px rgba(92, 84, 255, 0.3);
+  transform: scale(0.97);
+}

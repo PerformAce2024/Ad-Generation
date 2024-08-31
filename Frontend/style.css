@@ -1,48 +1,149 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+@font-face {
+  font-family: Denton;
+  src: url(/Ad-Generation/Frontend/fonts/Denton\ Test\ Medium\ 500.otf);
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
 
 body {
-    font-family: 'Inter', sans-serif;
+  font-family: 'Denton', sans-serif;
+  background-color: #1a202c; /* Dark background color */
+  color: white;
 }
 
 .container {
-    max-width: 1200px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+img{
+  object-fit: contain;
+}
+
+header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem;
+  z-index: 10;
 }
 
 main {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
 
-.changebox {
-    overflow: hidden;
-    display: inline-block;
-    vertical-align: top;
-    font-weight: bold;
-    color: #3B82F6;
-}
-
-.changebox span {
-    display: block;
-    line-height: 1.2em;
-    white-space: nowrap;
+.content-wrapper {
+  text-align: center;
+  max-width: 90%;
 }
 
 h1 {
-    font-size: 2.5rem; /* Adjust as needed */
-    line-height: 1.2;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
 }
 
+.changebox {
+  font-weight: bold;
+  
+  display: inline-block;
+  height: 1.2em;
+  overflow: hidden;
+}
+
+.changebox span {
+  display: block;
+  line-height: 1.2em;
+  white-space: nowrap;
+}
+
+p {
+  font-size: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.cta-button {
+  display: inline-block;
+  background-color: #3B82F6;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+
+.cta-button:hover {
+  background-color: #2563EB;
+}
+
+@media (min-width: 768px) {
+  h1 {
+    font-size: 3.5rem;
+  }
+
+  p {
+    font-size: 1.5rem;
+  }
+
+  .changebox-animate {
+    transition: all 0.5s ease;
+  }
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #2d3748;
+  min-width: 200px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+  border-radius: 4px;
+  padding: 0.5rem 0;
+}
+
+.dropdown-content a {
+  color: white;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  transition: background-color 0.3s;
+}
+
+.dropdown-content a:hover {
+  background-color: #4a5568;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+/* Responsive adjustments */
 @media (max-width: 1023px) {
-    h1 {
-        font-size: 2rem; /* Adjust for smaller screens */
-    }
-}
+  .dropdown-content {
+    position: static;
+    display: none;
+    background-color: transparent;
+    box-shadow: none;
+  }
 
-@media (min-width: 1024px) {
-    h1 {
-        font-size: 2.5rem; /* Adjust for larger screens */
-    }
+  .dropdown.active .dropdown-content {
+    display: block;
+  }
 }
