@@ -221,28 +221,28 @@
       gsap.registerPlugin(ScrollTrigger);
 
 const aboutContainer = document.getElementById('about');
+
 const textContent = new SplitType(aboutContainer.querySelectorAll('p'), {
-    types: 'words, chars'
+    types: 'words'
 });
 
 gsap.timeline({
     scrollTrigger: {
         trigger: aboutContainer,
-        start: 'top 80%', // Start the animation when the top of the section reaches 80% of the viewport height
-        end: 'bottom bottom', // End the animation when the bottom of the section reaches the bottom of the viewport
-        scrub: 1,
-        onUpdate: (self) => {
-            if (self.progress === 1) {
-                textContent.chars.forEach(char => char.style.opacity = 1); // Ensure all characters are fully visible
-            }
-        }
+        scrub: 1.5,
+        start: 'top 90%',
+        end: '70% 20%'
     },
-    ease: 'none'
-}).from(textContent.chars, {
-    opacity: 0.1,
-    stagger: 0.01,
-    duration: 0.1
+    ease: 'expo.inOut'
+})
+.from(textContent.words, {
+    opacity: 0.25,
+    duration: 5,
+    stagger: 5
 });
+window.addEventListener('load', () => {
+            ScrollTrigger.refresh();
+        });
     </script>
 </body>
 

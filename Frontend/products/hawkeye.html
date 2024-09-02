@@ -9,13 +9,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="https://unpkg.com/split-type"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="hawkeye.css">
 </head>
 
 <body class="min-h-screen">
     <header class="container mx-auto px-4 py-6 flex justify-between items-center z-20 relative ">
         <div class="w-[120px] lg:w-[150px] sm:w-[120px]">
-            <img src="../images/logo.png" alt="growthZ.ai" srcset="">
+            <a href="../index.html"><img src="../images/logo.png" alt="growthZ.ai" srcset=""></a>
         </div>
 
         <!-- Hamburger menu for mobile -->
@@ -51,7 +52,7 @@
         </nav>
 
         <div class="hidden lg:flex space-x-4 text-xl">
-            <button class="bg-green-400 text-white px-4 py-2 rounded hover:bg-green-700 text-bold"
+            <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-700 text-bold"
                 style="font-weight: 600;"><a href="../index.html">Go Back</a></button>
         </div>
     </header>
@@ -103,7 +104,10 @@
                 perfectly, delivering peak performance. As the central conductor, Hawkeye guides
                 Genius,Rainbow,Opus,Wildcard & Thrive providing real-time insights that illuminate your path to success.
             </p>
-            <a href="login.html" class="responsive-button mt-20 mb-24">
+            <a href="../login.html" class="inline-block bg-green-500 text-white 
+              px-4 py-2 sm:px-7 sm:py-4 md:px-6 md:py-3 lg:px-7 lg:py-4 
+              rounded-full hover:bg-green-700 transition duration-300 
+              text-sm sm:text-base md:text-lg lg:text-xl font-semibold mt-20">
                 Sign Up Now
             </a>
         </div>
@@ -149,32 +153,44 @@
                 stagger: 0.01,
                 duration: 0.1
             });
-            $(document).ready(function () {
-                $('#menu-toggle').click(function () {
-                    $('#mobile-menu').toggleClass('hidden');
-                });
+            document.addEventListener('DOMContentLoaded', function() {
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const dropdowns = document.querySelectorAll('#mobile-menu .dropdown > a');
 
-                // Handle mobile dropdowns
-                $('#mobile-menu .dropdown > a').click(function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    $(this).siblings('.dropdown-content').slideToggle();
-                });
+    // Toggle mobile menu
+    menuToggle.addEventListener('click', function() {
+        mobileMenu.classList.toggle('hidden');
+    });
 
-                // Close mobile dropdowns when clicking outside
-                $(document).on('click', function (e) {
-                    if (!$(e.target).closest('#mobile-menu .dropdown').length) {
-                        $('#mobile-menu .dropdown-content').slideUp();
-                    }
-                });
+    // Handle mobile dropdowns
+    dropdowns.forEach(dropdown => {
+        dropdown.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const dropdownContent = this.nextElementSibling;
+            dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+        });
+    });
 
-                // Close mobile menu when a link is clicked
-                $('#mobile-menu a').click(function () {
-                    if (!$(this).siblings('.dropdown-content').length) {
-                        $('#mobile-menu').addClass('hidden');
-                    }
-                });
+    // Close mobile dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('#mobile-menu .dropdown')) {
+            document.querySelectorAll('#mobile-menu .dropdown-content').forEach(content => {
+                content.style.display = 'none';
             });
+        }
+    });
+
+    // Close mobile menu when a link is clicked
+    document.querySelectorAll('#mobile-menu a').forEach(link => {
+        link.addEventListener('click', function() {
+            if (!this.nextElementSibling || !this.nextElementSibling.classList.contains('dropdown-content')) {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+    });
+});
         </script>
     </body>
 
