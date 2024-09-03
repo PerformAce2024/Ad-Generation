@@ -223,3 +223,8 @@ p {
       line-height: 1.6;
   }
 } */
+@media (max-width: 1000px) {
+  img {
+    max-width: 10px;    /* Ensures the image scales down to fit smaller screens */
+  }
+}
