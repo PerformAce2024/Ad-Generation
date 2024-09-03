@@ -82,7 +82,7 @@
             <a href="#" class="text-xl hover:text-green-400">Pricing</a>
             <a href="#" class="text-xl hover:text-green-400">About Us</a>
             <button class="text-xl hover:text-green-400"><a href="login.html">Login</a></button>
-            <button class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-700"><a href="../index.html">Go
+            <button class="bg-green-400 text-white px-6 py-2 rounded hover:bg-green-700"><a href="../index.html">Go
                     Back</a></button>
         </div>
     </div>
@@ -156,11 +156,17 @@
         document.addEventListener('DOMContentLoaded', function() {
     const menuToggle = document.getElementById('menu-toggle');
     const mobileMenu = document.getElementById('mobile-menu');
+    const closeMenu = document.getElementById('close-menu');
     const dropdowns = document.querySelectorAll('#mobile-menu .dropdown > a');
 
     // Toggle mobile menu
     menuToggle.addEventListener('click', function() {
-        mobileMenu.classList.toggle('hidden');
+        mobileMenu.classList.add('open');
+    });
+
+    // Close mobile menu
+    closeMenu.addEventListener('click', function() {
+        mobileMenu.classList.remove('open');
     });
 
     // Handle mobile dropdowns
@@ -168,27 +174,15 @@
         dropdown.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            const dropdownContent = this.nextElementSibling;
-            dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+            this.parentElement.classList.toggle('active');
         });
     });
 
-    // Close mobile dropdowns when clicking outside
+    // Close mobile menu when clicking outside
     document.addEventListener('click', function(e) {
-        if (!e.target.closest('#mobile-menu .dropdown')) {
-            document.querySelectorAll('#mobile-menu .dropdown-content').forEach(content => {
-                content.style.display = 'none';
-            });
+        if (mobileMenu.classList.contains('open') && !e.target.closest('#mobile-menu') && !e.target.closest('#menu-toggle')) {
+            mobileMenu.classList.remove('open');
         }
-    });
-
-    // Close mobile menu when a link is clicked
-    document.querySelectorAll('#mobile-menu a').forEach(link => {
-        link.addEventListener('click', function() {
-            if (!this.nextElementSibling || !this.nextElementSibling.classList.contains('dropdown-content')) {
-                mobileMenu.classList.add('hidden');
-            }
-        });
     });
 });
     </script>

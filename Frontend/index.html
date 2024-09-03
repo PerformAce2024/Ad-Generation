@@ -27,7 +27,7 @@
 
         <!-- Desktop menu -->
         <nav class="hidden lg:flex space-x-6 text-xl">
-            <div class="dropdown">
+            <div class="dropdown">  
                 <a href="#" class="hover:text-green-500 flex items-center">
                     Products
                     <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -64,7 +64,14 @@
     <div id="mobile-menu" class="fixed inset-0 bg-gray-900 z-10 hidden">
         <div class="flex flex-col items-center justify-center h-full space-y-6">
             <div class="dropdown w-full text-center">
-                <a href="#" class="text-xl hover:text-green-400">Product</a>
+              <a href="#" class="text-xl hover:text-green-400">
+                Product
+                <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 10 6">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="m1 1 4 4 4-4" />
+                </svg>
+            </a>
                 <div class="dropdown-content hidden mt-2">
                     <a href="./products/genius.html" class="block py-2 text-lg hover:text-green-400"><span
                             class="text-green-400">G</span>enius</a>
@@ -221,25 +228,54 @@
       gsap.registerPlugin(ScrollTrigger);
 
 const aboutContainer = document.getElementById('about');
-
 const textContent = new SplitType(aboutContainer.querySelectorAll('p'), {
-    types: 'words'
+    types: 'words, chars'
 });
 
-gsap.timeline({
+const tl = gsap.timeline({
     scrollTrigger: {
         trigger: aboutContainer,
-        scrub: 1.5,
-        start: 'top 90%',
-        end: '70% 20%'
+        start: 'top 80%', 
+        end: 'bottom bottom', 
+        scrub: 1,
+        onUpdate: (self) => {
+            if (self.progress === 1) {
+                textContent.chars.forEach(char => char.style.opacity = 1);
+            }
+        },
+        onEnterBack: (self) => {
+            if (self.progress < 1) {
+                tl.play(); // Restart the animation when scrolling back up
+            }
+        }
     },
-    ease: 'expo.inOut'
-})
-.from(textContent.words, {
-    opacity: 0.25,
-    duration: 5,
-    stagger: 5
+    ease: 'none'
 });
+
+// Initial animation for gentle scroll
+tl.from(textContent.chars, {
+    opacity: 0.1,
+    stagger: 0.01,
+    duration: 0.1,
+    onComplete: () => {
+        if (ScrollTrigger.isInViewport(aboutContainer)) {
+            // Ensure all characters are visible if the user has scrolled to the end
+            textContent.chars.forEach(char => char.style.opacity = 1);
+        }
+    }
+});
+
+// Play full animation when reaching the end of the section
+ScrollTrigger.create({
+    trigger: aboutContainer,
+    start: 'bottom bottom',
+    onEnter: () => {
+        textContent.chars.forEach(char => {
+            gsap.to(char, { opacity: 1, duration: 0.3 });
+        });
+    }
+});
+
 window.addEventListener('load', () => {
             ScrollTrigger.refresh();
         });
