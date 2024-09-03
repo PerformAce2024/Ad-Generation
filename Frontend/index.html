@@ -219,19 +219,21 @@
 
     <script src="script.js"></script>
     <script>
-
         gsap.registerPlugin(ScrollTrigger);
 
+        // Adjust the start and end points based on the device type or viewport size
         const aboutContainer = document.getElementById('about');
         const textContent = new SplitType(aboutContainer.querySelectorAll('p'), {
             types: 'words, chars'
         });
 
+        const isMobile = window.innerWidth <= 768; // Mobile breakpoint at 768px
+
         gsap.timeline({
             scrollTrigger: {
                 trigger: aboutContainer,
-                start: 'top 80%', // Start the animation when the top of the section reaches 80% of the viewport height
-                end: 'bottom bottom', // End the animation when the bottom of the section reaches the bottom of the viewport
+                start: isMobile ? 'top 90%' : 'top 80%', // Adjust for mobile devices
+                end: isMobile ? 'bottom 70%' : 'bottom bottom', // Adjust for mobile devices
                 scrub: 1,
                 onUpdate: (self) => {
                     if (self.progress === 1) {
@@ -246,6 +248,10 @@
             duration: 0.1
         });
 
+        // Refresh ScrollTrigger after the page loads completely
+        window.addEventListener('load', () => {
+            ScrollTrigger.refresh();
+        });
     </script>
 </body>
 
