@@ -119,13 +119,13 @@
   </main>
 
   <!-- Ensure the "about" div follows naturally after "main" -->
-  <div id="about" class="min-h-screen flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 mb-24">
+  <div id="aboutin" class="min-h-screen flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 mb-24">
     <p
       class="content responsive-text text-2xl sm:text-4xl md:text-5xl lg:text-6xl max-w-3xl lg:max-w-4xl xl:max-w-5xl mx-auto mt-12 leading-tight text-center">
       GrowthZ is a cutting-edge marketing automation platform that leverages data science and machine learning to
-      empower businesses to achieve unprecedented growth. By harnessing the power of AI, we've created a
+      <!-- empower businesses to achieve unprecedented growth. By harnessing the power of AI, we've created a
       comprehensive solution that streamlines marketing efforts, from communication automation and creative
-      generation to campaign optimization and insightful reporting.
+      generation to campaign optimization and insightful reporting. -->
     </p>
   </div>
 
@@ -235,7 +235,7 @@
   <script>
     gsap.registerPlugin(ScrollTrigger);
 
-    const aboutContainer = document.getElementById('about');
+    const aboutContainer = document.getElementById('aboutin');
     const textContent = new SplitType(aboutContainer.querySelectorAll('p'), {
       types: 'words, chars'
     });
