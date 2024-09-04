@@ -15,7 +15,7 @@
 </head>
 
 <body class=" text-white tracking-[0.15rem] ">
-  <header class="container mx-auto px-4 py-6 flex justify-between items-center z-20 relative ">
+  <header class="container mx-auto px-4 py-6 flex justify-between items-center z-20 relative sticky backdrop-blur">
     <div class="w-[120px] lg:w-[150px] sm:w-[120px]">
       <img src="./images/logo.png" alt="growthZ.ai" srcset="">
     </div>
@@ -54,7 +54,7 @@
 
     <div class="hidden lg:flex space-x-4 text-xl">
 
-      <button class="bg-green-400 text-white px-4 py-2 rounded hover:bg-green-700 text-bold"
+      <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-700 text-bold"
         style="font-weight: 600;"><a href="login.html">Get
           Started</a></button>
     </div>
@@ -123,9 +123,9 @@
     <p
       class="content responsive-text text-2xl sm:text-4xl md:text-5xl lg:text-6xl max-w-3xl lg:max-w-4xl xl:max-w-5xl mx-auto mt-12 leading-tight text-center">
       GrowthZ is a cutting-edge marketing automation platform that leverages data science and machine learning to
-      <!-- empower businesses to achieve unprecedented growth. By harnessing the power of AI, we've created a
+      empower businesses to achieve unprecedented growth. By harnessing the power of AI, we've created a
       comprehensive solution that streamlines marketing efforts, from communication automation and creative
-      generation to campaign optimization and insightful reporting. -->
+      generation to campaign optimization and insightful reporting.
     </p>
   </div>
 
@@ -243,8 +243,8 @@
     gsap.timeline({
       scrollTrigger: {
         trigger: aboutContainer,
-        start: 'top 80%', // Start the animation when the top of the section reaches 80% of the viewport height
-        end: 'bottom bottom', // End the animation when the bottom of the section reaches the bottom of the viewport
+        start: 'top 80%', 
+        end: 'bottom bottom', 
         scrub: 1,
         // onUpdate: (self) => {
         //   if (self.progress === 1) {
