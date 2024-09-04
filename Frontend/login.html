@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="module" src="firebaseauth.js"></script>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+<body class="bg-gray-100 flex items-center justify-center min-h-screen gradient-bg" style="background: radial-gradient(circle, #202a3a, rgba(26, 32, 44, 0.9)) no-repeat;">
     <div class="flex flex-col w-full max-w-6xl px-4 md:px-8">
         <div class="flex flex-col lg:flex-row lg:space-x-24">
             <!-- Left side with image -->
@@ -17,18 +17,11 @@
 
             <!-- Right side with forms -->
             <div class="w-full lg:w-5/12">
-                <h1 class="text-4xl font-bold text-center mb-6">growthZ<span style="color: rgb(55, 55, 224);" class="text-bold">.</span>ai</h1>
+                <h1 class="text-4xl font-bold text-center text-white mb-6">growthZ<span style="color: rgb(55, 55, 224);" class="text-bold text-white">.</span>ai</h1>
                 
                 <!-- Sign In Form -->
                 <div id="signIn" class="bg-white p-8 rounded-lg shadow-md">
                     <h2 class="text-2xl font-semibold mb-6 text-center">Sign in to your account</h2>
-                    
-                    <button class="w-full bg-white border border-gray-300 rounded py-2 px-4 flex items-center justify-center">
-                        <img src="images/Google-icon.svg" alt="Google" class="w-5 h-5 mr-2">
-                        Continue With Google
-                    </button>
-                    
-                    <div class="text-center my-2">OR</div>
                     
                     <form>
                         <input id="email" type="email" placeholder="Email" class="w-full border rounded py-2 px-3 mb-4">
