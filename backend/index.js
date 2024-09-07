@@ -4,11 +4,14 @@ import axios from "axios";
 import gplay from "google-play-scraper";
 import path from "path";
 import { fileURLToPath } from "url";
-import { savePhraseToDatabase } from './storeCommunications.js';
+import { savePhraseToDatabase } from './actionAPIcall.js';
 
 const app = express();
 app.use(express.json());
-app.use(cors()); // This will allow requests from any origin
+
+app.use(cors({
+  origin: "https://www.growthz.ai" // Replace with your actual Vercel frontend domain
+}));
 
 // Derive __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -133,8 +136,6 @@ app.get("/", (req, res) => {
 // Endpoint to generate USP phrases
 app.post("/generate-phrases", async (req, res) => {
   const { google_play, apple_app } = req.body;
-
-  // console.log(req, req.body);
 
   if (!google_play) {
     return res.status(400).send("Google Play Store URL is mandatory");
