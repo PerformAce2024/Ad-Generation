@@ -54,14 +54,12 @@ async function onClickHandler() {
       displayPhrases(phrases);
     } else {
       console.error("No phrases to display");
-      document.getElementById("phrases-container").innerHTML =
-        "No phrases available.";
+      document.getElementById("phrases-container").innerHTML = "No phrases available.";
     }
   } catch (error) {
     console.error("Error:", error);
     loader.classList.add("hidden");
-    document.getElementById("phrases-container").innerHTML =
-      "Error retrieving phrases. Please check your connection or try again later.";
+    document.getElementById("phrases-container").innerHTML = "Error retrieving phrases. Please check your connection or try again later.";
   }
 }
 
@@ -83,8 +81,7 @@ function displayPhrases(phrases) {
 
   phrases.forEach((phrase, index) => {
     const row = document.createElement("div");
-    row.className =
-      "flex justify-between items-center rounded-lg p-4 shadow-lg";
+    row.className = "flex justify-between items-center rounded-lg p-4 shadow-lg";
     row.id = `row-${index}`; // Set a unique ID for each row
 
     // Only add buttons if the phrase starts with an integer
@@ -93,22 +90,22 @@ function displayPhrases(phrases) {
       const approveId = `approve-${index}`;
       const rejectId = `reject-${index}`;
 
-      row.innerHTML = 
-        `<div class="flex-1 text-md text-white">
+      row.innerHTML = `
+        <div class="flex-1 text-md text-white">
           ${phrase}
         </div>
         <div class="flex gap-4">
           <button id="${approveId}" class="bg-green-500 hover:bg-green-600 text-white py-2 px-2 rounded-lg">Approve</button>
           <button id="${rejectId}" class="bg-red-500 hover:bg-red-600 text-white py-2 px-2 rounded-lg">Reject</button>
-        </div>`
-      ;
+        </div>
+      `;
     } else {
       // If the phrase doesn't start with an integer, just display the phrase
-      row.innerHTML = 
+      row.innerHTML = `
         <div class="flex-1 text-md text-white">
           ${phrase}
         </div>
-      ;
+      `;
     }
 
     // Append the row to the table first
