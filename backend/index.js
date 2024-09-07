@@ -9,7 +9,7 @@ import { savePhraseToDatabase } from './storeCommunications.js';
 const app = express();
 app.use(express.json());
 app.use(cors({
-  origin: "*", // Allow all origins for development/testing purposes
+  origin: "https://www.growthz.ai", // Allow all origins for development/testing purposes
   methods: ['GET', 'POST'], // Specify allowed methods
   credentials: true // If you need to pass cookies or authentication headers
 }));
