@@ -9,8 +9,7 @@ import { savePhraseToDatabase } from './storeCommunications';
 const app = express();
 app.use(express.json());
 app.use(cors({
-  origin: "https://www.growthz.ai", // Replace with your actual Vercel frontend domain
-  methods: ['GET', 'POST'],
+  origin: "https://www.growthz.ai" // Replace with your actual Vercel frontend domain
 }));
 
 // Derive __dirname
