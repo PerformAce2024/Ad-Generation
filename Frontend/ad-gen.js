@@ -17,9 +17,15 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth();
 const db = getFirestore();
 
+// Detect authentication state change and store email in localStorage
 onAuthStateChanged(auth, (user) => {
-    const loggedInUserId = localStorage.getItem('loggedInUserId');
-    if (loggedInUserId) {
+    if (user) {
+        const loggedInUserId = user.uid;
+
+        // Store the user's email in localStorage
+        localStorage.setItem('userEmail', user.email);
+        localStorage.setItem('loggedInUserId', loggedInUserId);
+
         console.log(user);
         const docRef = doc(db, "users", loggedInUserId);
         getDoc(docRef)
@@ -27,30 +33,30 @@ onAuthStateChanged(auth, (user) => {
                 if (docSnap.exists()) {
                     const userData = docSnap.data();
                     document.getElementById('loggedUserFName').innerText = userData.firstName;
-                    document.getElementById('loggedUserEmail').innerText = userData.email;
                     document.getElementById('loggedUserLName').innerText = userData.lastName;
+                    document.getElementById('loggedUserEmail').innerText = userData.email;
                 }
                 else {
-                    console.log("no document found matching id")
+                    console.log("No document found the matching ID.");
                 }
             })
             .catch((error) => {
-                console.log("Error getting document");
-            })
+                console.log("Error getting document!");
+            });
+    } else {
+        console.log("User is not signed in!");
     }
-    else {
-        console.log("User Id not Found in Local storage")
-    }
-})
+});
 
 const logoutButton = document.getElementById('logout');
 logoutButton.addEventListener('click', () => {
     localStorage.removeItem('loggedInUserId');
+    localStorage.removeItem('userEmail');
     signOut(auth)
         .then(() => {
             window.location.href = 'index.html';
         })
         .catch((error) => {
-            console.error('Error Signing out:', error);
-        })
-})
+            console.error('Error signing out:', error);
+        });
+});

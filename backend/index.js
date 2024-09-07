@@ -165,6 +165,34 @@ app.post("/generate-phrases", async (req, res) => {
   }
 });
 
+// Route to save approved phrases
+app.post("/approved", async (req, res) => {
+  const { phrase, email } = req.body;
+  if (!phrase || !email ) {
+    return res.status(400).send("Phrase and email are required.");
+  }
+  try {
+    await savePhraseToDatabase("approvedCommunication", email, phrase);
+    res.status(200).send("Approved phrase saved successfully.");
+  } catch (error) {
+    res.status(500).send("Error saving approved phrase.");
+  }
+});
+
+// Route to save rejected phrases
+app.post("/rejected", async (req, res) => {
+  const { phrase, email } = req.body;
+  if (!phrase || !email ) {
+    return res.status(400).send("Phrase and email are required.");
+  }
+  try {
+    await savePhraseToDatabase("rejectedCommunication", email, phrase);
+    res.status(200).send("Rejected phrase saved successfully.");
+  } catch (error) {
+    res.status(500).send("Error saving rejected phrase.");
+  }
+});
+
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

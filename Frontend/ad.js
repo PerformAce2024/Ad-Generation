@@ -158,6 +158,9 @@ function handleApproval(index, phrase) {
   if (rejectButton) {
     rejectButton.remove();
   }
+
+  // Send the approved phrase to the backend
+  sendPhraseToDatabase(phrase, 'approve');
 }
 
 // Function to handle rejection (remove the phrase's row)
@@ -170,5 +173,37 @@ function handleRejection(index) {
     rowElement.remove(); // This will remove the entire row (phrase + buttons)
   } else {
     console.error(`Row not found for index ${index}`);
+  }
+
+  // Send the rejected phrase to the backend
+  sendPhraseToDatabase(phrase, 'reject');
+}
+
+// Function to send approved/rejected phrase to the backend
+async function sendPhraseToDatabase(phrase, action) {
+  const email = localStorage.getItem('userEmail'); // Assuming the user's email is stored in localStorage after login
+  if (!email) {
+    console.error('User email not found.');
+    return;
+  }
+
+  const requestOptions = {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ phrase, email }) // Send both phrase and email
+  };
+
+  const endpoint = action === 'approve' ? '/approved' : '/rejected';
+  const requestUrl = `https://ad-generation.onrender.com${endpoint}`; // Update with your backend URL
+
+  try {
+    const response = await fetch(requestUrl, requestOptions);
+    if (response.ok) {
+      console.log(`${action === 'approve' ? 'Approved' : 'Rejected'} phrase saved successfully.`);
+    } else {
+      console.error('Error saving phrase to database.');
+    }
+  } catch (error) {
+    console.error('Error:', error);
   }
 }
