@@ -143,6 +143,39 @@ function displayPhrases(phrases) {
   });
 }
 
+// Add the URLs for the live API endpoints
+const approveUrl = "https://ad-generation.onrender.com/approved";
+const rejectUrl = "https://ad-generation.onrender.com/rejected";
+
+// Function to send approved/rejected phrase to the backend
+async function sendPhraseToDatabase(phrase, action) {
+  const email = localStorage.getItem('userEmail'); // Assuming the user's email is stored in localStorage after login
+  if (!email) {
+    console.error('User email not found.');
+    return;
+  }
+
+  const requestOptions = {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ phrase, email }) // Send both phrase and email
+  };
+
+  // Use the appropriate URL based on action (approve/reject)
+  const requestUrl = action === 'approve' ? approveUrl : rejectUrl;
+
+  try {
+    const response = await fetch(requestUrl, requestOptions);
+    if (response.ok) {
+      console.log(`${action === 'approve' ? 'Approved' : 'Rejected'} phrase saved successfully.`);
+    } else {
+      console.error('Error saving phrase to database.');
+    }
+  } catch (error) {
+    console.error('Network error:', error); // More specific error message
+  }
+}
+
 // Function to handle approval
 function handleApproval(index, phrase) {
   console.log(`Approved phrase at index ${index}: ${phrase}`);
@@ -177,33 +210,4 @@ function handleRejection(index, phrase) {
 
   // Send the rejected phrase to the backend
   sendPhraseToDatabase(phrase, 'reject');
-}
-
-// Function to send approved/rejected phrase to the backend
-async function sendPhraseToDatabase(phrase, action) {
-  const email = localStorage.getItem('userEmail'); // Assuming the user's email is stored in localStorage after login
-  if (!email) {
-    console.error('User email not found.');
-    return;
-  }
-
-  const requestOptions = {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ phrase, email }) // Send both phrase and email
-  };
-
-  const endpoint = action === 'approve' ? '/approved' : '/rejected';
-  const requestUrl = `https://ad-generation.onrender.com${endpoint}`; // Update with your backend URL
-
-  try {
-    const response = await fetch(requestUrl, requestOptions);
-    if (response.ok) {
-      console.log(`${action === 'approve' ? 'Approved' : 'Rejected'} phrase saved successfully.`);
-    } else {
-      console.error('Error saving phrase to database.');
-    }
-  } catch (error) {
-    console.error('Network error:', error); // More specific error message
-  }
 }
