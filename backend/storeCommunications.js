@@ -1,9 +1,10 @@
 import { MongoClient } from "mongodb";
-import dotenv from 'dotenv';
-dotenv.config();
 
-const uri = process.env.MONGODB_URI;
+const uri = 'mongodb+srv://PerformAce:Vj9h8pK4F78EySs0@cluster0.gmysq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+
+// Initialize MongoDB connection once at the start
+client.connect().then(() => console.log("Connected to MongoDB"));
 
 async function savePhraseToDatabase(collectionName, email, phrase) {
   try {

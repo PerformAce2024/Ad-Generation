@@ -4,6 +4,7 @@ import axios from "axios";
 import gplay from "google-play-scraper";
 import path from "path";
 import { fileURLToPath } from "url";
+import { savePhraseToDatabase } from './storeCommunications';
 
 const app = express();
 app.use(express.json());
