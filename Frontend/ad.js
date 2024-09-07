@@ -63,6 +63,9 @@ async function onClickHandler() {
     document.getElementById("phrases-container").innerHTML =
       "Error retrieving phrases. Please check your connection or try again later.";
   }
+  finally {
+    loader.classList.add("hidden");
+  }
 }
 
 function displayPhrases(phrases) {
