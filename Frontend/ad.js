@@ -204,6 +204,6 @@ async function sendPhraseToDatabase(phrase, action) {
       console.error('Error saving phrase to database.');
     }
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Network error:', error); // More specific error message
   }
 }

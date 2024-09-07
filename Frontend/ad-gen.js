@@ -41,7 +41,7 @@ onAuthStateChanged(auth, (user) => {
                 }
             })
             .catch((error) => {
-                console.log("Error getting document!");
+                console.log("Error getting document:", error);
             });
     } else {
         console.log("User is not signed in!");
