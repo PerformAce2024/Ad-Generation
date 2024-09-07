@@ -4,14 +4,15 @@ import axios from "axios";
 import gplay from "google-play-scraper";
 import path from "path";
 import { fileURLToPath } from "url";
-import { savePhraseToDatabase } from './actionAPIcall.js';
 
 const app = express();
 app.use(express.json());
 
-app.use(cors({
-  origin: "https://www.growthz.ai" // Replace with your actual Vercel frontend domain
-}));
+app.use(cors()); // Temporarily allow all origins during development
+
+// app.use(cors({
+//   origin: "https://www.growthz.ai" // Replace with your actual Vercel frontend domain
+// }));
 
 // Derive __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -19,6 +20,9 @@ const __dirname = path.dirname(__filename);
 
 // Serve static files from the Frontend directory
 app.use(express.static(path.join(__dirname, "..", "Frontend")));
+
+// Your Gemini API key
+const GEMINI_API_KEY = "AIzaSyCvDykDpbRvjpHf0MBfKTTY2S9P2LpXNOw";
 
 // Function to extract app ID from the Apple App Store URL
 function extractAppleAppId(url) {
@@ -89,7 +93,7 @@ function combineReviews(googleReviews, appleReviews) {
 
 // Generate USP phrases using Gemini API
 async function generateUSPhrases(reviews) {
-  const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
+  const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
   const prompt = `What can be the potential usp marketing headlines for ADs? Provide 20 most efficient phrases. Focus on main usp of brand.\n\n${reviews}`;
 
   try {
@@ -110,7 +114,7 @@ async function generateUSPhrases(reviews) {
       {
         headers: {
           "Content-Type": "application/json",
-          "x-goog-api-key": process.env.GEMINI_API_KEY,
+          "x-goog-api-key": GEMINI_API_KEY,
         },
       }
     );
@@ -120,7 +124,6 @@ async function generateUSPhrases(reviews) {
       .trim()
       .split("\n")
       .filter((phrase) => phrase.trim() !== "");
-
     return phrases;
   } catch (error) {
     console.error("Error generating USP phrases:", error);
@@ -147,7 +150,7 @@ app.post("/generate-phrases", async (req, res) => {
     const appleStoreReviews = apple_app
       ? await scrapeAppleStoreReviews(apple_app)
       : [];
-
+      
     // Combine and format reviews for prompt
     const combinedReviews = combineReviews(
       googlePlayReviews,
@@ -156,8 +159,6 @@ app.post("/generate-phrases", async (req, res) => {
 
     // Generate USP phrases
     const uspPhrases = await generateUSPhrases(combinedReviews);
-
-    console.log("Phrase:", uspPhrases);
 
     // Send response with phrases
     res.status(200).json(uspPhrases);
@@ -195,8 +196,7 @@ app.post("/rejected", async (req, res) => {
   }
 });
 
-
-const PORT = process.env.PORT || 8002;
+const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
-  console.log(`Server running on http://127.0.0.1:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });

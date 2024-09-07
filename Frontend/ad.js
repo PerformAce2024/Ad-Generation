@@ -68,7 +68,7 @@ async function onClickHandler() {
 function displayPhrases(phrases) {
   const phrasesContainer = document.getElementById("phrases-list");
   if (!phrasesContainer) {
-    console.error("phrasesContainer not found", error);
+    console.error("phrasesContainer not found");
     return;
   }
 
@@ -93,22 +93,22 @@ function displayPhrases(phrases) {
       const approveId = `approve-${index}`;
       const rejectId = `reject-${index}`;
 
-      row.innerHTML = `
-        <div class="flex-1 text-md text-white">
+      row.innerHTML = 
+        `<div class="flex-1 text-md text-white">
           ${phrase}
         </div>
         <div class="flex gap-4">
           <button id="${approveId}" class="bg-green-500 hover:bg-green-600 text-white py-2 px-2 rounded-lg">Approve</button>
           <button id="${rejectId}" class="bg-red-500 hover:bg-red-600 text-white py-2 px-2 rounded-lg">Reject</button>
-        </div>
-      `;
+        </div>`
+      ;
     } else {
       // If the phrase doesn't start with an integer, just display the phrase
-      row.innerHTML = `
+      row.innerHTML = 
         <div class="flex-1 text-md text-white">
           ${phrase}
         </div>
-      `;
+      ;
     }
 
     // Append the row to the table first
@@ -118,7 +118,7 @@ function displayPhrases(phrases) {
   // Append the table to the phrases container
   phrasesContainer.appendChild(table);
 
-  // Now attach event listeners after the elements are appended to the DOM
+  // Now attach event listeners AFTER the elements are appended to the DOM
   phrases.forEach((phrase, index) => {
     if (numberRegex.test(phrase)) {
       const approveButton = document.getElementById(`approve-${index}`);
@@ -146,7 +146,7 @@ function displayPhrases(phrases) {
 // Function to handle approval
 function handleApproval(index, phrase) {
   console.log(`Approved phrase at index ${index}: ${phrase}`);
-
+  
   // Change the text of the approve button and style
   const approveButton = document.getElementById(`approve-${index}`);
   approveButton.textContent = "Approved!";

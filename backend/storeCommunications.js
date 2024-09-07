@@ -2,9 +2,14 @@ import { MongoClient } from "mongodb";
 
 const uri = 'mongodb+srv://PerformAce:Vj9h8pK4F78EySs0@cluster0.gmysq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+client.connect(err => {
+  if (err) {
+    console.error("MongoDB connection error:", err);
+  } else {
+    console.log("MongoDB connected successfully");
+  }
+});
 
-// Initialize MongoDB connection once at the start
-client.connect().then(() => console.log("Connected to MongoDB"));
 
 async function savePhraseToDatabase(collectionName, email, phrase) {
   try {
@@ -17,7 +22,8 @@ async function savePhraseToDatabase(collectionName, email, phrase) {
       // If the document exists, append the phrase to the existing array of phrases
       await collection.updateOne(
         { email: email },
-        { $push: { phrases: phrase } } // Add the new phrase to the phrases array
+        { $push: { phrases: phrase } }, // Add the new phrase to the phrases array
+        { upsert: true } // Create the document if it doesn't exist
       );
 
       console.log(`Phrase added to ${collectionName} for user ${email}`);

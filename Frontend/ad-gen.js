@@ -32,16 +32,16 @@ onAuthStateChanged(auth, (user) => {
             .then((docSnap) => {
                 if (docSnap.exists()) {
                     const userData = docSnap.data();
-                    document.getElementById('loggedUserfName').innerText = userData.fullName;
-                    document.getElementById('loggedUsercName').innerText = userData.companyName;
-                    document.getElementById('loggedUserrEmail').innerText = userData.email;
+                    document.getElementById('loggedUserFName').innerText = userData.firstName;
+                    document.getElementById('loggedUserLName').innerText = userData.lastName;
+                    document.getElementById('loggedUserEmail').innerText = userData.email;
                 }
                 else {
                     console.log("No document found the matching ID.");
                 }
             })
             .catch((error) => {
-                console.log("Error getting document:", error);
+                console.log("Error getting document!");
             });
     } else {
         console.log("User is not signed in!");
