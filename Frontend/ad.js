@@ -164,7 +164,7 @@ function handleApproval(index, phrase) {
 }
 
 // Function to handle rejection (remove the phrase's row)
-function handleRejection(index) {
+function handleRejection(index, phrase) {
   console.log(`Rejected phrase at index ${index}`);
 
   // Remove the row from the DOM
