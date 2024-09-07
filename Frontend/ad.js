@@ -134,7 +134,7 @@ function displayPhrases(phrases) {
 
       if (rejectButton) {
         rejectButton.addEventListener("click", () => {
-          handleRejection(index);
+          handleRejection(index, phrase);
         });
       } else {
         console.error(`Reject button not found for index ${index}`);
