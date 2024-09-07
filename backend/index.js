@@ -4,12 +4,14 @@ import axios from "axios";
 import gplay from "google-play-scraper";
 import path from "path";
 import { fileURLToPath } from "url";
-import { savePhraseToDatabase } from './storeCommunications';
+import { savePhraseToDatabase } from './storeCommunications.js';
 
 const app = express();
 app.use(express.json());
 app.use(cors({
-  origin: "https://www.growthz.ai" // Replace with your actual Vercel frontend domain
+  origin: "*", // Allow all origins for development/testing purposes
+  methods: ['GET', 'POST'], // Specify allowed methods
+  credentials: true // If you need to pass cookies or authentication headers
 }));
 
 // Derive __dirname
