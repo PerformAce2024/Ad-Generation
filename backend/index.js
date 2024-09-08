@@ -181,7 +181,7 @@ app.post("/approved", async (req, res) => {
     await savePhraseToDatabase("approvedCommunication", email, phrase);
     res.status(200).send("Approved phrase saved successfully.");
   } catch (error) {
-    res.status(500).send("Error saving approved phrase.");
+    res.status(500).send("Error saving approved phrase.", error);
   }
 });
 
@@ -195,7 +195,7 @@ app.post("/rejected", async (req, res) => {
     await savePhraseToDatabase("rejectedCommunication", email, phrase);
     res.status(200).send("Rejected phrase saved successfully.");
   } catch (error) {
-    res.status(500).send("Error saving rejected phrase.");
+    res.status(500).send("Error saving rejected phrase.", error);
   }
 });
 
