@@ -1,6 +1,6 @@
 import { MongoClient } from "mongodb";
 
-const uri = 'mongodb+srv://PerformAce:Vj9h8pK4F78EySs0@cluster0.gmysq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 client.connect(err => {
   if (err) {
@@ -9,7 +9,6 @@ client.connect(err => {
     console.log("MongoDB connected successfully");
   }
 });
-
 
 async function savePhraseToDatabase(collectionName, email, phrase) {
   try {

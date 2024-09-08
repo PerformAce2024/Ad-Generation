@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from "express";
 import cors from "cors";
 import axios from "axios";
@@ -20,9 +23,6 @@ const __dirname = path.dirname(__filename);
 
 // Serve static files from the Frontend directory
 app.use(express.static(path.join(__dirname, "..", "Frontend")));
-
-// Your Gemini API key
-const GEMINI_API_KEY = "AIzaSyCvDykDpbRvjpHf0MBfKTTY2S9P2LpXNOw";
 
 // Function to extract app ID from the Apple App Store URL
 function extractAppleAppId(url) {
@@ -93,7 +93,7 @@ function combineReviews(googleReviews, appleReviews) {
 
 // Generate USP phrases using Gemini API
 async function generateUSPhrases(reviews) {
-  const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+  const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
   const prompt = `What can be the potential usp marketing headlines for ADs? Provide 20 most efficient phrases. Focus on main usp of brand.\n\n${reviews}`;
 
   try {
@@ -114,7 +114,7 @@ async function generateUSPhrases(reviews) {
       {
         headers: {
           "Content-Type": "application/json",
-          "x-goog-api-key": GEMINI_API_KEY,
+          "x-goog-api-key": process.env.GEMINI_API_KEY,
         },
       }
     );
