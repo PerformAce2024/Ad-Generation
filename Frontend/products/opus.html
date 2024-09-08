@@ -10,10 +10,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="https://unpkg.com/split-type"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="opus.css">
+    <!-- <link rel="stylesheet" href="opus.css"> -->
+    <style>
+      @font-face {
+          font-family: Denton;
+          src: url(../fonts/Denton\ Test\ Medium\ 500.otf);
+      }
+      body{
+          font-family: 'Denton', sans-serif;
+          background-color: #1a202c;
+      }
+  </style>
 </head>
 
-<body class="min-h-screen">
+<body class="min-h-screen text-white" >
     <nav x-data="{ isOpen: false }" class="text-white text-2xl sticky top-0 z-50 backdrop-blur pt-4">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex items-center justify-between h-16">
