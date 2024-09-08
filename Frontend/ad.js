@@ -8,17 +8,27 @@ document.addEventListener("DOMContentLoaded", (event) => {
   }
 });
 
+const BASE_URL = 'https://ad-generation.onrender.com';
+
 async function onClickHandler() {
   const googlePlayURL = document.getElementById("google-play-url").value;
+  if (!googlePlayURL) {
+    alert("Please provide the Google Play Store URL.");
+    return; // Prevent further execution
+  }
+
   const appleAppURL = document.getElementById("apple-app-url").value;
+  if (!appleAppURL) {
+    console.warn("Apple App Store URL is empty, proceeding with only Google Play URL.");
+  }
 
   const loader = document.getElementById("loader");
+  if (loader) {
+    loader.classList.remove("hidden");
+  }
 
   console.log("Google Play URL:", googlePlayURL);
   console.log("Apple App Store URL:", appleAppURL);
-
-  // Show the loader
-  loader.classList.remove("hidden");
 
   try {
     var myHeaders = new Headers();
@@ -36,7 +46,7 @@ async function onClickHandler() {
       redirect: "follow",
     };
 
-    const requestUrl = "https://ad-generation.onrender.com/generate-phrases";
+    const requestUrl = `${BASE_URL}/generate-phrases`;
 
     const response = await fetch(requestUrl, requestOptions);
 
@@ -48,25 +58,29 @@ async function onClickHandler() {
     console.log("Phrases received:", phrases);
 
     // Hide the loader
-    loader.classList.add("hidden");
+    if (loader) {
+      loader.classList.add("hidden");
+    }
 
     if (Array.isArray(phrases) && phrases.length > 0) {
       displayPhrases(phrases);
     } else {
       console.error("No phrases to display");
-      document.getElementById("phrases-container").innerHTML = "No phrases available.";
+      document.getElementById("phrases-container").innerHTML =
+        "No phrases available.";
     }
   } catch (error) {
     console.error("Error:", error);
     loader.classList.add("hidden");
-    document.getElementById("phrases-container").innerHTML = "Error retrieving phrases. Please check your connection or try again later.";
+    document.getElementById("phrases-container").innerHTML =
+      "Error retrieving phrases. Please check your connection or try again later.";
   }
 }
 
 function displayPhrases(phrases) {
   const phrasesContainer = document.getElementById("phrases-list");
   if (!phrasesContainer) {
-    console.error("phrasesContainer not found");
+    console.error("phrasesContainer not found", error);
     return;
   }
 
@@ -81,7 +95,8 @@ function displayPhrases(phrases) {
 
   phrases.forEach((phrase, index) => {
     const row = document.createElement("div");
-    row.className = "flex justify-between items-center rounded-lg p-4 shadow-lg";
+    row.className =
+      "flex justify-between items-center rounded-lg p-4 shadow-lg";
     row.id = `row-${index}`; // Set a unique ID for each row
 
     // Only add buttons if the phrase starts with an integer
@@ -115,7 +130,7 @@ function displayPhrases(phrases) {
   // Append the table to the phrases container
   phrasesContainer.appendChild(table);
 
-  // Now attach event listeners AFTER the elements are appended to the DOM
+  // Now attach event listeners after the elements are appended to the DOM
   phrases.forEach((phrase, index) => {
     if (numberRegex.test(phrase)) {
       const approveButton = document.getElementById(`approve-${index}`);
@@ -143,7 +158,7 @@ function displayPhrases(phrases) {
 // Function to handle approval
 function handleApproval(index, phrase) {
   console.log(`Approved phrase at index ${index}: ${phrase}`);
-  
+
   // Change the text of the approve button and style
   const approveButton = document.getElementById(`approve-${index}`);
   approveButton.textContent = "Approved!";
@@ -187,18 +202,22 @@ async function sendPhraseToDatabase(phrase, action) {
   const requestOptions = {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ phrase, email }) // Send both phrase and email
+    body: JSON.stringify({
+      email: email,
+      phrase: phrase
+    }) // Send both email and phrase
   };
 
   const endpoint = action === 'approve' ? '/approved' : '/rejected';
-  const requestUrl = `https://ad-generation.onrender.com${endpoint}`; // Update with your backend URL
+  const requestUrl = `${BASE_URL}${endpoint}`;
 
   try {
     const response = await fetch(requestUrl, requestOptions);
-    if (response.ok) {
-      console.log(`${action === 'approve' ? 'Approved' : 'Rejected'} phrase saved successfully.`);
+    if (!response.ok) {
+      const errorMessage = await response.text(); // Get the error message from the server response
+      console.error(`Error saving phrase to database: ${errorMessage}`);
     } else {
-      console.error('Error saving phrase to database.');
+      console.log(`${action === 'approve' ? 'Approved' : 'Rejected'} phrase saved successfully.`);
     }
   } catch (error) {
     console.error('Error:', error);
