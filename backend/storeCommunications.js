@@ -21,22 +21,21 @@ async function savePhraseToDatabase(collectionName, email, phrase) {
       // If the document exists, append the phrase to the existing array of phrases
       await collection.updateOne(
         { email: email },
-        { $push: { phrases: phrase } }, // Add the new phrase to the phrases array
-        { upsert: true } // Create the document if it doesn't exist
+        { $push: { phrases: phrase } }  // Add the new phrase to the phrases array
       );
-
       console.log(`Phrase added to ${collectionName} for user ${email}`);
     } else {
       // If no document exists, create a new document with the email and phrase
       await collection.insertOne({
         email: email,
-        phrases: [phrase], // Initialize the array with the new phrase
+        phrases: [phrase],  // Initialize the array with the new phrase
       });
-      
       console.log(`New document created in ${collectionName} for user ${email}`);
     }
+    return { success: true, message: `Phrase saved for user ${email}` };
   } catch (error) {
     console.error(`Error saving phrase to ${collectionName}:`, error);
+    return { success: false, message: `Failed to save phrase for user ${email}`, error };
   }
 }
 

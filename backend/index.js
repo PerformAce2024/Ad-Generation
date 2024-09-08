@@ -11,11 +11,11 @@ import { fileURLToPath } from "url";
 const app = express();
 app.use(express.json());
 
-app.use(cors()); // Temporarily allow all origins during development
+// app.use(cors()); // Temporarily allow all origins during development
 
-// app.use(cors({
-//   origin: "https://www.growthz.ai" // Replace with your actual Vercel frontend domain
-// }));
+app.use(cors({
+  origin: "https://www.growthz.ai" // Replace with your actual Vercel frontend domain
+}));
 
 // Derive __dirname
 const __filename = fileURLToPath(import.meta.url);
