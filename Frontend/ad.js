@@ -95,6 +95,7 @@ function displayPhrases(phrases) {
   console.log("Preparing to display phrases");
 
   const phrasesContainer = document.getElementById("phrases-list");
+  console.log(phrasesContainer);  // Check if this logs null or the correct DOM element
   if (!phrasesContainer) {
     console.error("Phrases container element not found");
     return;
