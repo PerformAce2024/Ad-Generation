@@ -9,7 +9,9 @@
     <script type="module" src="firebaseauth.js"></script>
 
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen gradient-bg" style="background: radial-gradient(circle, #202a3a, rgba(26, 32, 44, 0.9)) no-repeat;">
+
+<body class="bg-gray-100 flex items-center justify-center min-h-screen gradient-bg"
+    style="background: radial-gradient(circle, #202a3a, rgba(26, 32, 44, 0.9)) no-repeat;">
     <div class="flex flex-col w-full max-w-6xl px-4 md:px-8">
         <div class="flex flex-col lg:flex-row lg:space-x-24">
             <!-- Left side with image -->
@@ -90,23 +92,42 @@
         </div>
 
         <script>
+            // Get references to the sign-up and sign-in buttons and forms
             const signUpButton = document.getElementById('signUpButton');
             const signInButton = document.getElementById('signInButton');
             const signInForm = document.getElementById('signIn');
             const signUpForm = document.getElementById('signup');
 
-            signUpButton.addEventListener('click', function (e) {
-                e.preventDefault();
-                signInForm.style.display = "none";
-                signUpForm.style.display = "block";
-            });
+            // Ensure elements exist before attaching event listeners
+            if (signUpButton && signInButton && signInForm && signUpForm) {
+                console.log("Elements found: SignUpButton, SignInButton, SignInForm, SignUpForm");
 
-            signInButton.addEventListener('click', function (e) {
-                e.preventDefault();
-                signInForm.style.display = "block";
-                signUpForm.style.display = "none";
-            });
+                // Event listener for sign-up button
+                signUpButton.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    console.log("Sign-up button clicked");
+
+                    // Hide sign-in form and show sign-up form
+                    signInForm.style.display = "none";
+                    signUpForm.style.display = "block";
+                    console.log("Sign-in form hidden, sign-up form shown");
+                });
+
+                // Event listener for sign-in button
+                signInButton.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    console.log("Sign-in button clicked");
+
+                    // Show sign-in form and hide sign-up form
+                    signInForm.style.display = "block";
+                    signUpForm.style.display = "none";
+                    console.log("Sign-in form shown, sign-up form hidden");
+                });
+            } else {
+                console.error("One or more elements (SignUpButton, SignInButton, SignInForm, SignUpForm) not found");
+            }
         </script>
+
 </body>
 
 </html>

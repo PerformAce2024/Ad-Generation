@@ -15,7 +15,8 @@
             font-family: Denton;
             src: url(../fonts/Denton\ Test\ Medium\ 500.otf);
         }
-        body{
+
+        body {
             font-family: 'Denton', sans-serif;
             background-color: #1a202c;
         }
@@ -34,9 +35,9 @@
                 <!-- Desktop menu -->
                 <div class="hidden md:block">
                     <div class="ml-10 flex items-center space-x-4">
-                        <div class="relative" x-data="{ open: false, timer: null }" 
-                        @mouseover="clearTimeout(timer); open = true"
-                        @mouseleave="timer = setTimeout(() => open = false, 300)">
+                        <div class="relative" x-data="{ open: false, timer: null }"
+                            @mouseover="clearTimeout(timer); open = true"
+                            @mouseleave="timer = setTimeout(() => open = false, 300)">
                             <button
                                 class="flex items-center text-white hover:text-green-400 px-3 py-2 rounded-md text-xl font-medium">
                                 Products
@@ -213,73 +214,90 @@
                 </div>
             </div>
         </div>
+
         <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+
         <script>
 
             gsap.registerPlugin(ScrollTrigger);
 
             const aboutContainer = document.getElementById('about');
-            const textContent = new SplitType(aboutContainer.querySelectorAll('p'), {
-                types: 'words, chars'
-            });
+            if (aboutContainer) {
+                const textContent = new SplitType(aboutContainer.querySelectorAll('p'), {
+                    types: 'words, chars'
+                });
 
-            gsap.timeline({
-                scrollTrigger: {
-                    trigger: aboutContainer,
-                    start: 'top 80%', // Start the animation when the top of the section reaches 80% of the viewport height
-                    end: 'bottom bottom', // End the animation when the bottom of the section reaches the bottom of the viewport
-                    scrub: 1,
-                    onUpdate: (self) => {
-                        if (self.progress === 1) {
-                            textContent.chars.forEach(char => char.style.opacity = 1); // Ensure all characters are fully visible
+                console.log("Starting GSAP scroll-trigger animation");
+
+                gsap.timeline({
+                    scrollTrigger: {
+                        trigger: aboutContainer,
+                        start: 'top 80%', // Start the animation when the top of the section reaches 80% of the viewport height
+                        end: 'bottom bottom', // End the animation when the bottom of the section reaches the bottom of the viewport
+                        scrub: 1,
+                        onUpdate: (self) => {
+                            console.log("ScrollTrigger progress:", self.progress);
+                            if (self.progress === 1) {
+                                textContent.chars.forEach(char => char.style.opacity = 1); // Ensure all characters are fully visible
+                            }
                         }
-                    }
-                },
-                ease: 'none'
-            }).from(textContent.chars, {
-                opacity: 0.1,
-                stagger: 0.01,
-                duration: 0.1
-            });
+                    },
+                    ease: 'none'
+                }).from(textContent.chars, {
+                    opacity: 0.1,
+                    stagger: 0.01,
+                    duration: 0.1
+                });
+            } else {
+                console.warn("aboutContainer element not found");
+            }
+
             document.addEventListener('DOMContentLoaded', function () {
                 const menuToggle = document.getElementById('menu-toggle');
                 const mobileMenu = document.getElementById('mobile-menu');
+                const closeMenu = document.getElementById('close-menu');
                 const dropdowns = document.querySelectorAll('#mobile-menu .dropdown > a');
 
-                // Toggle mobile menu
-                menuToggle.addEventListener('click', function () {
-                    mobileMenu.classList.toggle('hidden');
-                });
+                console.log("Document loaded, initializing mobile menu event listeners");
 
-                // Handle mobile dropdowns
-                dropdowns.forEach(dropdown => {
-                    dropdown.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        const dropdownContent = this.nextElementSibling;
-                        dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+                if (menuToggle && mobileMenu) {
+                    // Toggle mobile menu
+                    menuToggle.addEventListener('click', function () {
+                        console.log("Mobile menu toggle clicked");
+                        mobileMenu.classList.add('open');
                     });
-                });
 
-                // Close mobile dropdowns when clicking outside
-                document.addEventListener('click', function (e) {
-                    if (!e.target.closest('#mobile-menu .dropdown')) {
-                        document.querySelectorAll('#mobile-menu .dropdown-content').forEach(content => {
-                            content.style.display = 'none';
+                    // Close mobile menu (if closeMenu exists)
+                    if (closeMenu) {
+                        closeMenu.addEventListener('click', function () {
+                            console.log("Close menu clicked");
+                            mobileMenu.classList.remove('open');
                         });
                     }
-                });
 
-                // Close mobile menu when a link is clicked
-                document.querySelectorAll('#mobile-menu a').forEach(link => {
-                    link.addEventListener('click', function () {
-                        if (!this.nextElementSibling || !this.nextElementSibling.classList.contains('dropdown-content')) {
-                            mobileMenu.classList.add('hidden');
+                    // Handle mobile dropdowns
+                    dropdowns.forEach(dropdown => {
+                        dropdown.addEventListener('click', function (e) {
+                            console.log("Dropdown clicked:", this);
+                            e.preventDefault();
+                            e.stopPropagation();
+                            this.parentElement.classList.toggle('active');
+                        });
+                    });
+
+                    // Close mobile menu when clicking outside
+                    document.addEventListener('click', function (e) {
+                        if (mobileMenu.classList.contains('open') && !e.target.closest('#mobile-menu') && !e.target.closest('#menu-toggle')) {
+                            console.log("Click outside detected, closing mobile menu");
+                            mobileMenu.classList.remove('open');
                         }
                     });
-                });
+                } else {
+                    console.warn("Menu toggle or mobile menu element not found");
+                }
             });
         </script>
+
     </body>
 
 </html>

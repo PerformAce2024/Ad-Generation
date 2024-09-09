@@ -1,62 +1,91 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
 import { getFirestore, getDoc, doc } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js"
 
+console.log("Initializing Firebase App");
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDSt7NQZlFcOSmerHV2-K6zUgnbv2Hn5Bs",
-    authDomain: "performacemedia-750e2.firebaseapp.com",
-    projectId: "performacemedia-750e2",
-    storageBucket: "performacemedia-750e2.appspot.com",
-    messagingSenderId: "337335887216",
-    appId: "1:337335887216:web:ae64b1b44dcd9e69065bb5",
-    measurementId: "G-2KJQ4YTQLB"
+    apiKey: process.env.GEMINI_API_KEY,
+    authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.FIREBASE_MSGING_SENDER_ID,
+    appId: process.env.FIREBASE_APP_ID,
+    measurementId: process.env.FIREBASE_MEASUREMENT_ID
 };
 
 const app = initializeApp(firebaseConfig);
+console.log("Firebase App initialized:", app);
+
 const auth = getAuth();
 const db = getFirestore();
+
+console.log("Firebase Auth and Firestore initialized");
 
 // Detect authentication state change and store email in localStorage
 onAuthStateChanged(auth, (user) => {
     if (user) {
+        console.log("User is signed in:", user);
+
         const loggedInUserId = user.uid;
 
         // Store the user's email in localStorage
         localStorage.setItem('userEmail', user.email);
         localStorage.setItem('loggedInUserId', loggedInUserId);
 
-        console.log(user);
+        console.log("User email stored in localStorage:", user.email);
+        console.log("User ID stored in localStorage:", loggedInUserId);
+
         const docRef = doc(db, "users", loggedInUserId);
+        console.log("Fetching user document from Firestore:", docRef);
+
         getDoc(docRef)
             .then((docSnap) => {
                 if (docSnap.exists()) {
                     const userData = docSnap.data();
+                    console.log("User data retrieved from Firestore:", userData);
+
                     document.getElementById('loggedUserFName').innerText = userData.firstName;
                     document.getElementById('loggedUserLName').innerText = userData.lastName;
                     document.getElementById('loggedUserEmail').innerText = userData.email;
                 }
                 else {
-                    console.log("No document found the matching ID.");
+                    console.log("No document found for the matching ID:", loggedInUserId);
                 }
             })
             .catch((error) => {
-                console.log("Error getting document!");
+                console.error("Error getting document from Firestore:", error);
             });
     } else {
         console.log("User is not signed in!");
     }
 });
 
+// Logout button event listener
 const logoutButton = document.getElementById('logout');
-logoutButton.addEventListener('click', () => {
-    localStorage.removeItem('loggedInUserId');
-    localStorage.removeItem('userEmail');
-    signOut(auth)
-        .then(() => {
-            window.location.href = 'index.html';
-        })
-        .catch((error) => {
-            console.error('Error signing out:', error);
-        });
-});
+if (logoutButton) {
+    console.log("Logout button found, attaching event listener");
+    logoutButton.addEventListener('click', () => {
+        console.log("Logout button clicked, signing out user");
+
+        // Remove user data from localStorage
+        localStorage.removeItem('loggedInUserId');
+        localStorage.removeItem('userEmail');
+
+        console.log("User data removed from localStorage");
+
+        signOut(auth)
+            .then(() => {
+                console.log("User signed out successfully");
+                window.location.href = 'index.html';
+            })
+            .catch((error) => {
+                console.error('Error signing out:', error);
+            });
+    });
+} else {
+    console.error("Logout button not found");
+}
