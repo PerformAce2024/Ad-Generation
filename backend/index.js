@@ -8,6 +8,7 @@ import gplay from "google-play-scraper";
 import path from "path";
 import { fileURLToPath } from "url";
 import { savePhraseToDatabase } from './storeCommunications.js';
+import { scrapeAndStoreImageUrls } from './connect.js';
 
 const app = express();
 app.use(express.json());
@@ -241,6 +242,24 @@ app.post("/rejected", async (req, res) => {
   } catch (error) {
     console.error("Error saving rejected phrase:", error);
     return res.status(500).json({ message: "Error saving rejecting phrase.", error: error.message });
+  }
+});
+
+// Example route to trigger scraping and storing
+app.post('/scrape', async (req, res) => {
+  const { playStoreUrl, appleAppUrl } = req.body;
+
+  if (!playStoreUrl) {
+    return res.status(400).send('Google Play Store URL is required');
+  }
+
+  try {
+    console.log('Scraping images from URLs...');
+    await scrapeAndStoreImageUrls(playStoreUrl, appleAppUrl);
+    return res.status(200).send('Scraping and storing completed.');
+  } catch (error) {
+    console.error('Error during scraping:', error);
+    return res.status(500).send('Error occurred during scraping.');
   }
 });
 
