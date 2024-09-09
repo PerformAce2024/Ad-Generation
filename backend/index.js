@@ -256,10 +256,10 @@ app.post('/scrape', async (req, res) => {
   try {
     console.log(`Scraping started for ${google_play} and ${apple_app}`);
     await scrapeAndStoreImageUrls(google_play, apple_app);  // Assuming scrapeAndStoreImageUrls is already defined
-    return res.status(200).send('Scraping and storing completed.');
+    return res.status(200).send('Scraping, storing, and background removal process completed.');
   } catch (error) {
-    console.error('Error during scraping:', error);
-    return res.status(500).json({ message: "Error occurred during scraping.", error: error.message });
+    cconsole.error('Error during scraping or background removal process:', error);
+    return res.status(500).json({ message: "Error occurred during scraping and background removal.", error: error.message });
   }
 });
 

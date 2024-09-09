@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
 import { MongoClient } from 'mongodb';
+import { processImages } from './remove-bg.js';
 import 'dotenv/config';
 
 // MongoDB configuration
@@ -13,6 +14,12 @@ const imagesCollectionName = 'URLs';
 // Function to store image URLs in MongoDB
 async function storeImageUrlInMongoDB(imageUrl, iconUrl, googlePlayUrl, appleAppUrl) {
   try {
+    // Ensure the client is connected before performing any operations
+    if (!client.isConnected()) {
+        console.log('Connecting to MongoDB...');
+        await client.connect();
+      }
+      
     const db = client.db(dbName);
     const imagesCollection = db.collection(imagesCollectionName);
 
@@ -28,6 +35,7 @@ async function storeImageUrlInMongoDB(imageUrl, iconUrl, googlePlayUrl, appleApp
     console.log(`Successfully stored: image_url=${imageUrl}, icon_url=${iconUrl}`);
   } catch (error) {
     console.error(`Error storing URL in MongoDB: ${error.message}`);
+    throw error;
   }
 }
 
@@ -87,7 +95,12 @@ async function scrapeAndStoreImageUrls(playStoreUrl, appleAppURL) {
       await storeImageUrlInMongoDB(imageUrl, iconUrl, playStoreUrl, appleAppURL);
     }
 
-    console.log('All image URLs have been successfully stored in MongoDB.');
+    console.log('All URLs have been successfully stored in MongoDB.');
+
+    // Call processImages from remove-bg.js after successfully storing URLs in MongoDB
+    console.log('Starting background removal process...');
+    await processImages(); // Trigger background removal process
+
   } catch (error) {
     console.error(`Error during scraping or storing process: ${error.message}`);
   } finally {
