@@ -8,8 +8,7 @@ console.log('Loading storeCommunications.js module');
 const uri = process.env.MONGODB_URI;
 console.log('MongoDB URI:', uri);
 
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-
+const client = new MongoClient(uri);
 console.log('Attempting to connect to MongoDB...');
 
 try {
@@ -44,8 +43,12 @@ async function savePhraseToDatabase(collectionName, email, phrase) {
         { $push: { phrases: phrase } }  // Add the new phrase to the phrases array
       );
 
-      console.log(`Update result:`, updateResult.result);
-      console.log(`Phrase added to ${collectionName} for user ${email}`);
+      // Check for successful update
+      if (updateResult.matchedCount > 0 && updateResult.modifiedCount > 0) {
+        console.log(`Phrase added successfully to ${collectionName} for user ${email}`);
+      } else {
+        console.warn(`No documents were updated. Matched count: ${updateResult.matchedCount}, Modified count: ${updateResult.modifiedCount}`);
+      }
     } else {
       console.log(`No user document found for email: ${email}. Creating new document.`);
 
@@ -55,8 +58,12 @@ async function savePhraseToDatabase(collectionName, email, phrase) {
         phrases: [phrase],  // Initialize the array with the new phrase
       });
 
-      console.log(`Insert result:`, insertResult.result);
-      console.log(`New document created in ${collectionName} for user ${email}`);
+      // Check for successful insertion
+      if (insertResult.acknowledged) {
+        console.log(`New document created in ${collectionName} for user ${email}`);
+      } else {
+        console.error('Failed to insert new document.');
+      }
     }
     
     return { success: true, message: `Phrase saved for user ${email}` };
