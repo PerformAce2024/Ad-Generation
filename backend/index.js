@@ -7,49 +7,83 @@ import axios from "axios";
 import gplay from "google-play-scraper";
 import path from "path";
 import { fileURLToPath } from "url";
+import { savePhraseToDatabase } from './storeCommunications.js';
+import { scrapeAndStoreImageUrls } from './connect.js';
 
 const app = express();
 app.use(express.json());
 
-// app.use(cors()); // Temporarily allow all origins during development
+console.log('Initializing server...');
 
-app.use(cors({
-  origin: "https://www.growthz.ai" // Replace with your actual Vercel frontend domain
-}));
+// // app.use(cors()); // Temporarily allow all origins during development
+// app.use(cors({
+//   origin: "https://www.growthz.ai" // Replace with your actual Vercel frontend domain
+// }));
+
+// CORS configuration
+const allowedOrigins = ['https://www.growthz.ai'];
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin); // Set allowed origin dynamically
+  }
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+
+  // Handle preflight requests (OPTIONS)
+  if (req.method === 'OPTIONS') {
+    return res.status(200).json({});
+  }
+
+  next();
+});
+
+console.log('CORS enabled for https://www.growthz.ai');
 
 // Derive __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+console.log('__dirname set to:', __dirname);
 
 // Serve static files from the Frontend directory
 app.use(express.static(path.join(__dirname, "..", "Frontend")));
+console.log('Serving static files from the Frontend directory');
 
 // Function to extract app ID from the Apple App Store URL
 function extractAppleAppId(url) {
   const match = url.match(/id(\d+)/);
-  return match ? match[1] : null;
+  const appId = match ? match[1] : null;
+  console.log('Extracted Apple App ID:', appId);
+  return appId;
 }
 
 // Function to extract app ID from the Google Play Store URL
 function extractGooglePlayAppId(url) {
   const match = url.match(/id=([a-zA-Z0-9._]+)/);
-  return match ? match[1] : null;
+  const appId = match ? match[1] : null;
+  console.log('Extracted Google Play App ID:', appId);
+  return appId;
 }
 
 // Scrape Google Play Store reviews
 async function scrapeGooglePlayReviews(url) {
   const appId = extractGooglePlayAppId(url);
   if (!appId) {
+    console.error('Error: Invalid Google Play Store URL');
     throw new Error("Invalid Google Play Store URL");
   }
 
   try {
+    console.log('Fetching Google Play reviews for App ID:', appId);
     const reviews = await gplay.reviews({
       appId: appId,
       lang: "en",
       country: "in",
       sort: gplay.sort.NEWEST,
     });
+
+    console.log(`Fetched ${reviews.data.length} reviews from Google Play Store`);
     return reviews.data.slice(0, 50);
   } catch (error) {
     console.error("Error fetching Google Play Store reviews:", error);
@@ -61,11 +95,13 @@ async function scrapeGooglePlayReviews(url) {
 async function scrapeAppleStoreReviews(url) {
   const appId = extractAppleAppId(url);
   if (!appId) {
+    console.error('Error: Invalid Apple App Store URL');
     throw new Error("Invalid Apple App Store URL");
   }
 
   const apiUrl = `https://itunes.apple.com/in/rss/customerreviews/id=${appId}/sortBy=mostRecent/json`;
   try {
+    console.log('Fetching Apple App Store reviews for App ID:', appId);
     const response = await axios.get(apiUrl);
     const reviews = response.data.feed.entry.map((entry) => ({
       author: entry.author.name.label,
@@ -73,6 +109,8 @@ async function scrapeAppleStoreReviews(url) {
       review: entry.content.label,
       rating: entry["im:rating"].label,
     }));
+
+    console.log(`Fetched ${reviews.length} reviews from Apple App Store`);
     return reviews.slice(0, 50);
   } catch (error) {
     console.error("Error fetching Apple Store reviews:", error);
@@ -82,6 +120,7 @@ async function scrapeAppleStoreReviews(url) {
 
 // Combine and format reviews into a single string for the prompt
 function combineReviews(googleReviews, appleReviews) {
+  console.log('Combining reviews from Google Play and Apple App Store');
   const googleReviewsText = googleReviews
     .map((review) => review.text || "")
     .join(" ");
@@ -97,6 +136,7 @@ async function generateUSPhrases(reviews) {
   const prompt = `What can be the potential usp marketing headlines for ADs? Provide 20 most efficient phrases. Focus on main usp of brand.\n\n${reviews}`;
 
   try {
+    console.log('Sending prompt to Gemini API to generate USP phrases');
     const response = await axios.post(
       apiUrl,
       {
@@ -124,6 +164,8 @@ async function generateUSPhrases(reviews) {
       .trim()
       .split("\n")
       .filter((phrase) => phrase.trim() !== "");
+
+    console.log('Generated USP phrases:', phrases);
     return phrases;
   } catch (error) {
     console.error("Error generating USP phrases:", error);
@@ -133,6 +175,7 @@ async function generateUSPhrases(reviews) {
 
 // Root endpoint
 app.get("/", (req, res) => {
+  console.log('Root endpoint accessed');
   res.sendFile(path.join(__dirname, "..", "Frontend", "index.html"));
 });
 
@@ -141,58 +184,82 @@ app.post("/generate-phrases", async (req, res) => {
   const { google_play, apple_app } = req.body;
 
   if (!google_play) {
+    console.error('Error: Google Play Store URL is mandatory', error);
     return res.status(400).send("Google Play Store URL is mandatory");
   }
 
   try {
+    console.log('Processing /generate-phrases request...');
     // Scrape reviews from both sources
     const googlePlayReviews = await scrapeGooglePlayReviews(google_play);
-    const appleStoreReviews = apple_app
-      ? await scrapeAppleStoreReviews(apple_app)
-      : [];
-      
+    const appleStoreReviews = apple_app ? await scrapeAppleStoreReviews(apple_app) : [];
+
     // Combine and format reviews for prompt
-    const combinedReviews = combineReviews(
-      googlePlayReviews,
-      appleStoreReviews
-    );
+    const combinedReviews = combineReviews(googlePlayReviews, appleStoreReviews);
 
     // Generate USP phrases
     const uspPhrases = await generateUSPhrases(combinedReviews);
 
+    console.log('Sending USP phrases as response');
+
     // Send response with phrases
-    res.status(200).json(uspPhrases);
+    return res.status(200).json(uspPhrases);
   } catch (error) {
     console.error("Error generating USP phrases:", error);
-    res.status(500).send("Error generating USP phrases");
+    return res.status(500).json({ message: "Error generating USP phrases.", error: error.message });
   }
 });
 
 // Route to save approved phrases
 app.post("/approved", async (req, res) => {
   const { phrase, email } = req.body;
-  if (!phrase || !email ) {
+  if (!phrase || !email) {
+    console.error('Error: Phrase and email are required');
     return res.status(400).send("Phrase and email are required.");
   }
+  
   try {
+    console.log(`Saving approved phrase for ${email}`);
     await savePhraseToDatabase("approvedCommunication", email, phrase);
-    res.status(200).send("Approved phrase saved successfully.");
+    return res.status(200).send("Approved phrase saved successfully.");
   } catch (error) {
-    res.status(500).send("Error saving approved phrase.");
+    console.error("Error saving approved phrase:", error);
+    return res.status(500).json({ message: "Error saving approved phrase.", error: error.message });
   }
 });
 
 // Route to save rejected phrases
 app.post("/rejected", async (req, res) => {
   const { phrase, email } = req.body;
-  if (!phrase || !email ) {
+  if (!phrase || !email) {
+    console.error('Error: Phrase and email are required');
     return res.status(400).send("Phrase and email are required.");
   }
   try {
+    console.log(`Saving rejected phrase for ${email}`);
     await savePhraseToDatabase("rejectedCommunication", email, phrase);
-    res.status(200).send("Rejected phrase saved successfully.");
+    return res.status(200).send("Rejected phrase saved successfully.");
   } catch (error) {
-    res.status(500).send("Error saving rejected phrase.");
+    console.error("Error saving rejected phrase:", error);
+    return res.status(500).json({ message: "Error saving rejecting phrase.", error: error.message });
+  }
+});
+
+// Route to trigger scraping and storing
+app.post('/scrape', async (req, res) => {
+  const { google_play, apple_app } = req.body;
+
+  if (!google_play) {
+    return res.status(400).send('Google Play Store URL is required');
+  }
+
+  try {
+    console.log(`Scraping started for ${google_play} and ${apple_app}`);
+    await scrapeAndStoreImageUrls(google_play, apple_app);  // Assuming scrapeAndStoreImageUrls is already defined
+    return res.status(200).send('Scraping and storing completed.');
+  } catch (error) {
+    console.error('Error during scraping:', error);
+    return res.status(500).json({ message: "Error occurred during scraping.", error: error.message });
   }
 });
 
