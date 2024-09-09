@@ -47,28 +47,39 @@ signUp.addEventListener('click', (event) => {
 
     console.log("Sign up input values - Email:", email, "Full Name:", fullName, "Company Name:", companyName);
 
+    // Ensure email domain is allowed
     if (isBlockedEmailDomain(email)) {
         showMessage('Email address from this domain is not allowed.');
         return;
     }
+
+    // Create a new user with email and password
     createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
             console.log("User created successfully:", userCredential);
-            const user = userCredential.user;
+            const user = userCredential.user; // Extract the user object
+
+            // Save additional user data to Firestore
             const userData = {
                 email: email,
                 fullName: fullName,
                 companyName: companyName
             };
-              
-            sendEmailVerification(auth.currentUser)
+
+            // Send verification email
+            sendEmailVerification(user)
                 .then(() => {
                     console.log("Email verification sent to:", email);
                     alert("Email verification sent successfully.");
+                })
+                .catch((error) => {
+                    console.error("Error sending email verification:", error);
+                    showMessage("Failed to send verification email.");
                 });
 
             showMessage('Account Created Successfully');
 
+            // Save the user data to Firestore
             const docRef = doc(db, "users", user.uid);
             console.log("Setting user data in Firestore:", docRef, userData);
             setDoc(docRef, userData)
@@ -78,6 +89,7 @@ signUp.addEventListener('click', (event) => {
                 })
                 .catch((error) => {
                     console.error("Error writing document", error);
+                    showMessage("Failed to save user data.");
                 });
         })
         .catch((error) => {

@@ -45,11 +45,33 @@ onAuthStateChanged(auth, (user) => {
                     const userData = docSnap.data();
                     console.log("User data retrieved from Firestore:", userData);
 
-                    document.getElementById('loggedUserFName').innerText = userData.firstName;
-                    document.getElementById('loggedUserLName').innerText = userData.lastName;
-                    document.getElementById('loggedUserEmail').innerText = userData.email;
-                }
-                else {
+                    // Ensure you are accessing the correct properties saved in Firestore
+                    const fullName = userData.fullName; // Assuming you're storing 'fullName'
+                    const companyName = userData.companyName; // Assuming you're storing 'companyName'
+
+                    // Update the DOM elements with the correct data
+                    const fullNameElement = document.getElementById('loggedUserFName');
+                    const companyNameElement = document.getElementById('loggedUserLName'); // Assuming you're using this to display the company name
+                    const emailElement = document.getElementById('loggedUserEmail');
+
+                    if (fullNameElement) {
+                        fullNameElement.innerText = fullName; // Display fullName in the first name field
+                    } else {
+                        console.warn('Full name element not found in the DOM');
+                    }
+
+                    if (companyNameElement) {
+                        companyNameElement.innerText = companyName; // Display companyName in the last name field
+                    } else {
+                        console.warn('Company name element not found in the DOM');
+                    }
+
+                    if (emailElement) {
+                        emailElement.innerText = userData.email; // Assuming the email is also stored
+                    } else {
+                        console.warn('Email element not found in the DOM');
+                    }
+                } else {
                     console.log("No document found for the matching ID:", loggedInUserId);
                 }
             })
