@@ -215,13 +215,14 @@ app.post("/approved", async (req, res) => {
     console.error('Error: Phrase and email are required', error);
     return res.status(400).send("Phrase and email are required.");
   }
+  
   try {
     console.log(`Saving approved phrase for ${email}`);
     await savePhraseToDatabase("approvedCommunication", email, phrase);
     res.status(200).send("Approved phrase saved successfully.");
   } catch (error) {
     console.error("Error saving approved phrase:", error);
-    res.status(500).send("Error saving approved phrase.", error);
+    return res.status(500).json({ message: "Error saving approved phrase.", error: error.toString() });
   }
 });
 
@@ -238,7 +239,7 @@ app.post("/rejected", async (req, res) => {
     res.status(200).send("Rejected phrase saved successfully.");
   } catch (error) {
     console.error("Error saving rejected phrase:", error);
-    res.status(500).send("Error saving rejected phrase.", error);
+    return res.status(500).json({ message: "Error saving rejecting phrase.", error: error.toString() });
   }
 });
 
