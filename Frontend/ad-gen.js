@@ -8,13 +8,13 @@ import { getFirestore, getDoc, doc } from "https://www.gstatic.com/firebasejs/10
 console.log("Initializing Firebase App");
 
 const firebaseConfig = {
-    apiKey: process.env.GEMINI_API_KEY,
-    authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.FIREBASE_MSGING_SENDER_ID,
-    appId: process.env.FIREBASE_APP_ID,
-    measurementId: process.env.FIREBASE_MEASUREMENT_ID
+    apiKey: "AIzaSyCvDykDpbRvjpHf0MBfKTTY2S9P2LpXNOw",
+    authDomain: "performacemedia-750e2.firebaseapp.com",
+    projectId: "performacemedia-750e2",
+    storageBucket: "performacemedia-750e2.appspot.com",
+    messagingSenderId: "337335887216",
+    appId: "1:337335887216:web:ae64b1b44dcd9e69065bb5",
+    measurementId: "G-2KJQ4YTQLB"
 };
 
 const app = initializeApp(firebaseConfig);
