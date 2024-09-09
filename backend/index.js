@@ -13,10 +13,29 @@ app.use(express.json());
 
 console.log('Initializing server...');
 
-// app.use(cors()); // Temporarily allow all origins during development
-app.use(cors({
-  origin: "https://www.growthz.ai" // Replace with your actual Vercel frontend domain
-}));
+// // app.use(cors()); // Temporarily allow all origins during development
+// app.use(cors({
+//   origin: "https://www.growthz.ai" // Replace with your actual Vercel frontend domain
+// }));
+
+// CORS configuration
+const allowedOrigins = ['https://www.growthz.ai'];
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin); // Set allowed origin dynamically
+  }
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'); // Allow specified methods
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // Allow specified headers
+
+  // Handle preflight requests (OPTIONS)
+  if (req.method === 'OPTIONS') {
+    return res.status(200).json({});
+  }
+
+  next();
+});
 
 console.log('CORS enabled for https://www.growthz.ai');
 
