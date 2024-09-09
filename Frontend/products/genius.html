@@ -233,53 +233,7 @@
     } else {
       console.warn("aboutContainer element not found");
     }
-
-    document.addEventListener('DOMContentLoaded', function () {
-      const menuToggle = document.getElementById('menu-toggle');
-      const mobileMenu = document.getElementById('mobile-menu');
-      const closeMenu = document.getElementById('close-menu');
-      const dropdowns = document.querySelectorAll('#mobile-menu .dropdown > a');
-
-      console.log("Document loaded, initializing mobile menu event listeners");
-
-      if (menuToggle && mobileMenu) {
-        // Toggle mobile menu
-        menuToggle.addEventListener('click', function () {
-          console.log("Mobile menu toggle clicked");
-          mobileMenu.classList.add('open');
-        });
-
-        // Close mobile menu (if closeMenu exists)
-        if (closeMenu) {
-          closeMenu.addEventListener('click', function () {
-            console.log("Close menu clicked");
-            mobileMenu.classList.remove('open');
-          });
-        }
-
-        // Handle mobile dropdowns
-        dropdowns.forEach(dropdown => {
-          dropdown.addEventListener('click', function (e) {
-            console.log("Dropdown clicked:", this);
-            e.preventDefault();
-            e.stopPropagation();
-            this.parentElement.classList.toggle('active');
-          });
-        });
-
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', function (e) {
-          if (mobileMenu.classList.contains('open') && !e.target.closest('#mobile-menu') && !e.target.closest('#menu-toggle')) {
-            console.log("Click outside detected, closing mobile menu");
-            mobileMenu.classList.remove('open');
-          }
-        });
-      } else {
-        console.warn("Menu toggle or mobile menu element not found");
-      }
-    });
-  </script>
-
+    </script>
 </body>
 
 </html>
