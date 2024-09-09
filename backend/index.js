@@ -206,7 +206,7 @@ app.post("/generate-phrases", async (req, res) => {
     return res.status(200).json(uspPhrases);
   } catch (error) {
     console.error("Error generating USP phrases:", error);
-    return res.status(500).send("Error generating USP phrases");
+    return res.status(500).json({ message: "Error generating USP phrases.", error: error.message });
   }
 });
 
@@ -245,21 +245,21 @@ app.post("/rejected", async (req, res) => {
   }
 });
 
-// Example route to trigger scraping and storing
+// Route to trigger scraping and storing
 app.post('/scrape', async (req, res) => {
-  const { playStoreUrl, appleAppUrl } = req.body;
+  const { google_play, apple_app } = req.body;
 
-  if (!playStoreUrl) {
+  if (!google_play) {
     return res.status(400).send('Google Play Store URL is required');
   }
 
   try {
-    console.log('Scraping images from URLs...');
-    await scrapeAndStoreImageUrls(playStoreUrl, appleAppUrl);
+    console.log(`Scraping started for ${google_play} and ${apple_app}`);
+    await scrapeAndStoreImageUrls(google_play, apple_app);  // Assuming scrapeAndStoreImageUrls is already defined
     return res.status(200).send('Scraping and storing completed.');
   } catch (error) {
     console.error('Error during scraping:', error);
-    return res.status(500).send('Error occurred during scraping.');
+    return res.status(500).json({ message: "Error occurred during scraping.", error: error.message });
   }
 });
 

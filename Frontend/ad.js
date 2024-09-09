@@ -38,35 +38,50 @@ async function onClickHandler() {
   console.log("Apple App Store URL:", appleAppURL);
 
   try {
-    console.log("Sending request to generate phrases");
+    console.log("Sending requests to /generate-phrases and /scrape");
 
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
-    var raw = JSON.stringify({
+    const requestBody = JSON.stringify({
       google_play: googlePlayURL,
       apple_app: appleAppURL,
     });
 
-    var requestOptions = {
+    const requestOptions = {
       method: "POST",
       headers: myHeaders,
-      body: raw,
+      body: requestBody,
       redirect: "follow",
     };
 
-    const requestUrl = `${BASE_URL}/generate-phrases`;
+    const phrasesRequestUrl = `${BASE_URL}/generate-phrases`;
+    const scrapeRequestUrl = `${BASE_URL}/scrape`;
 
-    const response = await fetch(requestUrl, requestOptions);
+    // Send both requests in parallel
+    const [phrasesResponse, scrapeResponse] = await Promise.all([
+      fetch(phrasesRequestUrl, requestOptions),
+      fetch(scrapeRequestUrl, requestOptions)
+    ]);
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`Error in response from ${requestUrl}:`, errorText);
-      throw new Error("Network response was not ok.");
+    // Handle responses for phrases
+    if (!phrasesResponse.ok) {
+      const errorText = await phrasesResponse.text();
+      console.error(`Error in response from ${phrasesRequestUrl}:`, errorText);
+      throw new Error("Network response for phrases was not ok.");
     }
 
-    const phrases = await response.json();
+    const phrases = await phrasesResponse.json();
     console.log("Phrases received from the server:", phrases);
+
+    // Handle responses for scrape
+    if (!scrapeResponse.ok) {
+      const errorText = await scrapeResponse.text();
+      console.error(`Error in response from ${scrapeRequestUrl}:`, errorText);
+      throw new Error("Network response for scrape was not ok.");
+    }
+
+    console.log("Scrape completed successfully.");
 
     // Hide the loader
     if (loader) {
