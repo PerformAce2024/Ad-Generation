@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     console.log("AdButton found, attaching event listener");
     btn.addEventListener("click", onClickHandler);
   } else {
-    console.error("AdButton not found", error);
+    console.error("AdButton not found");
   }
 });
 
@@ -96,7 +96,7 @@ function displayPhrases(phrases) {
 
   const phrasesContainer = document.getElementById("phrases-list");
   if (!phrasesContainer) {
-    console.error("Phrases container element not found", error);
+    console.error("Phrases container element not found");
     return;
   }
 
@@ -158,7 +158,7 @@ function displayPhrases(phrases) {
           handleApproval(index, phrase);
         });
       } else {
-        console.error(`Approve button not found for phrase at index ${index}`, error);
+        console.error(`Approve button not found for phrase at index ${index}`);
       }
 
       if (rejectButton) {
@@ -167,7 +167,7 @@ function displayPhrases(phrases) {
           handleRejection(index, phrase);
         });
       } else {
-        console.error(`Reject button not found for phrase at index ${index}`, error);
+        console.error(`Reject button not found for phrase at index ${index}`);
       }
     }
   });
@@ -204,7 +204,7 @@ function handleRejection(index, phrase) {
     console.log(`Removing row for rejected phrase at index ${index}`);
     rowElement.remove(); // This will remove the entire row (phrase + buttons)
   } else {
-    console.error(`Row not found for phrase at index ${index}`, error);
+    console.error(`Row not found for phrase at index ${index}`);
   }
 
   // Send the rejected phrase to the backend
@@ -239,7 +239,14 @@ async function sendPhraseToDatabase(phrase, action) {
     const response = await fetch(requestUrl, requestOptions);
 
     if (!response.ok) {
-      const errorMessage = await response.text(); // Get the error message from the server response
+      let errorMessage = 'Unknown error occurred';
+
+      try {
+        errorMessage = await response.text();
+      } catch (error) {
+        console.error('Error while retrieving error message from response', error);
+      }
+
       console.error(`Error saving phrase to database: ${errorMessage}`);
     } else {
       console.log(`${action === 'approve' ? 'Approved' : 'Rejected'} phrase saved successfully.`);

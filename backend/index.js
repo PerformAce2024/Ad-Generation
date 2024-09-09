@@ -7,6 +7,7 @@ import axios from "axios";
 import gplay from "google-play-scraper";
 import path from "path";
 import { fileURLToPath } from "url";
+import { savePhraseToDatabase } from './storeCommunications.js';
 
 const app = express();
 app.use(express.json());
@@ -68,7 +69,7 @@ function extractGooglePlayAppId(url) {
 async function scrapeGooglePlayReviews(url) {
   const appId = extractGooglePlayAppId(url);
   if (!appId) {
-    console.error('Error: Invalid Google Play Store URL', error);
+    console.error('Error: Invalid Google Play Store URL');
     throw new Error("Invalid Google Play Store URL");
   }
 
@@ -93,7 +94,7 @@ async function scrapeGooglePlayReviews(url) {
 async function scrapeAppleStoreReviews(url) {
   const appId = extractAppleAppId(url);
   if (!appId) {
-    console.error('Error: Invalid Apple App Store URL', error);
+    console.error('Error: Invalid Apple App Store URL');
     throw new Error("Invalid Apple App Store URL");
   }
 
@@ -201,10 +202,10 @@ app.post("/generate-phrases", async (req, res) => {
     console.log('Sending USP phrases as response');
 
     // Send response with phrases
-    res.status(200).json(uspPhrases);
+    return res.status(200).json(uspPhrases);
   } catch (error) {
     console.error("Error generating USP phrases:", error);
-    res.status(500).send("Error generating USP phrases");
+    return res.status(500).send("Error generating USP phrases");
   }
 });
 
@@ -212,17 +213,17 @@ app.post("/generate-phrases", async (req, res) => {
 app.post("/approved", async (req, res) => {
   const { phrase, email } = req.body;
   if (!phrase || !email) {
-    console.error('Error: Phrase and email are required', error);
+    console.error('Error: Phrase and email are required');
     return res.status(400).send("Phrase and email are required.");
   }
   
   try {
     console.log(`Saving approved phrase for ${email}`);
     await savePhraseToDatabase("approvedCommunication", email, phrase);
-    res.status(200).send("Approved phrase saved successfully.");
+    return res.status(200).send("Approved phrase saved successfully.");
   } catch (error) {
     console.error("Error saving approved phrase:", error);
-    return res.status(500).json({ message: "Error saving approved phrase.", error: error.toString() });
+    return res.status(500).json({ message: "Error saving approved phrase.", error: error.message });
   }
 });
 
@@ -230,16 +231,16 @@ app.post("/approved", async (req, res) => {
 app.post("/rejected", async (req, res) => {
   const { phrase, email } = req.body;
   if (!phrase || !email) {
-    console.error('Error: Phrase and email are required', error);
+    console.error('Error: Phrase and email are required');
     return res.status(400).send("Phrase and email are required.");
   }
   try {
     console.log(`Saving rejected phrase for ${email}`);
     await savePhraseToDatabase("rejectedCommunication", email, phrase);
-    res.status(200).send("Rejected phrase saved successfully.");
+    return res.status(200).send("Rejected phrase saved successfully.");
   } catch (error) {
     console.error("Error saving rejected phrase:", error);
-    return res.status(500).json({ message: "Error saving rejecting phrase.", error: error.toString() });
+    return res.status(500).json({ message: "Error saving rejecting phrase.", error: error.message });
   }
 });
 

@@ -11,13 +11,14 @@ console.log('MongoDB URI:', uri);
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 console.log('Attempting to connect to MongoDB...');
-client.connect(error => {
-  if (error) {
-    console.error("MongoDB connection error:", error);
-  } else {
-    console.log("MongoDB connected successfully");
-  }
-});
+
+try {
+  await client.connect();
+  console.log("MongoDB connected successfully");
+} catch (error) {
+  console.error("MongoDB connection error:", error);
+  process.exit(1); // Optionally terminate if the connection fails
+}
 
 async function savePhraseToDatabase(collectionName, email, phrase) {
   console.log(`savePhraseToDatabase called with collectionName: ${collectionName}, email: ${email}, phrase: ${phrase}`);
@@ -32,6 +33,7 @@ async function savePhraseToDatabase(collectionName, email, phrase) {
     // Find the document for the given user by email
     console.log(`Searching for user document with email: ${email}`);
     const userDocument = await collection.findOne({ email: email });
+
     if (userDocument) {
       console.log(`User document found for email: ${email}`);
 
@@ -59,7 +61,7 @@ async function savePhraseToDatabase(collectionName, email, phrase) {
     
     return { success: true, message: `Phrase saved for user ${email}` };
   } catch (error) {
-    console.error(`Error saving phrase to ${collectionName}:`, error);
+    console.error(`Error saving phrase to collection ${collectionName} for user ${email}:`, error);
     return { success: false, message: `Failed to save phrase for user ${email}`, error };
   }
 }
