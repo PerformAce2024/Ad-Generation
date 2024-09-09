@@ -188,5 +188,4 @@ async function processImages() {
     }
 }
 
-// Run the process
-processImages();
+export { processImages };
