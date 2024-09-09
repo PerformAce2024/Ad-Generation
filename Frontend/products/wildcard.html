@@ -241,44 +241,7 @@
                 stagger: 0.01,
                 duration: 0.1
             });
-            document.addEventListener('DOMContentLoaded', function () {
-                const menuToggle = document.getElementById('menu-toggle');
-                const mobileMenu = document.getElementById('mobile-menu');
-                const dropdowns = document.querySelectorAll('#mobile-menu .dropdown > a');
-
-                // Toggle mobile menu
-                menuToggle.addEventListener('click', function () {
-                    mobileMenu.classList.toggle('hidden');
-                });
-
-                // Handle mobile dropdowns
-                dropdowns.forEach(dropdown => {
-                    dropdown.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        const dropdownContent = this.nextElementSibling;
-                        dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
-                    });
-                });
-
-                // Close mobile dropdowns when clicking outside
-                document.addEventListener('click', function (e) {
-                    if (!e.target.closest('#mobile-menu .dropdown')) {
-                        document.querySelectorAll('#mobile-menu .dropdown-content').forEach(content => {
-                            content.style.display = 'none';
-                        });
-                    }
-                });
-
-                // Close mobile menu when a link is clicked
-                document.querySelectorAll('#mobile-menu a').forEach(link => {
-                    link.addEventListener('click', function () {
-                        if (!this.nextElementSibling || !this.nextElementSibling.classList.contains('dropdown-content')) {
-                            mobileMenu.classList.add('hidden');
-                        }
-                    });
-                });
-            });
+    
         </script>
     </body>
 
