@@ -2,7 +2,6 @@ import { MongoClient } from 'mongodb';
 import fetch from 'node-fetch';
 import FormData from 'form-data';
 import AWS from 'aws-sdk';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import 'dotenv/config';
 
 const uri = process.env.MONGODB_URI;
@@ -18,12 +17,10 @@ const dbName = 'Images'; // Update the database name
 const urlsCollectionName = 'URLs'; // Collection to store image URLs
 
 // Configure AWS S3
-const s3Client = new S3Client({
+const s3 = new AWS.S3({
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     region: process.env.AWS_REGION,
-    credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    },
 });
 
 // Fetch image URLs from MongoDB
@@ -72,22 +69,21 @@ async function removeBg(imageURL) {
     }
 }
 
-// Upload image to AWS S3
+// Replace the function with S3 upload
 async function uploadImageToS3(filename, buffer) {
     try {
         console.log(`Uploading image ${filename} to S3...`);
         const params = {
-            Bucket: 'performace-extracted-images', // Your S3 bucket name
+            Bucket: 'performace-extracted-images', // Replace with your S3 bucket name
             Key: filename,
-            Body: buffer,
-            ContentType: 'image/png', // Set correct content type
+            Body: Buffer.from(buffer),
+            ContentType: 'image/png', // Change based on the file type
             ACL: 'public-read', // or 'private' depending on your needs
         };
 
-        const command = new PutObjectCommand(params);
-        const data = await s3Client.send(command);
-        console.log(`Image ${filename} uploaded successfully.`);
-        return `https://${params.Bucket}.s3.amazonaws.com/${params.Key}`;
+        const data = await s3.upload(params).promise();
+        console.log(`Image ${filename} uploaded successfully. URL: ${data.Location}`);
+        return data.Location;
     } catch (error) {
         console.error('Error uploading image to S3:', error);
         throw error;
@@ -178,6 +174,8 @@ async function processImages() {
 
                 // Update MongoDB with the extracted URL and app names
                 await updateImageRecord(_id, s3Url, googleAppName, appleAppName);
+                console.log(`Updating MongoDB with Google App Name: ${googleAppName} and Apple App Name: ${appleAppName}`);
+
                 console.log(`Successfully processed and uploaded image for document ID: ${_id}`);
             } catch (error) {
                 console.error(`Error processing image for document ID: ${_id}`, error);
