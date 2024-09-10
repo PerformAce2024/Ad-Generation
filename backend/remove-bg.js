@@ -13,8 +13,8 @@ const client = new MongoClient(uri, {
     }
 });
 
-const dbName = 'Images'; // Update the database name
-const urlsCollectionName = 'URLs'; // Collection to store image URLs
+const dbName = 'Images'; // Database name
+const urlsCollectionName = 'URLs'; // Collection name for storing image URLs
 
 // Configure AWS S3
 const s3 = new AWS.S3({
@@ -51,7 +51,7 @@ async function removeBg(imageURL) {
         console.log(`Requesting RemoveBG for image URL: ${imageURL}`);
         const response = await fetch("https://api.remove.bg/v1.0/removebg", {
             method: "POST",
-            headers: { "X-Api-Key": process.env.REMOVE_BG_API_KEY }, // Replace with your API key
+            headers: { "X-Api-Key": process.env.REMOVE_BG_API_KEY }, 
             body: formData,
         });
 
@@ -59,7 +59,7 @@ async function removeBg(imageURL) {
             console.log('Background removed successfully.');
             return await response.arrayBuffer();
         } else {
-            const errorText = await response.text(); // Get the detailed error response
+            const errorText = await response.text();
             console.error(`Failed to remove background: ${response.status} ${response.statusText} Response: ${errorText}`);
             throw new Error(`${response.status}: ${response.statusText}`);
         }
@@ -69,16 +69,16 @@ async function removeBg(imageURL) {
     }
 }
 
-// Replace the function with S3 upload
+// Upload image to S3
 async function uploadImageToS3(filename, buffer) {
     try {
         console.log(`Uploading image ${filename} to S3...`);
         const params = {
-            Bucket: 'performace-extracted-images', // Replace with your S3 bucket name
+            Bucket: 'performace-extracted-images',
             Key: filename,
             Body: Buffer.from(buffer),
-            ContentType: 'image/png', // Change based on the file type
-            ACL: 'public-read', // or 'private' depending on your needs
+            ContentType: 'image/png',
+            ACL: 'public-read',
         };
 
         const data = await s3.upload(params).promise();
@@ -98,12 +98,12 @@ async function updateImageRecord(id, extractedUrl, googleAppName, appleAppName) 
         const urlsCollection = db.collection(urlsCollectionName);
 
         const updateResult = await urlsCollection.updateOne(
-            { _id: id }, // The filter to find the document by its _id
+            { _id: id },
             {
                 $set: {
-                    extracted_url: extractedUrl, // Update the extracted_url field with the S3 URL
-                    google_app_name: googleAppName, // Update the google_app_name field with the extracted bundle ID
-                    apple_app_name: appleAppName // Update the apple_app_name field with the extracted app name
+                    extracted_url: extractedUrl,
+                    google_app_name: googleAppName,
+                    apple_app_name: appleAppName,
                 }
             }
         );
@@ -121,15 +121,15 @@ async function updateImageRecord(id, extractedUrl, googleAppName, appleAppName) 
 
 // Extract Google app name from the URL
 function extractGoogleAppName(url) {
-    const match = url.match(/id=([a-zA-Z0-9._]+)/); // Ensure it only extracts valid characters for app ID
+    const match = url.match(/id=([a-zA-Z0-9._]+)/);
     const googleAppName = match ? match[1] : null;
     console.log(`Extracted Google app name: ${googleAppName}`);
     return googleAppName;
 }
 
-
+// Extract Apple app name from the URL
 function extractAppleAppName(url) {
-    const match = url.match(/\/id(\d+)/); // Extract only the numerical app ID from the URL
+    const match = url.match(/\/id(\d+)/);
     const appleAppName = match ? match[1] : null;
     console.log(`Extracted Apple app ID: ${appleAppName}`);
     return appleAppName;
@@ -152,7 +152,7 @@ async function processImages() {
             // Check if google_play_url and apple_app_url are defined
             if (!google_play_url || !apple_app_url) {
                 console.warn(`Warning: Missing google_play_url or apple_app_url for document ID: ${_id}. Skipping...`);
-                continue;  // Skip processing if these fields are not available
+                continue;
             }
 
             try {
@@ -165,7 +165,7 @@ async function processImages() {
 
                 if (!googleAppName || !appleAppName) {
                     console.warn(`Could not extract app names for document ID: ${_id}. Skipping...`);
-                    continue;  // Skip this document if bundle IDs are not found
+                    continue;
                 }
 
                 // Upload image to S3
@@ -174,8 +174,6 @@ async function processImages() {
 
                 // Update MongoDB with the extracted URL and app names
                 await updateImageRecord(_id, s3Url, googleAppName, appleAppName);
-                console.log(`Updating MongoDB with Google App Name: ${googleAppName} and Apple App Name: ${appleAppName}`);
-
                 console.log(`Successfully processed and uploaded image for document ID: ${_id}`);
             } catch (error) {
                 console.error(`Error processing image for document ID: ${_id}`, error);
