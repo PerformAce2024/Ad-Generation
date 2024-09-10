@@ -125,17 +125,17 @@ async function updateImageRecord(id, extractedUrl, googleAppName, appleAppName) 
 
 // Extract Google app name from the URL
 function extractGoogleAppName(url) {
-    const match = url.match(/id=([^&]+)/);
+    const match = url.match(/id=([a-zA-Z0-9._]+)/); // Ensure it only extracts valid characters for app ID
     const googleAppName = match ? match[1] : null;
     console.log(`Extracted Google app name: ${googleAppName}`);
     return googleAppName;
 }
 
-// Extract Apple app name from the URL
+
 function extractAppleAppName(url) {
-    const match = url.match(/\/app\/(.*?)\/id/);
+    const match = url.match(/\/id(\d+)/); // Extract only the numerical app ID from the URL
     const appleAppName = match ? match[1] : null;
-    console.log(`Extracted Apple app name: ${appleAppName}`);
+    console.log(`Extracted Apple app ID: ${appleAppName}`);
     return appleAppName;
 }
 

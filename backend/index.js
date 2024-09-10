@@ -285,6 +285,10 @@ app.get('/creatives', (req, res) => {
 // Serve the creatives as static files
 app.use('/creatives', express.static(path.join(__dirname, 'creatives')));
 
+// Serve the creatives (160x600.js) as static files
+app.get('/creatives/160x600', (req, res) => {
+  res.sendFile(path.join(__dirname, 'creatives', '160x600.js'));
+});
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {

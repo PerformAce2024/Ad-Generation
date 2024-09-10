@@ -31,6 +31,17 @@
     </div>
   </section>
 
+  <!-- Ad Slot for 160x600 Ad -->
+  <div id="ad-slot-160x600"></div>
+
   <script src="./display-creatives.js"></script>
+  
+  <!-- Script to dynamically load the creative -->
+  <script>
+      // Load the creative (160x600.js) from the backend dynamically
+      const script = document.createElement('script');
+      script.src = 'https://ad-generation.onrender.com/creatives/160x600';  // Adjust this to your backend URL
+      document.getElementById('ad-slot-160x600').appendChild(script);
+  </script>
 </body>
 </html>
