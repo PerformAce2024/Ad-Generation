@@ -15,23 +15,22 @@ const imagesCollectionName = 'URLs';
 async function storeImageUrlInMongoDB(imageUrl, iconUrl, googlePlayUrl, appleAppUrl) {
   try {
     // Ensure the client is connected before performing any operations
-    if (!client.isConnected()) {
-        console.log('Connecting to MongoDB...');
-        await client.connect();
-      }
-      
+    if (!client.topology || !client.topology.isConnected()) {
+      await client.connect();
+    }
+
     const db = client.db(dbName);
     const imagesCollection = db.collection(imagesCollectionName);
 
     console.log(`Storing document in MongoDB: image_url=${imageUrl}, icon_url=${iconUrl}, google_play_url=${googlePlayUrl}, apple_app_url=${appleAppUrl}`);
-    
+
     await imagesCollection.insertOne({
       image_url: imageUrl,
       icon_url: iconUrl,
       google_play_url: googlePlayUrl,
       apple_app_url: appleAppUrl,
     });
-    
+
     console.log(`Successfully stored: image_url=${imageUrl}, icon_url=${iconUrl}`);
   } catch (error) {
     console.error(`Error storing URL in MongoDB: ${error.message}`);
@@ -71,7 +70,7 @@ async function scrapeAndStoreImageUrls(playStoreUrl, appleAppURL) {
     const imageUrls = [];
     $('img[alt="Screenshot image"]').each((i, elem) => {
       let imageUrl = $(elem).attr('src') || $(elem).attr('data-src');
-      
+
       if (imageUrl) {
         if (imageUrl.startsWith('//')) {
           imageUrl = 'https:' + imageUrl; // Ensure URL is absolute

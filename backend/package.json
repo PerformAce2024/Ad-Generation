@@ -11,6 +11,7 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.645.0",
     "aws-sdk": "^2.1691.0",
     "axios": "^1.7.3",
     "cheerio": "^1.0.0",
@@ -22,6 +23,7 @@
     "google-play-scraper": "^10.0.0",
     "mongodb": "^6.8.1",
     "node-fetch": "^3.3.2",
-    "nodemon": "^3.1.4"
+    "nodemon": "^3.1.4",
+    "playwright": "^1.47.0"
   }
 }

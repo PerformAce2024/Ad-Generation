@@ -184,7 +184,7 @@ app.post("/generate-phrases", async (req, res) => {
   const { google_play, apple_app } = req.body;
 
   if (!google_play) {
-    console.error('Error: Google Play Store URL is mandatory', error);
+    console.error('Error: Google Play Store URL is mandatory');
     return res.status(400).send("Google Play Store URL is mandatory");
   }
 
@@ -262,6 +262,29 @@ app.post('/scrape', async (req, res) => {
     return res.status(500).json({ message: "Error occurred during scraping and background removal.", error: error.message });
   }
 });
+
+// Endpoint to fetch and serve creatives
+app.get('/creatives', (req, res) => {
+  const creativesDir = path.join(__dirname, "..", "creatives"); // Path to your creatives folder
+  fs.readdir(creativesDir, (err, files) => {
+    if (err) {
+      return res.status(500).json({ message: "Failed to retrieve creatives." });
+    }
+
+    // Prepare the response array with URLs for each creative
+    const creatives = files.map(file => ({
+      name: file,
+      url: `/creatives/${file}`,
+      description: "Generated Ad Creative"
+    }));
+
+    return res.status(200).json(creatives);
+  });
+});
+
+// Serve the creatives as static files
+app.use('/creatives', express.static(path.join(__dirname, 'creatives')));
+
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {

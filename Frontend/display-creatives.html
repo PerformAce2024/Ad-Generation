@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Creative Display</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-100 text-center">
+
+  <header class="text-black-600 body-font">
+    <div class="container mx-auto flex justify-between p-5 items-center">
+      <div class="w-[120px] lg:w-[150px] sm:w-[120px]">
+        <a href="./index.html"><img src="./images/logo.png" alt="growthZ.ai"></a>
+      </div>
+      <div class="flex justify-center">
+        <button id="logout"
+          class="logout-btn rounded-full text-white bg-green-500 relative text-base/6 font-semibold hover:opacity-80 px-4 py-2 sm:text-sm/6 cursor-pointer">
+          Logout
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="text-gray-900 body-font">
+    <div class="container px-5 py-12 mx-auto">
+      <h1 class="text-4xl font-bold mb-4 text-green-400">Generated Creatives</h1>
+      <p class="mb-6">Here are all the generated creatives:</p>
+      <div id="creatives-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8"></div>
+    </div>
+  </section>
+
+  <script src="./display-creatives.js"></script>
+</body>
+</html>

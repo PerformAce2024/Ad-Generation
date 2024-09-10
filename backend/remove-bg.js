@@ -2,6 +2,7 @@ import { MongoClient } from 'mongodb';
 import fetch from 'node-fetch';
 import FormData from 'form-data';
 import AWS from 'aws-sdk';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import 'dotenv/config';
 
 const uri = process.env.MONGODB_URI;
@@ -17,10 +18,12 @@ const dbName = 'Images'; // Update the database name
 const urlsCollectionName = 'URLs'; // Collection to store image URLs
 
 // Configure AWS S3
-const s3 = new AWS.S3({
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+const s3Client = new S3Client({
     region: process.env.AWS_REGION,
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    },
 });
 
 // Fetch image URLs from MongoDB
@@ -76,14 +79,15 @@ async function uploadImageToS3(filename, buffer) {
         const params = {
             Bucket: 'performace-extracted-images', // Your S3 bucket name
             Key: filename,
-            Body: Buffer.from(buffer),
+            Body: buffer,
             ContentType: 'image/png', // Set correct content type
             ACL: 'public-read', // or 'private' depending on your needs
         };
 
-        const data = await s3.upload(params).promise();
-        console.log(`Image uploaded successfully to S3. URL: ${data.Location}`);
-        return data.Location;
+        const command = new PutObjectCommand(params);
+        const data = await s3Client.send(command);
+        console.log(`Image ${filename} uploaded successfully.`);
+        return `https://${params.Bucket}.s3.amazonaws.com/${params.Key}`;
     } catch (error) {
         console.error('Error uploading image to S3:', error);
         throw error;
