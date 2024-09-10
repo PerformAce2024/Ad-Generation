@@ -251,7 +251,7 @@ async function createAdImage(imageData, phrase, index, fontDetails) {
         ctx.textBaseline = 'middle';
         ctx.fillText('Order Now', buttonX + buttonWidth / 2, buttonY + buttonHeight / 2);
 
-        const outputPath = path.join(__dirname, 'creatives', `160x600-${index}-${Date.now()}.png`);
+        const outputPath = path.join(__dirname, 'creatives', `oneSixty-${index}-${Date.now()}.png`);
         const buffer = canvas.toBuffer('image/jpeg');
         fs.writeFileSync(outputPath, buffer);
 
