@@ -8,17 +8,13 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="bg-gray-100 text-center">
-
   <header class="text-black-600 body-font">
     <div class="container mx-auto flex justify-between p-5 items-center">
       <div class="w-[120px] lg:w-[150px] sm:w-[120px]">
         <a href="./index.html"><img src="./images/logo.png" alt="growthZ.ai"></a>
       </div>
       <div class="flex justify-center">
-        <button id="logout"
-          class="logout-btn rounded-full text-white bg-green-500 relative text-base/6 font-semibold hover:opacity-80 px-4 py-2 sm:text-sm/6 cursor-pointer">
-          Logout
-        </button>
+        <button id="logout" class="logout-btn rounded-full text-white bg-green-500 relative text-base/6 font-semibold hover:opacity-80 px-4 py-2 sm:text-sm/6 cursor-pointer">Logout</button>
       </div>
     </div>
   </header>
@@ -31,17 +27,6 @@
     </div>
   </section>
 
-  <!-- Ad Slot for 160x600 Ad -->
-  <div id="ad-slot-160x600"></div>
-
   <script src="./display-creatives.js"></script>
-  
-  <!-- Script to dynamically load the creative -->
-  <script>
-      // Load the creative (160x600.js) from the backend dynamically
-      const script = document.createElement('script');
-      script.src = 'https://ad-generation.onrender.com/creatives/160x600';  // Adjust this to your backend URL
-      document.getElementById('ad-slot-160x600').appendChild(script);
-  </script>
 </body>
 </html>

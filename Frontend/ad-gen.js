@@ -108,9 +108,3 @@ if (logoutButton) {
 } else {
     console.error("Logout button not found");
 }
-
-
-// Redirect to the creatives page
-document.getElementById("getCreativesBtn").addEventListener("click", () => {
-    window.location.href = "/creatives.html";
-});

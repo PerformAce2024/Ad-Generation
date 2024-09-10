@@ -6,6 +6,7 @@ import cors from "cors";
 import axios from "axios";
 import gplay from "google-play-scraper";
 import path from "path";
+import fs from 'fs';
 import { fileURLToPath } from "url";
 import { savePhraseToDatabase } from './storeCommunications.js';
 import { scrapeAndStoreImageUrls } from './connect.js';
@@ -258,37 +259,23 @@ app.post('/scrape', async (req, res) => {
     await scrapeAndStoreImageUrls(google_play, apple_app);  // Assuming scrapeAndStoreImageUrls is already defined
     return res.status(200).send('Scraping, storing, and background removal process completed.');
   } catch (error) {
-    cconsole.error('Error during scraping or background removal process:', error);
+    console.error('Error during scraping or background removal process:', error);
     return res.status(500).json({ message: "Error occurred during scraping and background removal.", error: error.message });
   }
 });
 
-// Endpoint to fetch and serve creatives
 app.get('/creatives', (req, res) => {
-  const creativesDir = path.join(__dirname, "..", "creatives"); // Path to your creatives folder
+  const creativesDir = path.join(__dirname, 'creatives');
   fs.readdir(creativesDir, (err, files) => {
-    if (err) {
-      return res.status(500).json({ message: "Failed to retrieve creatives." });
-    }
-
-    // Prepare the response array with URLs for each creative
-    const creatives = files.map(file => ({
-      name: file,
-      url: `/creatives/${file}`,
-      description: "Generated Ad Creative"
-    }));
-
+    if (err) return res.status(500).json({ message: "Failed to retrieve creatives." });
+    const creatives = files.map(file => ({ name: file, url: `/creatives/${file}`, description: "Generated Ad Creative" }));
     return res.status(200).json(creatives);
   });
 });
 
-// Serve the creatives as static files
 app.use('/creatives', express.static(path.join(__dirname, 'creatives')));
 
-// Serve the creatives (160x600.js) as static files
-app.get('/creatives/160x600', (req, res) => {
-  res.sendFile(path.join(__dirname, 'creatives', '160x600.js'));
-});
+app.get('/creatives/160x600', (req, res) => res.sendFile(path.join(__dirname, 'creatives', '160x600.js')));
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
