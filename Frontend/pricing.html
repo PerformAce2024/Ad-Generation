@@ -156,25 +156,24 @@
     <div class="py-8 lg:py-16 px-4 mx-auto max-w-screen-md">
         <h2 class="mb-4 text-6xl font-bold text-center text-green-400 ">Pricing</h2>
         <p class="mb-8 lg:mb-16  text-center text-white sm:text-xl">Product is in beta and we are currently working on tailor made pricing model. Contact us for pricing</p>
-        <form action="#" class="space-y-8">
+        <form action="./pricing.js" method="POST" class="space-y-8">
             <div>
                 <label for="email" class="block mb-2 text-l font-large text-white">Your email</label>
                 <input type="email" id="email" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 dark:shadow-sm-light" placeholder="name@gmail.com" required>
             </div>
             <div>
-                <label for="subject" class="block mb-2 text-l font-large text-white">Contact Number</label>
+                <label for="number" class="block mb-2 text-l font-large text-white">Contact Number</label>
                 <input type="text" id="subject" class="block p-3 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 dark:shadow-sm-light" placeholder="+91" required>
             </div>
             <div class="sm:col-span-2">
                 <label for="message" class="block mb-2 text-l font-large text-white">Your message</label>
                 <textarea id="message" rows="6" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg shadow-sm border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="send all your queries"></textarea>
             </div>
-            <a href="" style="margin-left: 280px;"> <button class="inline-block bg-green-600 text-white 
+       <button type="submit" class="inline-block bg-green-600 text-white 
             px-4 py-2 sm:px-4 sm:py-2 md:px-3 md:py-2 lg:px-4 lg:py-2 
             rounded-full hover:bg-green-700 transition duration-300 
-            text-sm sm:text-base md:text-lg lg:text-xl font-semibold mt-10">
+            text-sm sm:text-base md:text-lg lg:text-xl font-semibold mt-10" style="margin-left: 280px;">
       Send Message</button>
-    </a>
         </form>
     </div>
     <div class="gradient-bg fixed left-0 top-0 -z-10 h-full w-full overflow-hidden opacity-[20%] blur-3xl"
@@ -192,6 +191,7 @@
       </div>
     </div>
   </section>
+  <script src="./pricing.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
 </body>
 </html>
