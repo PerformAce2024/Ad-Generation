@@ -10,6 +10,7 @@ import fs from 'fs';
 import { fileURLToPath } from "url";
 import { savePhraseToDatabase } from './storeCommunications.js';
 import { scrapeAndStoreImageUrls } from './connect.js';
+import { connectToMongo } from './db.js';
 
 const app = express();
 app.use(express.json());
@@ -275,8 +276,9 @@ app.get('/creatives', (req, res) => {
 
 app.use('/creatives', express.static(path.join(__dirname, 'creatives')));
 
-app.get('/creatives/oneSixty', (req, res) => {
-  res.sendFile(path.join(__dirname, 'creatives', 'oneSixty.js'));
+// Route to serve oneSixty.js directly if needed
+app.get('/oneSixty', (req, res) => {
+  res.sendFile(path.join(__dirname, 'oneSixty.js'));
 });
 
 const PORT = process.env.PORT || 8000;

@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const creativeDiv = document.createElement("div");
             creativeDiv.className = "bg-white shadow-lg rounded-lg overflow-hidden";
             creativeDiv.innerHTML = `
-          <img src="${creative.url}" alt="Creative ${creative.name}" class="w-full">
+          <img src="${BASE_URL}${creative.url}" alt="Creative ${creative.name}" class="w-full">
           <div class="p-4">
             <p class="text-lg font-semibold">${creative.name}</p>
             <p class="text-sm text-gray-500">${creative.description}</p>

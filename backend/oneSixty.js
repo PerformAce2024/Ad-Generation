@@ -4,18 +4,12 @@ import fetch from 'node-fetch';
 import { spawn } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { MongoClient } from 'mongodb';
-import { extractFontDetails } from '../font-extractor.js';
+import { extractFontDetails } from './font-extractor.js';
+import { connectToMongo } from './db.js';
 import 'dotenv/config';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-const uri = process.env.MONGODB_URI;
-const client = new MongoClient(uri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-});
 
 const dbPhraseName = 'Communications';
 const approvedCollectionName = 'approvedCommunication';
@@ -33,14 +27,15 @@ async function downloadImage(url, outputPath) {
         console.log(`Downloaded image to ${outputPath}`);
     } catch (error) {
         console.error(`Failed to download image from ${url}:`, error);
+        throw new Error(`Failed to download image from ${url}`);
     }
 }
-
 
 // Fetch approved phrases from MongoDB
 async function fetchApprovedPhrases(email) {
     try {
         console.log(`Fetching approved phrases for email: ${email}`);
+        const client = await connectToMongo();
         const db = client.db(dbPhraseName);
         const approvedCollection = db.collection(approvedCollectionName);
 
@@ -51,9 +46,7 @@ async function fetchApprovedPhrases(email) {
             return ['Default USP phrase'];  // Fallback in case there are no approved phrases
         }
 
-        const approvedPhrases = approvedPhrasesDocument.phrases;
-        console.log(`Approved phrases for ${email}:`, approvedPhrases);
-        return approvedPhrases;
+        return approvedPhrasesDocument.phrases;
     } catch (error) {
         console.error('Error fetching approved phrases:', error);
         return ['Default USP phrase'];
@@ -106,23 +99,12 @@ function calculateFontSize(ctx, phrase, maxWidth) {
 async function fetchAllImageData() {
     try {
         console.log('Connecting to MongoDB...');
-        await client.connect();
-        console.log('MongoDB connected successfully.');
-
-        const db = client.db(dbName);
+        const client = await connectToMongo();
+        const db = client.db(dbCreativeName);
         const urlsCollection = db.collection(urlsCollectionName);
 
         console.log('Fetching all image data from MongoDB...');
-        const imageDataArray = await urlsCollection.find({}, {
-            projection: {
-                image_url: 1,
-                icon_url: 1,
-                google_play_url: 1,
-                apple_app_url: 1,
-                extracted_url: 1,
-                email: 1
-            }
-        }).toArray();
+        const imageDataArray = await urlsCollection.find({}).toArray();
 
         if (imageDataArray.length === 0) {
             console.error('No image data found in MongoDB');
@@ -134,10 +116,6 @@ async function fetchAllImageData() {
     } catch (error) {
         console.error('Error fetching image data from MongoDB:', error);
         throw error;
-    } finally {
-        console.log('Closing MongoDB connection...');
-        await client.close();
-        console.log('MongoDB connection closed.');
     }
 }
 
@@ -188,7 +166,6 @@ async function createAdImage(imageData, phrase, index, fontDetails) {
         if (fs.existsSync(localIconPath)) {
             const iconImage = await loadImage(localIconPath);
             ctx.drawImage(iconImage, width - iconSize - 10, 10, iconSize, iconSize);
-            // ctx.drawImage(image, x-coordinate position, y-coordinate position, image width size, image height size);
         }
 
         const baseImage = await loadImage(localExtractedImagePath);
@@ -201,39 +178,31 @@ async function createAdImage(imageData, phrase, index, fontDetails) {
         ctx.textBaseline = 'top';
 
         // Add text to the canvas
-        const paddingX = 20;
-        let textY = 80; // Start text 50px from the top
-
-        // If the text is too long, manually wrap it
-        const lines = phrase.split(" ");
+        let textY = 80; // Start text 80px from the top
+        const words = phrase.split(" ");
         let line = "";
-        const maxLineWidth = width - paddingX * 2;
+        const maxLineWidth = width - 40;
 
-        // Break long phrases into multiple lines
-        for (let n = 0; n < lines.length; n++) {
-            const testLine = line + lines[n] + " ";
-            const metrics = ctx.measureText(testLine);
-            const testWidth = metrics.width;
-
-            if (testWidth > maxLineWidth && n > 0) {
+        // Handle text wrapping for long phrases
+        words.forEach((word, idx) => {
+            const testLine = line + word + " ";
+            const testWidth = ctx.measureText(testLine).width;
+            if (testWidth > maxLineWidth && idx > 0) {
                 ctx.fillText(line, width / 2, textY);
-                line = lines[n] + " ";
+                line = word + " ";
                 textY += fontSize + 5;
             } else {
                 line = testLine;
             }
-        }
+        });
         ctx.fillText(line, width / 2, textY);
 
-        // Draw image and button
+        // Draw the image
         const textHeight = textY + fontSize + 5;
-        const buttonHeight = 40;
-        const buttonMargin = 20;
-        const availableHeightForImage = height - textHeight - buttonHeight - buttonMargin * 2;
-
+        const availableHeightForImage = height - textHeight - 60; // Reserve space for the button
         const aspectRatio = baseImage.width / baseImage.height;
-        let imgWidth = availableHeightForImage * 1.1; // Use 90% of available height
-        let imgHeight = imgWidth * aspectRatio;
+        let imgWidth = availableHeightForImage * aspectRatio;
+        let imgHeight = availableHeightForImage;
 
         if (imgWidth > width * 0.8) {
             imgWidth = width * 0.8;
@@ -241,22 +210,18 @@ async function createAdImage(imageData, phrase, index, fontDetails) {
         }
 
         const x = (width - imgWidth) / 2;
-        const y = textHeight + (availableHeightForImage - imgHeight) / 2;;
+        ctx.drawImage(baseImage, x, textHeight, imgWidth, imgHeight);
 
-        ctx.drawImage(baseImage, x, y, imgWidth, imgHeight);
-
-        // Add button at the bottom
+        // Draw the button
+        const buttonHeight = 40;
         const buttonWidth = 120;
         const buttonX = (width - buttonWidth) / 2;
-        const buttonY = height - buttonHeight - buttonMargin;;
+        const buttonY = height - buttonHeight - 20;
 
         ctx.fillStyle = iconColor;
         ctx.fillRect(buttonX, buttonY, buttonWidth, buttonHeight);
-
         ctx.font = 'bold 16px Times New Roman';
         ctx.fillStyle = 'white';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
         ctx.fillText('Order Now', buttonX + buttonWidth / 2, buttonY + buttonHeight / 2);
 
         const outputPath = path.join(__dirname, 'creatives', `oneSixty-${index}-${Date.now()}.png`);
