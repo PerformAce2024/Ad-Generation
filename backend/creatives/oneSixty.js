@@ -26,6 +26,7 @@ const urlsCollectionName = 'URLs';
 // Download image function
 async function downloadImage(url, outputPath) {
     try {
+        console.log(`Starting download of image from URL: ${url}`);
         const response = await fetch(url);
         const buffer = await response.buffer();
         fs.writeFileSync(outputPath, buffer);
@@ -62,25 +63,30 @@ async function fetchApprovedPhrases(email) {
 // Extract background color using Python script
 async function getBackgroundColor(imagePath) {
     return new Promise((resolve, reject) => {
+        console.log(`Extracting background color for image at: ${imagePath}`);
         const pythonProcess = spawn('python', [path.join(__dirname, 'backgroundColor.py'), imagePath]);
 
         pythonProcess.stdout.on('data', (data) => {
             const color = data.toString().trim();
+            console.log(`Extracted background color: ${color}`);
             resolve(color);
         });
 
         pythonProcess.stderr.on('data', (data) => {
+            console.error(`Python error while extracting background color: ${data}`);
             reject(`Python error: ${data}`);
         });
 
         pythonProcess.on('close', (code) => {
             if (code !== 0) {
+                console.error(`Python script exited with code ${code}`);
                 reject(`Python script exited with code ${code}`);
             }
         });
     });
 }
 
+// Calculate font size
 function calculateFontSize(ctx, phrase, maxWidth) {
     let fontSize = 20;
     ctx.font = `${fontSize}px Times New Roman`;
@@ -92,6 +98,7 @@ function calculateFontSize(ctx, phrase, maxWidth) {
         textWidth = ctx.measureText(phrase).width;
     }
 
+    console.log(`Calculated font size for phrase "${phrase}" is: ${fontSize}`);
     return fontSize;
 }
 
@@ -118,6 +125,7 @@ async function fetchAllImageData() {
         }).toArray();
 
         if (imageDataArray.length === 0) {
+            console.error('No image data found in MongoDB');
             throw new Error('No image data found in MongoDB');
         }
 
@@ -136,7 +144,7 @@ async function fetchAllImageData() {
 // Create ad image with downloaded images and phrases
 async function createAdImage(imageData, phrase, index, fontDetails) {
     try {
-        console.log(`Creating ad image for index ${index}`);
+        console.log(`Creating ad image for index ${index} with phrase: "${phrase}"`);
 
         const localIconPath = path.join(__dirname, `icon_${index}.png`);
         if (imageData.icon_url) {
@@ -147,7 +155,7 @@ async function createAdImage(imageData, phrase, index, fontDetails) {
         if (imageData.image_url) {
             await downloadImage(imageData.image_url, localImagePath);
         } else {
-            console.error(`No image URL found for index ${index}`);
+            console.error(`No image URL found for index: ${index}`);
             return;
         }
 
@@ -263,6 +271,7 @@ async function createAdImage(imageData, phrase, index, fontDetails) {
 
 async function createAdsForAllImages() {
     try {
+        console.log('Starting process to create ads for all images...');
         const imageDataArray = await fetchAllImageData();
 
         for (let i = 0; i < imageDataArray.length; i++) {
@@ -271,9 +280,12 @@ async function createAdsForAllImages() {
             const fontDetails = await extractFontDetails(imageData.google_play_url);
 
             for (let j = 0; j < approvedPhrases.length; j++) {
+                console.log(`Processing image ${i} and phrase ${j}`);
                 await createAdImage(imageData, approvedPhrases[j], `${i}-${j}`, fontDetails);
             }
         }
+
+        console.log('Finished creating ads for all images.');
     } catch (error) {
         console.error('Error processing ad images:', error);
     }
