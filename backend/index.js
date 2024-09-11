@@ -10,7 +10,7 @@ import fs from 'fs';
 import { fileURLToPath } from "url";
 import { savePhraseToDatabase } from './storeCommunications.js';
 import { scrapeAndStoreImageUrls } from './connect.js';
-import { connectToMongo } from './db.js';
+import { createAdsForAllImages } from './oneSixty.js';
 
 const app = express();
 app.use(express.json());
@@ -277,8 +277,14 @@ app.get('/creatives', (req, res) => {
 app.use('/creatives', express.static(path.join(__dirname, 'creatives')));
 
 // Route to serve oneSixty.js directly if needed
-app.get('/oneSixty', (req, res) => {
-  res.sendFile(path.join(__dirname, 'oneSixty.js'));
+app.get('/oneSixty', async (req, res) => {
+  try {
+      await createAdsForAllImages(); // Call your function to generate creatives
+      res.status(200).send('Creatives generation started.');
+  } catch (error) {
+      console.error('Error generating creatives:', error);
+      res.status(500).send('Error generating creatives.');
+  }
 });
 
 const PORT = process.env.PORT || 8000;

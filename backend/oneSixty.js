@@ -256,4 +256,4 @@ async function createAdsForAllImages() {
     }
 }
 
-createAdsForAllImages();
+export { createAdsForAllImages };

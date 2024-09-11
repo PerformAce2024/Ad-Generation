@@ -3,14 +3,14 @@
 
 <head>
   <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-RSVRN03MZQ"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-RSVRN03MZQ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
 
-  gtag('config', 'G-RSVRN03MZQ');
-</script>
+    gtag('config', 'G-RSVRN03MZQ');
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>growthZ.ai</title>
@@ -121,7 +121,9 @@
     <div class="loader"></div>
   </div>
 
-  <button id="getCreativesBtn" class="rounded-full text-white bg-green-500 relative text-base/6 font-semibold hover:opacity-80 px-4 py-2 sm:text-sm/6 cursor-pointer"> Get Creatives!</button>
+  <button id="getCreativesBtn" onclick="onGetCreativesHandler()"
+    class="rounded-full text-white bg-green-500 relative text-base/6 font-semibold hover:opacity-80 px-4 py-2 sm:text-sm/6 cursor-pointer"> Get
+    Creatives!</button>
 
   <script>
     // Add event listener to the button

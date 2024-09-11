@@ -9,6 +9,15 @@ document.addEventListener("DOMContentLoaded", (event) => {
   } else {
     console.error("AdButton not found");
   }
+
+  // Attach the event listener to the GetCreativesBtn after the DOM is fully loaded
+  const getCreativesButton = document.getElementById("getCreativesBtn");
+  if (getCreativesButton) {
+    console.log("GetCreativesBtn found, attaching event listener");
+    getCreativesButton.addEventListener("click", onGetCreativesHandler);
+  } else {
+    console.error("GetCreativesBtn not found");
+  }
 });
 
 const BASE_URL = 'https://ad-generation.onrender.com';
@@ -32,6 +41,7 @@ async function onClickHandler() {
   if (loader) {
     console.log("Displaying loader");
     loader.classList.remove("hidden");
+    loader.classList.add('flex');
   }
 
   console.log("Google Play URL:", googlePlayURL);
@@ -103,6 +113,41 @@ async function onClickHandler() {
       loader.classList.add("hidden");
     }
     document.getElementById("phrases-container").innerHTML = "Error retrieving phrases. Please check your connection or try again later.";
+  }
+}
+
+// Function for Get Creatives Button
+async function onGetCreativesHandler() {
+  console.log("Get Creatives button clicked");
+
+  const loader = document.getElementById("loader");
+  if (loader) {
+    console.log("Displaying loader");
+    loader.classList.remove("hidden");
+    loader.classList.add('flex');
+  }
+
+  try {
+    const response = await fetch('/oneSixty', { method: 'GET' });
+    if (!response.ok) {
+      throw new Error('Error generating creatives');
+    }
+
+    const result = await response.text();
+    console.log(result);  // Ensure the backend is responding correctly
+
+    // Hide loader
+    if (loader) {
+      loader.classList.add("hidden");
+    }
+
+    // Redirect to display creatives page after generation
+    window.location.href = '/display-creatives.html';
+  } catch (error) {
+    console.error("Error generating creatives:", error);
+    if (loader) {
+      loader.classList.add("hidden");
+    }
   }
 }
 

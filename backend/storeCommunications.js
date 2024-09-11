@@ -1,18 +1,12 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { MongoClient } from "mongodb";
+import { connectToMongo } from './db.js';
 
 console.log('Loading storeCommunications.js module');
 
-const uri = process.env.MONGODB_URI;
-console.log('MongoDB URI:', uri);
-
-const client = new MongoClient(uri);
-console.log('Attempting to connect to MongoDB...');
-
 try {
-  await client.connect();
+  client = await connectToMongo();
   console.log("MongoDB connected successfully");
 } catch (error) {
   console.error("MongoDB connection error:", error);
