@@ -23,7 +23,7 @@
   </style>
 </head>
 
-<body class="min-h-screen ">
+<body class="min-h-screen text-white">
   <nav x-data="{ isOpen: false }" class="text-white text-2xl sticky top-0 z-50 backdrop-blur pt-4">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
@@ -200,26 +200,41 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+    <script>
 
-            gsap.timeline({
-                scrollTrigger: {
-                    trigger: aboutContainer,
-                    start: 'top 80%', // Start the animation when the top of the section reaches 80% of the viewport height
-                    end: 'bottom bottom', // End the animation when the bottom of the section reaches the bottom of the viewport
-                    scrub: 1,
-                    onUpdate: (self) => {
-                        if (self.progress === 1) {
-                            textContent.chars.forEach(char => char.style.opacity = 1); // Ensure all characters are fully visible
-                        }
-                    }
-                },
-                ease: 'none'
-            }).from(textContent.chars, {
-                opacity: 0.1,
-                stagger: 0.01,
-                duration: 0.1
-            });
-        </script>
+      gsap.registerPlugin(ScrollTrigger);
+  
+      const aboutContainer = document.getElementById('about');
+      if (aboutContainer) {
+        const textContent = new SplitType(aboutContainer.querySelectorAll('p'), {
+          types: 'words, chars'
+        });
+  
+        console.log("Starting GSAP scroll-trigger animation");
+  
+        gsap.timeline({
+          scrollTrigger: {
+            trigger: aboutContainer,
+            start: 'top 80%', // Start the animation when the top of the section reaches 80% of the viewport height
+            end: 'bottom bottom', // End the animation when the bottom of the section reaches the bottom of the viewport
+            scrub: 1,
+            onUpdate: (self) => {
+              console.log("ScrollTrigger progress:", self.progress);
+              if (self.progress === 1) {
+                textContent.chars.forEach(char => char.style.opacity = 1); // Ensure all characters are fully visible
+              }
+            }
+          },
+          ease: 'none'
+        }).from(textContent.chars, {
+          opacity: 0.1,
+          stagger: 0.01,
+          duration: 0.1
+        });
+      } else {
+        console.warn("aboutContainer element not found");
+      }
+      </script>
     </body>
 
 </html>

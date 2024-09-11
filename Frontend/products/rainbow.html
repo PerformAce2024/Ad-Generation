@@ -165,8 +165,8 @@
         class="baffle text-title text-5xl sm:text-7xl md:text-8xl lg:text-9xl xl:text-[10rem] font-medium text-green-400 text-center leading-none">
         Rainbow</h1>
       <h2
-        class="baffle text-subtitle text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-medium max-w-4xl mx-auto mt-6 sm:mt-8 lg:mt-10 text-center leading-tight text-white">
-        Static creative Automation</h2>
+        class=" text-subtitle text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-medium max-w-4xl mx-auto mt-6 sm:mt-8 lg:mt-10 text-center leading-tight text-white">Image ads, Carousels and cinemagraphs all in one place & automated
+        </h2>
     </div>
 
     <div id="about" class="min-h-screen flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8">
@@ -202,25 +202,39 @@
 
     <script>
 
-            gsap.timeline({
-                scrollTrigger: {
-                    trigger: aboutContainer,
-                    start: 'top 80%', // Start the animation when the top of the section reaches 80% of the viewport height
-                    end: 'bottom bottom', // End the animation when the bottom of the section reaches the bottom of the viewport
-                    scrub: 1,
-                    onUpdate: (self) => {
-                        if (self.progress === 1) {
-                            textContent.chars.forEach(char => char.style.opacity = 1); // Ensure all characters are fully visible
-                        }
-                    }
-                },
-                ease: 'none'
-            }).from(textContent.chars, {
-                opacity: 0.1,
-                stagger: 0.01,
-                duration: 0.1
-            });
-        </script>
+      gsap.registerPlugin(ScrollTrigger);
+  
+      const aboutContainer = document.getElementById('about');
+      if (aboutContainer) {
+        const textContent = new SplitType(aboutContainer.querySelectorAll('p'), {
+          types: 'words, chars'
+        });
+  
+        console.log("Starting GSAP scroll-trigger animation");
+  
+        gsap.timeline({
+          scrollTrigger: {
+            trigger: aboutContainer,
+            start: 'top 80%', // Start the animation when the top of the section reaches 80% of the viewport height
+            end: 'bottom bottom', // End the animation when the bottom of the section reaches the bottom of the viewport
+            scrub: 1,
+            onUpdate: (self) => {
+              console.log("ScrollTrigger progress:", self.progress);
+              if (self.progress === 1) {
+                textContent.chars.forEach(char => char.style.opacity = 1); // Ensure all characters are fully visible
+              }
+            }
+          },
+          ease: 'none'
+        }).from(textContent.chars, {
+          opacity: 0.1,
+          stagger: 0.01,
+          duration: 0.1
+        });
+      } else {
+        console.warn("aboutContainer element not found");
+      }
+      </script>
     </body>
 
 </html>
