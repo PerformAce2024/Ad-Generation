@@ -275,8 +275,9 @@ app.get('/creatives', (req, res) => {
 
 app.use('/creatives', express.static(path.join(__dirname, 'creatives')));
 
-app.get('/creatives/oneSixty', (req, res) => {
-  res.sendFile(path.join(__dirname, 'creatives', 'oneSixty.js'));
+// Route to serve oneSixty.js directly if needed
+app.get('/oneSixty', (req, res) => {
+  res.sendFile(path.join(__dirname, 'oneSixty.js'));
 });
 
 const PORT = process.env.PORT || 8000;
