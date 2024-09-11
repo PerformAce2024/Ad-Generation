@@ -1,17 +1,8 @@
-import { MongoClient } from 'mongodb';
 import fetch from 'node-fetch';
 import FormData from 'form-data';
 import AWS from 'aws-sdk';
+import { connectToMongo } from './db.js';
 import 'dotenv/config';
-
-const uri = process.env.MONGODB_URI;
-const client = new MongoClient(uri, {
-    serverApi: {
-        version: '1',
-        strict: true,
-        deprecationErrors: true,
-    }
-});
 
 const dbName = 'Images'; // Database name
 const urlsCollectionName = 'URLs'; // Collection name for storing image URLs
@@ -24,14 +15,10 @@ const s3 = new AWS.S3({
 });
 
 // Fetch image URLs from MongoDB
-async function fetchImageUrlsFromMongoDB() {
+async function fetchImageUrlsFromMongoDB(db) {
     try {
-        console.log('Connecting to MongoDB...');
-        await client.connect();
-        const db = client.db(dbName);
-        const urlsCollection = db.collection(urlsCollectionName);
-
         console.log('Fetching image URLs from MongoDB...');
+        const urlsCollection = db.collection(urlsCollectionName);
         const urls = await urlsCollection.find({}, { projection: { image_url: 1, google_play_url: 1, apple_app_url: 1, icon_url: 1 } }).toArray();
         console.log(`Found ${urls.length} image URLs in MongoDB.`);
         return urls;
@@ -51,7 +38,7 @@ async function removeBg(imageURL) {
         console.log(`Requesting RemoveBG for image URL: ${imageURL}`);
         const response = await fetch("https://api.remove.bg/v1.0/removebg", {
             method: "POST",
-            headers: { "X-Api-Key": process.env.REMOVE_BG_API_KEY }, 
+            headers: { "X-Api-Key": process.env.REMOVE_BG_API_KEY },
             body: formData,
         });
 
@@ -91,12 +78,10 @@ async function uploadImageToS3(filename, buffer) {
 }
 
 // Update MongoDB record with extracted URL and app details
-async function updateImageRecord(id, extractedUrl, googleAppName, appleAppName) {
+async function updateImageRecord(db, id, extractedUrl, googleAppName, appleAppName) {
     try {
         console.log(`Updating MongoDB record with ID: ${id}`);
-        const db = client.db(dbName);
         const urlsCollection = db.collection(urlsCollectionName);
-
         const updateResult = await urlsCollection.updateOne(
             { _id: id },
             {
@@ -137,9 +122,13 @@ function extractAppleAppName(url) {
 
 // Main function to process images
 async function processImages() {
+    let client;
     try {
         console.log('Starting image processing...');
-        const urls = await fetchImageUrlsFromMongoDB();
+        client = await connectToMongo();
+        const db = client.db(dbName);
+
+        const urls = await fetchImageUrlsFromMongoDB(db);
 
         for (const { image_url, _id, google_play_url, apple_app_url } of urls) {
             if (!image_url) {
@@ -149,17 +138,14 @@ async function processImages() {
 
             console.log(`Processing image from URL: ${image_url} & (Document ID: ${_id})`);
 
-            // Check if google_play_url and apple_app_url are defined
             if (!google_play_url || !apple_app_url) {
                 console.warn(`Warning: Missing google_play_url or apple_app_url for document ID: ${_id}. Skipping...`);
                 continue;
             }
 
             try {
-                // Remove background
                 const noBgImageBuffer = await removeBg(image_url);
 
-                // Extract Google and Apple app names
                 const googleAppName = extractGoogleAppName(google_play_url);
                 const appleAppName = extractAppleAppName(apple_app_url);
 
@@ -168,12 +154,10 @@ async function processImages() {
                     continue;
                 }
 
-                // Upload image to S3
                 const extractedFilename = `${googleAppName || appleAppName}_${Date.now()}.png`;
                 const s3Url = await uploadImageToS3(extractedFilename, noBgImageBuffer);
 
-                // Update MongoDB with the extracted URL and app names
-                await updateImageRecord(_id, s3Url, googleAppName, appleAppName);
+                await updateImageRecord(db, _id, s3Url, googleAppName, appleAppName);
                 console.log(`Successfully processed and uploaded image for document ID: ${_id}`);
             } catch (error) {
                 console.error(`Error processing image for document ID: ${_id}`, error);
@@ -182,9 +166,10 @@ async function processImages() {
     } catch (error) {
         console.error('Error during image processing:', error);
     } finally {
-        console.log('Closing MongoDB connection...');
-        await client.close();
-        console.log('MongoDB connection closed.');
+        if (client) {
+            await client.close();
+            console.log('MongoDB connection closed.');
+        }
     }
 }
 

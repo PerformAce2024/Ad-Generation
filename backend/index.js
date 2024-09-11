@@ -10,6 +10,7 @@ import fs from 'fs';
 import { fileURLToPath } from "url";
 import { savePhraseToDatabase } from './storeCommunications.js';
 import { scrapeAndStoreImageUrls } from './connect.js';
+import { connectToMongo } from './db.js';
 
 const app = express();
 app.use(express.json());
