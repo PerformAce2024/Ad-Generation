@@ -7,6 +7,8 @@ import 'dotenv/config';
 const dbName = 'Images';
 const imagesCollectionName = 'URLs';
 
+let client;
+
 // Function to store image URLs in MongoDB
 async function storeImageUrlInMongoDB(imageUrl, iconUrl, googlePlayUrl, appleAppUrl) {
   try {

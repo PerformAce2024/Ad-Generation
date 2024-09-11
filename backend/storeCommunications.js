@@ -2,10 +2,11 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import { connectToMongo } from './db.js';
-
+let client;
 console.log('Loading storeCommunications.js module');
 
 try {
+  // Initialize client connection
   client = await connectToMongo();
   console.log("MongoDB connected successfully");
 } catch (error) {
