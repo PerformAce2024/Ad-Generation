@@ -5,7 +5,7 @@ import { spawn } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { MongoClient } from 'mongodb';
-import { extractFontDetails } from '../font-extractor.js';
+import { extractFontDetails } from './font-extractor.js';
 import 'dotenv/config';
 
 const __filename = fileURLToPath(import.meta.url);
