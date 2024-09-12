@@ -1,7 +1,6 @@
-// font-extractor.js
-import { chromium } from 'playwright';
-import { fileURLToPath } from 'url';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import { chromium } from 'playwright';
 
 // Resolve __dirname for the current module
 const __filename = fileURLToPath(import.meta.url);
@@ -22,6 +21,9 @@ function extractAppNameFromGooglePlayUrl(googlePlayUrl) {
 
 // Function to extract font details from the dynamically constructed website
 async function extractFontDetails(googlePlayUrl) {
+
+  let browser;
+
   try {
     console.log('Starting font extraction process...');
 
@@ -39,7 +41,7 @@ async function extractFontDetails(googlePlayUrl) {
     // Launch browser with Playwright
     console.log('Launching browser...');
     const browser = await chromium.launch({
-      headless: false, // Set to true if you don't want the browser UI
+      headless: true, // Set to true if you don't want the browser UI
     });
 
     // Open a new page
@@ -48,7 +50,14 @@ async function extractFontDetails(googlePlayUrl) {
 
     // Navigate to the dynamically constructed website URL
     console.log(`Navigating to ${websiteUrl}...`);
-    await page.goto(websiteUrl);
+    const response = await page.goto(websiteUrl);
+
+    // Check if the page was successfully loaded
+    if (response.status() !== 200) {
+      console.error(`Failed to load page: ${response.status()}`);
+      return null;
+    }
+
     await page.waitForLoadState('networkidle');
     console.log('Page loaded successfully, waiting for network to be idle.');
 
@@ -56,9 +65,9 @@ async function extractFontDetails(googlePlayUrl) {
     const h1Element = await page.$('h1');
     if (!h1Element) {
       console.error('h1 element not found on the page.');
-      await browser.close();
       return null;
     }
+
     console.log('h1 element found, extracting font details...');
 
     // Extract font details
@@ -73,14 +82,16 @@ async function extractFontDetails(googlePlayUrl) {
 
     console.log('Font details extracted:', fontDetails);
 
-    // Close the browser
-    await browser.close();
-    console.log('Browser closed.');
-
     return fontDetails;
   } catch (error) {
     console.error('Error during font extraction process:', error);
     return null;
+  } finally {
+    // Ensure the browser is closed even if an error occurs
+    if (browser) {
+      await browser.close();
+      console.log('Browser closed.');
+    }
   }
 }
 

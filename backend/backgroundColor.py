@@ -6,6 +6,9 @@ import sys
 def most_frequent_color(image_path):
     # Read the image
     image = cv2.imread(image_path)
+    
+    if image is None:
+        raise ValueError(f"Image not found or could not be opened: {image_path}")
 
     # Convert image to RGB (OpenCV uses BGR by default)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -26,6 +29,13 @@ def most_frequent_color(image_path):
 
 # Get the image path from the command line argument
 if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: python script.py <image_path>")
+        sys.exit(1)
+
     image_path = sys.argv[1]  # Get image path from Node.js or command line
-    background_color = most_frequent_color(image_path)
-    print(background_color)  # Print the color as standard integers for Node.js to read
+    try:
+        background_color = most_frequent_color(image_path)
+        print(background_color)  # Print the color as standard integers for Node.js to read
+    except Exception as e:
+        print(f"Error: {e}")
