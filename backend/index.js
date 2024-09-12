@@ -267,9 +267,24 @@ app.post('/scrape', async (req, res) => {
 
 app.get('/creatives', (req, res) => {
   const creativesDir = path.join(__dirname, 'creatives');
-  fs.readdir(creativesDir, (err, files) => {
-    if (err) return res.status(500).json({ message: "Failed to retrieve creatives." });
-    const creatives = files.map(file => ({ name: file, url: `/creatives/${file}`, description: "Generated Ad Creative" }));
+
+  fs.readdir(creativesDir, (error, files) => {
+    if (error) {
+      console.error("Error reading creatives directory:", error);
+      return res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+
+    if (!files || files.length === 0) {
+      console.warn("No creatives found in the directory.");
+      return res.status(404).json({ message: "No creatives found." });
+    }
+
+    const creatives = files.map(file => ({
+      name: file,
+      url: `/creatives/${file}`,  // This assumes you are serving the creatives statically
+      description: "Generated Ad Creative"
+    }));
+
     return res.status(200).json(creatives);
   });
 });

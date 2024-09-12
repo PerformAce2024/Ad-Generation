@@ -5,8 +5,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         try {
             const response = await fetch(`${BASE_URL}/creatives`);
             if (!response.ok) {
-                throw new Error("Failed to fetch creatives.");
+                throw new Error(`Failed to fetch creatives: ${response.statusText}`);
             }
+
             const creatives = await response.json();
             displayCreatives(creatives);
         } catch (error) {
