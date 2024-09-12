@@ -2,22 +2,29 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import { connectToMongo } from './db.js';
+
 let client;
 console.log('Loading storeCommunications.js module');
 
-try {
-  // Initialize client connection
-  client = await connectToMongo();
-  console.log("MongoDB connected successfully");
-} catch (error) {
-  console.error("MongoDB connection error:", error);
-  process.exit(1); // Optionally terminate if the connection fails
+// Initialize MongoDB connection if not already connected
+async function ensureMongoConnection() {
+  if (!client || !client.isConnected()) {
+    try {
+      client = await connectToMongo();
+      console.log("MongoDB connected successfully");
+    } catch (error) {
+      console.error("MongoDB connection error:", error);
+      process.exit(1); // Optionally terminate if the connection fails
+    }
+  }
 }
 
 async function savePhraseToDatabase(collectionName, email, phrase) {
   console.log(`savePhraseToDatabase called with collectionName: ${collectionName}, email: ${email}, phrase: ${phrase}`);
 
   try {
+    await ensureMongoConnection();
+
     const db = client.db("Communications");
     console.log('Connected to Communications database');
 
