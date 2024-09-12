@@ -1,12 +1,11 @@
-import { createCanvas, loadImage } from 'canvas';
 import fs from 'fs';
 import fetch from 'node-fetch';
-import { spawn } from 'child_process';
 import path from 'path';
+import { createCanvas, loadImage } from 'canvas';
+import { spawn } from 'child_process';
 import { fileURLToPath } from 'url';
 import { extractFontDetails } from './font-extractor.js';
 import { connectToMongo } from './db.js';
-import 'dotenv/config';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -88,7 +87,6 @@ function calculateFontSize(ctx, phrase, maxWidth) {
     while (textWidth > maxWidth && fontSize > 10) {
         fontSize -= 1;
         ctx.font = `${fontSize}px Times New Roman`;
-        textWidth = ctx.measureText(phrase).width;
     }
 
     console.log(`Calculated font size for phrase "${phrase}" is: ${fontSize}`);
@@ -124,34 +122,27 @@ async function createAdImage(imageData, phrase, index, fontDetails) {
     try {
         console.log(`Creating ad image for index ${index} with phrase: "${phrase}"`);
 
+        const creativesDir = path.join(__dirname, 'creatives');
+
+        // Ensure the directory exists before saving
+        if (!fs.existsSync(creativesDir)) {
+            console.log('Creatives directory does not exist. Creating it now...');
+            fs.mkdirSync(creativesDir, { recursive: true });
+        }
+
         const localIconPath = path.join(__dirname, `icon_${index}.png`);
-        if (imageData.icon_url) {
-            await downloadImage(imageData.icon_url, localIconPath);
-        }
-
         const localImagePath = path.join(__dirname, `Original_${index}.png`);
-        if (imageData.image_url) {
-            await downloadImage(imageData.image_url, localImagePath);
-        } else {
-            console.error(`No image URL found for index: ${index}`);
-            return;
-        }
-
         const localExtractedImagePath = path.join(__dirname, `Extracted_${index}.png`);
-        if (imageData.extracted_url) {
-            await downloadImage(imageData.extracted_url, localExtractedImagePath);
-        } else {
-            console.error(`No extracted image URL found for index ${index}`);
-            return;
-        }
 
-        let backgroundColor = await getBackgroundColor(localImagePath);
+        if (imageData.icon_url) await downloadImage(imageData.icon_url, localIconPath);
+        if (imageData.image_url) await downloadImage(imageData.image_url, localImagePath);
+        if (imageData.extracted_url) await downloadImage(imageData.extracted_url, localExtractedImagePath);
+
+        const backgroundColor = `rgb${await getBackgroundColor(localImagePath)}`;
         console.log(`Background color is: ${backgroundColor}`);
-        backgroundColor = `rgb${backgroundColor}`;
 
-        let iconColor = await getBackgroundColor(localIconPath);
+        const iconColor = `rgb${await getBackgroundColor(localIconPath)}`;
         console.log(`Icon color is: ${iconColor}`);
-        iconColor = `rgb${iconColor}`;
 
         const width = 160;
         const height = 600;
@@ -224,10 +215,8 @@ async function createAdImage(imageData, phrase, index, fontDetails) {
         ctx.fillStyle = 'white';
         ctx.fillText('Order Now', buttonX + buttonWidth / 2, buttonY + buttonHeight / 2);
 
-        const outputPath = path.join(__dirname, 'creatives', `oneSixty-${index}-${Date.now()}.png`);
-        const buffer = canvas.toBuffer('image/jpeg');
-        fs.writeFileSync(outputPath, buffer);
-
+        const outputPath = path.join(creativesDir, `oneSixty-${index}-${Date.now()}.png`);
+        fs.writeFileSync(outputPath, canvas.toBuffer('image/jpeg'));
         console.log(`Ad image created at ${outputPath}`);
     } catch (error) {
         console.error('Error creating ad image:', error);

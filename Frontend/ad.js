@@ -128,13 +128,20 @@ async function onGetCreativesHandler() {
   }
 
   try {
-    const response = await fetch('/oneSixty', { method: 'GET' });
-    if (!response.ok) {
+    console.log("Sending requests to /oneSixty");
+
+    const creativesRequestUrl = `${BASE_URL}/oneSixty`;
+
+    const creativeResponse = await fetch(creativesRequestUrl, { method: 'GET' });
+
+    if (!creativeResponse.ok) {
+      const errorText = await creativeResponse.text();
+      console.error(`Error in response from ${creativesRequestUrl}:`, errorText);
       throw new Error('Error generating creatives');
     }
 
-    const result = await response.text();
-    console.log(result);  // Ensure the backend is responding correctly
+    const result = await creativeResponse.text();
+    console.log("Creatives received from the server:", result);  // Ensure the backend is responding correctly
 
     // Hide loader
     if (loader) {
@@ -158,6 +165,7 @@ function displayPhrases(phrases) {
   console.log(phrasesContainer);  // Check if this logs null or the correct DOM element
   if (!phrasesContainer) {
     console.error("Phrases container element not found");
+    document.getElementById("phrases-container").innerHTML = "Unable to load phrases.";
     return;
   }
 

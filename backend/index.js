@@ -219,7 +219,7 @@ app.post("/approved", async (req, res) => {
     console.error('Error: Phrase and email are required');
     return res.status(400).send("Phrase and email are required.");
   }
-  
+
   try {
     console.log(`Saving approved phrase for ${email}`);
     await savePhraseToDatabase("approvedCommunication", email, phrase);
@@ -265,8 +265,26 @@ app.post('/scrape', async (req, res) => {
   }
 });
 
+// Route to serve oneSixty.js directly if needed
+app.get('/oneSixty', async (req, res) => {
+  try {
+    await createAdsForAllImages(); // Call your function to generate creatives
+    res.status(200).send('Creatives generation started.');
+  } catch (error) {
+    console.error('Error generating creatives:', error);
+    res.status(500).send('Error generating creatives.');
+  }
+});
+
+app.use('/creatives', express.static(path.join(__dirname, 'creatives')));
+
 app.get('/creatives', (req, res) => {
   const creativesDir = path.join(__dirname, 'creatives');
+
+  // Ensure the directory exists
+  if (!fs.existsSync(creativesDir)) {
+    fs.mkdirSync(creativesDir, { recursive: true });
+  }
 
   fs.readdir(creativesDir, (error, files) => {
     if (error) {
@@ -287,19 +305,6 @@ app.get('/creatives', (req, res) => {
 
     return res.status(200).json(creatives);
   });
-});
-
-app.use('/creatives', express.static(path.join(__dirname, 'creatives')));
-
-// Route to serve oneSixty.js directly if needed
-app.get('/oneSixty', async (req, res) => {
-  try {
-      await createAdsForAllImages(); // Call your function to generate creatives
-      res.status(200).send('Creatives generation started.');
-  } catch (error) {
-      console.error('Error generating creatives:', error);
-      res.status(500).send('Error generating creatives.');
-  }
 });
 
 const PORT = process.env.PORT || 8000;
