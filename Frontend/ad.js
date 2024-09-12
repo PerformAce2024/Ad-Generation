@@ -287,7 +287,7 @@ async function sendPhraseToDatabase(phrase, action) {
   const email = localStorage.getItem('userEmail'); // Assuming the user's email is stored in localStorage after login
   if (!email) {
     console.error('User email not found in localStorage');
-    return;
+    return res.status(400).json({ error: 'Email is required' });
   }
 
   const requestOptions = {
