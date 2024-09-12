@@ -8,7 +8,7 @@ console.log('Loading storeCommunications.js module');
 
 // Initialize MongoDB connection if not already connected
 async function ensureMongoConnection() {
-  if (!client || !client.isConnected()) {
+  if (!client || !client.topology || !client.topology.isConnected()) {
     try {
       client = await connectToMongo();
       console.log("MongoDB connected successfully");
