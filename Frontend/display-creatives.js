@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         container.innerHTML = ""; // Clear previous content
         creatives.forEach((creative) => {
             const creativeDiv = document.createElement("div");
-            creativeDiv.className = "bg-white shadow-lg rounded-lg overflow-hidden";
+            creativeDiv.className = "bg-white shadow-xl rounded-lg overflow-hidden";
             creativeDiv.innerHTML = `
           <img src="${BASE_URL}${creative.url}" alt="Creative ${creative.name}" class="w-full">
           <div class="p-4">
