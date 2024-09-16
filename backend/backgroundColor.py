@@ -3,6 +3,8 @@ import numpy as np
 from collections import Counter
 import sys
 
+print(f"OpenCV version: {cv2.__version__}")
+
 def most_frequent_color(image_path):
     # Read the image
     image = cv2.imread(image_path)
