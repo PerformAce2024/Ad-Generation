@@ -208,7 +208,7 @@ app.post("/generate-phrases", async (req, res) => {
     return res.status(200).json(uspPhrases);
   } catch (error) {
     console.error("Error generating USP phrases:", error);
-    return res.status(500).json({ message: "Error generating USP phrases.", error: error.message });
+    return res.status(500).json({ message: "Error generating USP phrases. Possible issue with external API or data formatting.", error: error.message });
   }
 });
 
@@ -274,7 +274,7 @@ app.post('/oneSixty', async (req, res) => {
   }
 
   try {
-    console.log(`Processing ad generation for email: ${email} and Google Play URL: ${google_play_url}`);
+    console.log(`Processing ad generation for email: ${email} and Google Play URL: ${google_play}`);
     // Call createAdsForAllImages to generate ads and return Base64 encoded images
     const adImages = await createAdsForAllImages({ email, google_play });
 

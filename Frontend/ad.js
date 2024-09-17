@@ -277,6 +277,7 @@ function handleApproval(index, phrase) {
   approveButton.textContent = "Approved!";
   approveButton.classList.remove("bg-green-500", "hover:bg-green-600");
   approveButton.classList.add("bg-blue-600");
+  approveButton.disabled = true;  // Disable the button after approval
 
   // Remove the reject button
   const rejectButton = document.getElementById(`reject-${index}`);
@@ -313,7 +314,7 @@ async function sendPhraseToDatabase(phrase, action) {
   const email = localStorage.getItem('userEmail'); // Assuming the user's email is stored in localStorage after login
   if (!email) {
     console.error('User email not found in localStorage');
-    return res.status(400).json({ error: 'Email is required' });
+    return;
   }
 
   const requestOptions = {
@@ -326,7 +327,7 @@ async function sendPhraseToDatabase(phrase, action) {
   };
 
   const endpoint = action === 'approve' ? '/approved' : '/rejected';
-  const requestUrl = `${BASE_URL}${endpoint}`;
+  const requestUrl = `${BASE_URL}${endpoint}`; // Ensure BASE_URL is globally defined in your script
 
   try {
     console.log(`Making POST request to ${requestUrl} with phrase and email`);
