@@ -29,16 +29,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         container.innerHTML = ""; // Clear previous content
+
+        // Loop over creatives and add each one to the container
         creatives.forEach((creative) => {
             const creativeDiv = document.createElement("div");
             creativeDiv.className = "bg-white shadow-xl rounded-lg overflow-hidden";
             creativeDiv.innerHTML = `
-          <img src="${BASE_URL}${creative.url}" alt="Creative ${creative.name}" class="w-full">
-          <div class="p-4">
+            <img src="${BASE_URL}${creative.url}" alt="Creative ${creative.name}" class="w-full">
+            <div class="p-4">
             <p class="text-lg font-semibold">${creative.name}</p>
             <p class="text-sm text-gray-500">${creative.description}</p>
-          </div>
+            </div>
         `;
+
+            // Append the creative to the container
             container.appendChild(creativeDiv);
         });
     }

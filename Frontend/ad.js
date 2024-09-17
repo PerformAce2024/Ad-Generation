@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", (event) => {
+  event.preventDefault()
   console.log("DOM fully loaded and parsed");
 
   // Attach the event listener to the button after the DOM is fully loaded
@@ -22,7 +23,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
 const BASE_URL = 'https://ad-generation.onrender.com';
 
-async function onClickHandler() {
+async function onClickHandler(event) {
+  event.preventDefault()
   console.log("onClickHandler triggered");
 
   const googlePlayURL = document.getElementById("google-play-url").value;
@@ -48,7 +50,7 @@ async function onClickHandler() {
   console.log("Apple App Store URL:", appleAppURL);
 
   try {
-    console.log("Sending requests to /generate-phrases and /scrape");
+    console.log("Sending requests to /generate-phrases");
 
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
@@ -66,13 +68,9 @@ async function onClickHandler() {
     };
 
     const phrasesRequestUrl = `${BASE_URL}/generate-phrases`;
-    const scrapeRequestUrl = `${BASE_URL}/scrape`;
 
-    // Send both requests in parallel
-    const [phrasesResponse, scrapeResponse] = await Promise.all([
-      fetch(phrasesRequestUrl, requestOptions),
-      fetch(scrapeRequestUrl, requestOptions)
-    ]);
+    // Send request to generate phrases
+    const phrasesResponse = await fetch(phrasesRequestUrl, requestOptions);
 
     // Handle responses for phrases
     if (!phrasesResponse.ok) {
@@ -112,12 +110,14 @@ async function onClickHandler() {
       console.log("Hiding loader due to error");
       loader.classList.add("hidden");
     }
+
     document.getElementById("phrases-container").innerHTML = "Error retrieving phrases. Please check your connection or try again later.";
   }
 }
 
 // Function for Get Creatives Button
-async function onGetCreativesHandler() {
+async function onGetCreativesHandler(event) {
+  event.preventDefault();
   console.log("Get Creatives button clicked");
 
   const loader = document.getElementById("loader");
@@ -127,8 +127,43 @@ async function onGetCreativesHandler() {
     loader.classList.add('flex');
   }
 
+  const googlePlayURL = document.getElementById("google-play-url").value;
+  const appleAppURL = document.getElementById("apple-app-url").value;
+
+  const requestBody = JSON.stringify({
+    google_play: googlePlayURL,
+    apple_app: appleAppURL,
+  });
+
+  var myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/json");
+
+  const requestOptions = {
+    method: "POST",
+    headers: myHeaders,
+    body: requestBody,
+    redirect: "follow",
+  };
+
   try {
-    console.log("Sending requests to /oneSixty");
+    console.log("Sending requests to /scrape");
+
+    const scrapeRequestUrl = `${BASE_URL}/scrape`;
+
+    // First, call /scrape API
+    const scrapeResponse = await fetch(scrapeRequestUrl, requestOptions);
+
+    if (!scrapeResponse.ok) {
+      const errorText = await scrapeResponse.text();
+      console.error(`Error in response from ${scrapeRequestUrl}:`, errorText);
+      throw new Error("Error scraping data");
+    }
+
+    console.log("Scrape completed successfully.");
+
+
+    // After scrape, call /oneSixty API
+    console.log("Sending request to /oneSixty");
 
     const creativesRequestUrl = `${BASE_URL}/oneSixty`;
 

@@ -17,13 +17,13 @@ const dbCreativeName = 'Images';
 const urlsCollectionName = 'URLs';
 
 // Download image function
-async function downloadImage(url, outputPath) {
+async function downloadImage(url) {
     try {
         console.log(`Starting download of image from URL: ${url}`);
         const response = await fetch(url);
         const buffer = await response.buffer();
-        fs.writeFileSync(outputPath, buffer);
-        console.log(`Downloaded image to ${outputPath}`);
+        console.log('Downloading image');
+        return buffer; // Return the image as a buffer
     } catch (error) {
         console.error(`Failed to download image from ${url}:`, error);
         throw new Error(`Failed to download image from ${url}`);
@@ -118,25 +118,19 @@ async function fetchAllImageData() {
 }
 
 // Create ad image with downloaded images and phrases
-async function createAdImage(imageData, phrase, index, fontDetails) {
+async function createAdImage(imageData, phrase, fontDetails) {
     try {
         console.log(`Creating ad image for index ${index} with phrase: "${phrase}"`);
 
-        const creativesDir = path.join(__dirname, 'creatives');
+        const width = 160;
+        const height = 600;
+        const canvas = createCanvas(width, height);
+        const ctx = canvas.getContext('2d');
 
-        // Ensure the directory exists before saving
-        if (!fs.existsSync(creativesDir)) {
-            console.log('Creatives directory does not exist. Creating it now...');
-            fs.mkdirSync(creativesDir, { recursive: true });
-        }
-
-        const localIconPath = path.join(__dirname, `icon_${index}.png`);
-        const localImagePath = path.join(__dirname, `Original_${index}.png`);
-        const localExtractedImagePath = path.join(__dirname, `Extracted_${index}.png`);
-
-        if (imageData.icon_url) await downloadImage(imageData.icon_url, localIconPath);
-        if (imageData.image_url) await downloadImage(imageData.image_url, localImagePath);
-        if (imageData.extracted_url) await downloadImage(imageData.extracted_url, localExtractedImagePath);
+        // Download images as buffers
+        const iconBuffer = imageData.icon_url ? await downloadImage(imageData.icon_url) : null;
+        const imageBuffer = imageData.image_url ? await downloadImage(imageData.image_url) : null;
+        const extractedBuffer = imageData.extracted_url ? await downloadImage(imageData.extracted_url) : null;
 
         const backgroundColor = `rgb${await getBackgroundColor(localImagePath)}`;
         console.log(`Background color is: ${backgroundColor}`);
@@ -144,22 +138,17 @@ async function createAdImage(imageData, phrase, index, fontDetails) {
         const iconColor = `rgb${await getBackgroundColor(localIconPath)}`;
         console.log(`Icon color is: ${iconColor}`);
 
-        const width = 160;
-        const height = 600;
-        const canvas = createCanvas(width, height);
-        const ctx = canvas.getContext('2d');
-
         // Background and icon drawing
         ctx.fillStyle = backgroundColor;
         ctx.fillRect(0, 0, width, height);
 
         const iconSize = 50;
-        if (fs.existsSync(localIconPath)) {
-            const iconImage = await loadImage(localIconPath);
+        if (iconBuffer) {
+            const iconImage = await loadImage(iconBuffer);
             ctx.drawImage(iconImage, width - iconSize - 10, 10, iconSize, iconSize);
         }
 
-        const baseImage = await loadImage(localExtractedImagePath);
+        const baseImage = await loadImage(extractedBuffer);
 
         // Calculate and set the font size based on the phrase length
         const fontSize = calculateFontSize(ctx, phrase, width - 40);
@@ -211,37 +200,47 @@ async function createAdImage(imageData, phrase, index, fontDetails) {
 
         ctx.fillStyle = iconColor;
         ctx.fillRect(buttonX, buttonY, buttonWidth, buttonHeight);
-        ctx.font = 'bold 16px Times New Roman';
+        ctx.font = `bold 16px ${fontDetails.fontFamily}`;
         ctx.fillStyle = 'white';
         ctx.fillText('Order Now', buttonX + buttonWidth / 2, buttonY + buttonHeight / 2);
 
-        const outputPath = path.join(creativesDir, `oneSixty-${index}-${Date.now()}.png`);
-        fs.writeFileSync(outputPath, canvas.toBuffer('image/jpeg'));
-        console.log(`Ad image created at ${outputPath}`);
+        console.log('Ad image created!');
+
+        // Return the image buffer instead of saving to disk
+        return canvas.toBuffer('image/jpeg');
     } catch (error) {
         console.error('Error creating ad image:', error);
+        throw error;
     }
 }
 
-async function createAdsForAllImages() {
+async function createAdsForAllImages(req, res) {
     try {
         console.log('Starting process to create ads for all images...');
         const imageDataArray = await fetchAllImageData();
+        const email = req.body.email;
+
+        const approvedPhrases = await fetchApprovedPhrases(email);
+        const fontDetails = await extractFontDetails(req.body.google_play);
+
+        const adImages = [];
 
         for (let i = 0; i < imageDataArray.length; i++) {
             const imageData = imageDataArray[i];
-            const approvedPhrases = await fetchApprovedPhrases(imageData.email);
-            const fontDetails = await extractFontDetails(imageData.google_play_url);
 
             for (let j = 0; j < approvedPhrases.length; j++) {
                 console.log(`Processing image ${i} and phrase ${j}`);
-                await createAdImage(imageData, approvedPhrases[j], `${i}-${j}`, fontDetails);
+                const adImageBuffer = await createAdImage(imageData, approvedPhrases[j], fontDetails);
+                adImages.push(adImageBuffer.toString('base64')); // Convert buffer to Base64 to send to frontend
             }
         }
 
+        // Respond with the generated images as Base64
+        res.json(adImages); // Send the images as Base64 strings
         console.log('Finished creating ads for all images.');
     } catch (error) {
         console.error('Error processing ad images:', error);
+        res.status(500).send('Error processing ad images.');
     }
 }
 

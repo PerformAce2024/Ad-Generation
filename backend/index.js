@@ -266,45 +266,24 @@ app.post('/scrape', async (req, res) => {
 });
 
 // Route to serve oneSixty.js directly if needed
-app.get('/oneSixty', async (req, res) => {
+app.post('/oneSixty', async (req, res) => {
+  const { email, google_play } = req.body;
+
+  if (!email || !google_play) {
+    return res.status(400).json({ message: 'Email and Google Play URL are required' });
+  }
+
   try {
-    await createAdsForAllImages(); // Call your function to generate creatives
-    res.status(200).send('Creatives generation started.');
+    console.log(`Processing ad generation for email: ${email} and Google Play URL: ${google_play_url}`);
+    // Call createAdsForAllImages to generate ads and return Base64 encoded images
+    const adImages = await createAdsForAllImages({ email, google_play });
+
+    // Respond with the generated Base64 encoded images
+    return res.status(200).json(adImages);
   } catch (error) {
     console.error('Error generating creatives:', error);
-    res.status(500).send('Error generating creatives.');
+    return res.status(500).json({ message: 'Error generating creatives.', error: error.message });
   }
-});
-
-app.use('/creatives', express.static(path.join(__dirname, 'creatives')));
-
-app.get('/creatives', (req, res) => {
-  const creativesDir = path.join(__dirname, 'creatives');
-
-  // Ensure the directory exists
-  if (!fs.existsSync(creativesDir)) {
-    fs.mkdirSync(creativesDir, { recursive: true });
-  }
-
-  fs.readdir(creativesDir, (error, files) => {
-    if (error) {
-      console.error("Error reading creatives directory:", error);
-      return res.status(500).json({ message: "Internal server error", error: error.message });
-    }
-
-    if (!files || files.length === 0) {
-      console.warn("No creatives found in the directory.");
-      return res.status(404).json({ message: "No creatives found." });
-    }
-
-    const creatives = files.map(file => ({
-      name: file,
-      url: `/creatives/${file}`,  // This assumes you are serving the creatives statically
-      description: "Generated Ad Creative"
-    }));
-
-    return res.status(200).json(creatives);
-  });
 });
 
 const PORT = process.env.PORT || 8000;
