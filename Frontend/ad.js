@@ -82,15 +82,6 @@ async function onClickHandler(event) {
     const phrases = await phrasesResponse.json();
     console.log("Phrases received from the server:", phrases);
 
-    // Handle responses for scrape
-    if (!scrapeResponse.ok) {
-      const errorText = await scrapeResponse.text();
-      console.error(`Error in response from ${scrapeRequestUrl}:`, errorText);
-      throw new Error("Network response for scrape was not ok.");
-    }
-
-    console.log("Scrape completed successfully.");
-
     // Hide the loader
     if (loader) {
       console.log("Hiding loader");
