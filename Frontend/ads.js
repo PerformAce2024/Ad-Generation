@@ -39,7 +39,6 @@ async function onGetCreativesHandler(event) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-            email: email,
             google_play: googlePlayURL,
             apple_app: appleAppURL,
         })
