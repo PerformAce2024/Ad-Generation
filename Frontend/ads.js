@@ -26,15 +26,17 @@ async function onGetCreativesHandler(event) {
 
     const googlePlayURL = document.getElementById("google-play-url").value;
     const appleAppURL = document.getElementById("apple-app-url").value;
+    const email = localStorage.getItem('loggedInUserId'); 
 
-    if (!googlePlayURL) {
-        alert("Please provide the Google Play Store URL.");
-        console.error("Google Play Store URL is missing");
+    if (!googlePlayURL || !email) {
+        alert("Please provide both Google Play Store URL and Email.");
+        console.error("Google Play Store URL or Email is missing");
         if (loader) loader.classList.add("hidden");
         return;
     }
 
     const requestBody = JSON.stringify({
+        email: email,
         google_play: googlePlayURL,
         apple_app: appleAppURL,
     });
