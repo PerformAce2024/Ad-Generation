@@ -62,7 +62,7 @@ async function fetchApprovedPhrases(email) {
 // Extract background color using Python script
 async function getBackgroundColor(imagePath) {
     console.log(`Extracting background color for image at: ${imagePath}`);
-    
+
     return new Promise((resolve, reject) => {
         // Ensure the image path is correct and exists
         if (!imagePath) {
@@ -269,13 +269,21 @@ async function createAdsForAllImages({ email, google_play }) {
 
             for (let j = 0; j < approvedPhrases.length; j++) {
                 console.log(`Processing image ${i} and phrase ${j}`);
-                const savedImagePath = await createAdImage(imageData, approvedPhrases[j], fontDetails, `${i}_${j}`, email);
-                savedImagePaths.push(savedImagePath); // Store file paths
-            }
-        }
+                const imageBuffer = await createAdImage(imageData, approvedPhrases[j], fontDetails, `${i}_${j}`, email);
+                const filePath = path.join(__dirname, 'generated', `creative_${email}_${i}_${j}.jpg`);
 
-        console.log('Finished creating ads for all images.');
-        return savedImagePaths; // Return the array of file paths
+                if (Buffer.isBuffer(imageBuffer)) {
+                    fs.writeFileSync(filePath, imageBuffer);  // Write buffer to file
+                    savedImagePaths.push(`/generated/creative_${email}_${i}_${j}.jpg`);  // Save the file path
+                    console.log(`Saved image: ${filePath}`);
+                } else {
+                    console.error(`Expected a buffer but received: ${typeof imageBuffer}`);
+                }
+            }
+
+            console.log('Finished creating ads for all images.');
+            return savedImagePaths;  // Return the array of file paths
+        }
     } catch (error) {
         console.error('Error processing ad images:', error);
         throw error;
