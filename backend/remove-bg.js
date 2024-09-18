@@ -2,6 +2,7 @@ import fetch from 'node-fetch';
 import FormData from 'form-data';
 import AWS from 'aws-sdk';
 import { connectToMongo } from './db.js';
+import { createAdsForAllImages } from './oneSixty.js';
 import 'dotenv/config';
 
 const dbName = 'Images'; // Database name
@@ -165,6 +166,9 @@ async function processImages() {
             } catch (error) {
                 console.error(`Error processing image for document ID: ${_id}`, error);
             }
+
+            console.log('Trigger createAdsForAllImages function!');
+            await createAdsForAllImages();
         }
     } catch (error) {
         console.error('Error during image processing:', error);
