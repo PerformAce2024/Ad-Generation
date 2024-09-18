@@ -26,7 +26,7 @@ async function onGetCreativesHandler(event) {
 
     const googlePlayURL = document.getElementById("google-play-url").value;
     const appleAppURL = document.getElementById("apple-app-url").value;
-    const email = localStorage.getItem('loggedInUserId'); 
+    const email = localStorage.getItem('userEmail'); 
 
     if (!googlePlayURL || !email) {
         alert("Please provide both Google Play Store URL and Email.");
@@ -35,22 +35,29 @@ async function onGetCreativesHandler(event) {
         return;
     }
 
-    const requestBody = JSON.stringify({
-        email: email,
-        google_play: googlePlayURL,
-        apple_app: appleAppURL,
-    });
-
-    const requestOptions = {
+    const scrapeRequestOptions = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: requestBody
+        body: JSON.stringify({
+            email: email,
+            google_play: googlePlayURL,
+            apple_app: appleAppURL,
+        })
+    };
+
+    const creativeRequestOptions = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            email: email,
+            google_play: googlePlayURL,
+        })
     };
 
     try {
         // Step 1: Call /scrape API
         const scrapeRequestUrl = `${BASE_URL}/scrape`;
-        const scrapeResponse = await fetch(scrapeRequestUrl, requestOptions);
+        const scrapeResponse = await fetch(scrapeRequestUrl, scrapeRequestOptions);
 
         if (!scrapeResponse.ok) {
             const errorText = await scrapeResponse.text();
@@ -61,7 +68,7 @@ async function onGetCreativesHandler(event) {
 
         // Step 2: Call /oneSixty API to generate creatives
         const creativesRequestUrl = `${BASE_URL}/oneSixty`;
-        const creativeResponse = await fetch(creativesRequestUrl, requestOptions);
+        const creativeResponse = await fetch(creativesRequestUrl, creativeRequestOptions);
 
         if (!creativeResponse.ok) {
             const errorText = await creativeResponse.text();
