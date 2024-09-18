@@ -21,7 +21,14 @@ async function downloadImage(url) {
     try {
         console.log(`Starting download of image from URL: ${url}`);
         const response = await fetch(url);
-        const buffer = await response.buffer();
+
+        // Check for valid response and content type
+        if (!response.ok || !response.headers.get('content-type').includes('image')) {
+            throw new Error(`Failed to download image from ${url}`);
+        }
+
+        const arrayBuffer = await response.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
         console.log('Image downloaded');
         return buffer; // Return the image as a buffer
     } catch (error) {
@@ -132,6 +139,10 @@ async function createAdImage(imageData, phrase, fontDetails, index, email) {
         const imageBuffer = imageData.image_url ? await downloadImage(imageData.image_url) : null;
         const extractedBuffer = imageData.extracted_url ? await downloadImage(imageData.extracted_url) : null;
 
+        if (!imageBuffer || imageBuffer.length === 0) {
+            throw new Error('Downloaded image buffer is empty');
+        }
+
         const backgroundColor = `rgb${await getBackgroundColor(imageBuffer)}`;
         console.log(`Background color is: ${backgroundColor}`);
 
@@ -208,6 +219,13 @@ async function createAdImage(imageData, phrase, fontDetails, index, email) {
 
         // Save the image to disk
         const outputPath = path.join(__dirname, 'generated', `creative_${email}_${index}.jpg`);
+
+        // Check if 'generated' directory exists, create it if it doesn't
+        const outputDir = path.dirname(outputPath);
+        if (!fs.existsSync(outputDir)) {
+            fs.mkdirSync(outputDir);
+        }
+
         const buffer = canvas.toBuffer('image/jpeg');
         fs.writeFileSync(outputPath, buffer);
         console.log(`Ad image saved at ${outputPath}`);
