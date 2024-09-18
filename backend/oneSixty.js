@@ -20,7 +20,15 @@ const urlsCollectionName = 'URLs';
 async function downloadImage(url) {
     try {
         console.log(`Starting download of image from URL: ${url}`);
-        const response = await fetch(url);
+        const controller = new AbortController();
+        const timeout = setTimeout(() => {
+            controller.abort();
+        }, 10000); // 10-second timeout
+
+        const response = await fetch(url, { signal: controller.signal });
+
+        // Clear the timeout once the fetch is successful
+        clearTimeout(timeout);
 
         // Check for valid response and content type
         if (!response.ok || !response.headers.get('content-type').includes('image')) {
@@ -32,8 +40,13 @@ async function downloadImage(url) {
         console.log('Image downloaded');
         return buffer; // Return the image as a buffer
     } catch (error) {
-        console.error(`Failed to download image from ${url}:`, error);
-        throw new Error(`Failed to download image from ${url}`);
+        if (error.name === 'AbortError') {
+            console.error(`Download aborted for ${url}: Request timed out`);
+            throw new Error(`Request timed out for ${url}`);
+        } else {
+            console.error(`Failed to download image from ${url}:`, error);
+            throw new Error(`Failed to download image from ${url}`);
+        }
     }
 }
 
