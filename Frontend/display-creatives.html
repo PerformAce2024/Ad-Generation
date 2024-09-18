@@ -1,29 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-RSVRN03MZQ"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-RSVRN03MZQ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
 
-  gtag('config', 'G-RSVRN03MZQ');
-</script>
+    gtag('config', 'G-RSVRN03MZQ');
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Creative Display</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @font-face {
+      font-family: Denton;
+      src: url(./fonts/Denton\ Test\ Medium\ 500.otf);
+    }
+
+    body {
+      font-family: "Denton", sans-serif;
+      background-color: #1a202c;
+      /* Dark background color #121212*/
+      color: white;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 text-center">
+
+<body class="bg-[#1a202c] text-center">
   <header class="text-black-600 body-font">
     <div class="container mx-auto flex justify-between p-5 items-center">
       <div class="w-[120px] lg:w-[150px] sm:w-[120px]">
         <a href="./index.html"><img src="./images/logo.png" alt="growthZ.ai"></a>
       </div>
       <div class="flex justify-center">
-        <button id="logout" class="logout-btn rounded-full text-white bg-green-500 relative text-base/6 font-semibold hover:opacity-80 px-4 py-2 sm:text-sm/6 cursor-pointer">Logout</button>
+        <button id="logout"
+          class="logout-btn rounded-full text-white bg-green-500 relative text-base/6 font-semibold hover:opacity-80 px-4 py-2 sm:text-sm/6 cursor-pointer">Logout</button>
       </div>
     </div>
   </header>
@@ -36,6 +52,22 @@
     </div>
   </section>
 
+  <div class="gradient-bg absolute left-0 top-0 -z-10 h-full w-full overflow-hidden opacity-[20%] blur-3xl"
+    style="background: linear-gradient(40deg, #111315, rgb(17, 19, 21));">
+    <div class="h-full w-full">
+      <div class="Mix-blend-hard-light absolute -left-[25%] -top-[15%] h-[140%] w-[140%] origin-center opacity-100"
+        style="background: radial-gradient(circle, rgba(133, 127, 249, 0.8) 0px, rgba(133, 127, 249, 0) 50%) no-repeat;">
+      </div>
+      <div class="Mix-blend-hard-light absolute -left-[15%] -top-[35%] h-[100%] w-[100%] opacity-100"
+        style="background: radial-gradient(circle, rgba(189, 140, 255, 0.8) 0px, rgba(189, 140, 255, 0) 50%) no-repeat; transform-origin: calc(50% - 400px) center;">
+      </div>
+      <div class="Mix-blend-hard-light absolute -top-[15%] left-[15%] h-[220%] w-[220%] opacity-70"
+        style="background: radial-gradient(circle, rgba(189, 140, 255, 0.8) 0px, rgba(189, 140, 255, 0) 50%) no-repeat; transform-origin: calc(50% - 200px) center;">
+      </div>
+    </div>
+  </div>
+
   <script src="./display-creatives.js"></script>
 </body>
+
 </html>
