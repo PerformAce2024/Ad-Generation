@@ -1,18 +1,13 @@
-// font-extractor.js
-import { chromium } from 'playwright';
-import { fileURLToPath } from 'url';
-import path from 'path';
+import puppeteer from "puppeteer";
 
-// Resolve __dirname for the current module
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Function to extract the app name from the Google Play URL
+// Helper function to extract the app name from Google Play URL
 function extractAppNameFromGooglePlayUrl(googlePlayUrl) {
+  console.log(`Extracting app name from Google Play URL: ${googlePlayUrl}`);
+  
   const match = googlePlayUrl.match(/id=([a-zA-Z0-9._]+)/);
   if (match && match[1]) {
-    const appName = match[1].split('.').pop();  // Extract last part, e.g., 'zomato'
-    console.log('Extracted app name from Google Play URL:', appName);
+    const appName = match[1].split('.').pop(); // Extract last part, e.g., 'zomato'
+    console.log(`Extracted app name: ${appName}`);
     return appName;
   } else {
     console.error('Invalid Google Play URL format.');
@@ -20,68 +15,61 @@ function extractAppNameFromGooglePlayUrl(googlePlayUrl) {
   }
 }
 
-// Function to extract font details from the dynamically constructed website
 async function extractFontDetails(googlePlayUrl) {
-  try {
-    console.log('Starting font extraction process...');
+  console.log('Launching Puppeteer browser...');
+  const browser = await puppeteer.launch({ headless: true });
 
-    // Extract the app name from the Google Play URL
-    const appName = extractAppNameFromGooglePlayUrl(googlePlayUrl);
-    if (!appName) {
-      console.error('Failed to extract the app name.');
-      return null;
-    }
+  const page = await browser.newPage();
+  console.log('New page created in Puppeteer.');
 
-    // Construct the website URL based on the app name
-    const websiteUrl = `https://www.${appName}.com`;
-    console.log('Website URL constructed:', websiteUrl);
-
-    // Launch browser with Playwright
-    console.log('Launching browser...');
-    const browser = await chromium.launch({
-      headless: false, // Set to true if you don't want the browser UI
-    });
-
-    // Open a new page
-    const page = await browser.newPage();
-    console.log('New page created in the browser.');
-
-    // Navigate to the dynamically constructed website URL
-    console.log(`Navigating to ${websiteUrl}...`);
-    await page.goto(websiteUrl);
-    await page.waitForLoadState('networkidle');
-    console.log('Page loaded successfully, waiting for network to be idle.');
-
-    // Select the h1 element to extract font details
-    const h1Element = await page.$('h1');
-    if (!h1Element) {
-      console.error('h1 element not found on the page.');
-      await browser.close();
-      return null;
-    }
-    console.log('h1 element found, extracting font details...');
-
-    // Extract font details
-    const fontDetails = await page.evaluate(element => {
-      const computedStyle = window.getComputedStyle(element);
-      return {
-        fontFamily: computedStyle.fontFamily,
-        fontSize: computedStyle.fontSize,
-        fontWeight: computedStyle.fontWeight
-      };
-    }, h1Element);
-
-    console.log('Font details extracted:', fontDetails);
-
-    // Close the browser
+  // Extract the app name from the Google Play URL
+  const appName = extractAppNameFromGooglePlayUrl(googlePlayUrl);
+  if (!appName) {
+    console.error('Failed to extract app name.');
     await browser.close();
-    console.log('Browser closed.');
-
-    return fontDetails;
-  } catch (error) {
-    console.error('Error during font extraction process:', error);
     return null;
   }
+
+  // Construct the website URL and navigate to it
+  const websiteUrl = `https://www.${appName}.com`;
+  console.log(`Navigating to website: ${websiteUrl}`);
+
+  try {
+    await page.goto(websiteUrl, { waitUntil: 'networkidle2' });
+    console.log('Website loaded successfully.');
+  } catch (error) {
+    console.error(`Failed to load website: ${websiteUrl}`, error);
+    await browser.close();
+    return null;
+  }
+
+  // Extract font details from the page
+  console.log('Attempting to extract font details from the page...');
+  const fontDetails = await page.evaluate(() => {
+    const h1 = document.querySelector('h1');
+    if (h1) {
+      console.log('h1 element found on the page.');
+      const computedStyle = window.getComputedStyle(h1);
+      return {
+        fontFamily: computedStyle.fontFamily,
+        fontSize: computedStyle.fontSize
+      };
+    } else {
+      console.log('No h1 element found on the page.');
+      return null;
+    }
+  });
+
+  if (fontDetails) {
+    console.log(`Extracted font details: ${JSON.stringify(fontDetails)}`);
+  } else {
+    console.warn('No font details found.');
+  }
+
+  await browser.close();
+  console.log('Browser closed.');
+
+  return fontDetails;
 }
 
 export { extractFontDetails };

@@ -8,66 +8,74 @@
     window.dataLayer = window.dataLayer || [];
     function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
-
     gtag('config', 'G-RSVRN03MZQ');
   </script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/x-icon" href="./images/GrowthZ-Favicon.png">
   <title>Creative Display</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    @font-face {
-      font-family: Denton;
-      src: url(./fonts/Denton\ Test\ Medium\ 500.otf);
-    }
-
-    body {
-      font-family: "Denton", sans-serif;
-      background-color: #1a202c;
-      /* Dark background color #121212*/
-      color: white;
-    }
-  </style>
+  <link rel="stylesheet" href="ad-gen.css">
 </head>
 
-<body class="bg-[#1a202c] text-center">
+<!--Navbar-->
+<body class="bg-[#1a202c] tracking-[0.15rem]">
   <header class="text-black-600 body-font">
     <div class="container mx-auto flex justify-between p-5 items-center">
       <div class="w-[120px] lg:w-[150px] sm:w-[120px]">
-        <a href="./index.html"><img src="./images/logo.png" alt="growthZ.ai"></a>
+        <a href="./index.html"><img src="./images/logo.png" alt="growthZ.ai" srcset=""></a>
       </div>
       <div class="flex justify-center">
-        <button id="logout"
-          class="logout-btn rounded-full text-white bg-green-500 relative text-base/6 font-semibold hover:opacity-80 px-4 py-2 sm:text-sm/6 cursor-pointer">Logout</button>
+        <a href="./index.html">
+          <button id="logout"
+            class="logout-btn rounded-full text-white bg-green-500 relative text-base/6 font-semibold hover:opacity-80 px-4 py-2 sm:text-sm/6 cursor-pointer">
+            Logout
+          </button>
+        </a>
       </div>
     </div>
   </header>
 
-  <section class="text-gray-900 body-font">
+  <style>
+    header .container {
+      padding-left: 15%;
+      padding-right: 15%;
+    }
+
+    @media (max-width: 768px) {
+      header .container {
+        padding-left: 15px;
+        padding-right: 15px;
+      }
+
+      header a {
+        margin-left: 0;
+      }
+
+      header div {
+        margin-right: 0;
+      }
+
+      header .container .title-font {
+        flex-grow: 1;
+      }
+    }
+  </style>
+
+  <!--Hero Section-->
+  <section class="text-black-900 body-font">
     <div class="container px-5 py-12 mx-auto">
-      <h1 class="text-4xl font-bold mb-4 text-green-400">Generated Creatives</h1>
-      <p class="mb-6">Here are all the generated creatives:</p>
-      <div id="creatives-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8"></div>
+      <div class="flex flex-col text-center w-full mb-12">
+        <h1 class="sm:text-6xl text-xl font-bold title-font text-green-400 mb-4 tracking-[0.25rem]">Generated Creatives!</h1>
+        <p class="lg:w-2/3 mx-auto leading-relaxed text-base ">Here are all the Generated Creatives:</p>
+      </div>
     </div>
   </section>
 
-  <div class="gradient-bg absolute left-0 top-0 -z-10 h-full w-full overflow-hidden opacity-[20%] blur-3xl"
-    style="background: linear-gradient(40deg, #111315, rgb(17, 19, 21));">
-    <div class="h-full w-full">
-      <div class="Mix-blend-hard-light absolute -left-[25%] -top-[15%] h-[140%] w-[140%] origin-center opacity-100"
-        style="background: radial-gradient(circle, rgba(133, 127, 249, 0.8) 0px, rgba(133, 127, 249, 0) 50%) no-repeat;">
-      </div>
-      <div class="Mix-blend-hard-light absolute -left-[15%] -top-[35%] h-[100%] w-[100%] opacity-100"
-        style="background: radial-gradient(circle, rgba(189, 140, 255, 0.8) 0px, rgba(189, 140, 255, 0) 50%) no-repeat; transform-origin: calc(50% - 400px) center;">
-      </div>
-      <div class="Mix-blend-hard-light absolute -top-[15%] left-[15%] h-[220%] w-[220%] opacity-70"
-        style="background: radial-gradient(circle, rgba(189, 140, 255, 0.8) 0px, rgba(189, 140, 255, 0) 50%) no-repeat; transform-origin: calc(50% - 200px) center;">
-      </div>
-    </div>
-  </div>
-
   <script src="./display-creatives.js"></script>
 </body>
+
 
 </html>

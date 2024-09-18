@@ -145,6 +145,9 @@ async function processImages() {
 
             try {
                 const noBgImageBuffer = await removeBg(image_url);
+                if (!noBgImageBuffer) {
+                    throw new Error('Background removal failed');
+                }
 
                 const googleAppName = extractGoogleAppName(google_play_url);
                 const appleAppName = extractAppleAppName(apple_app_url);

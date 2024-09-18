@@ -1,24 +1,18 @@
 import fetch from 'node-fetch';
 import * as cheerio from 'cheerio';
-import { MongoClient } from 'mongodb';
+import { connectToMongo } from './db.js';
 import { processImages } from './remove-bg.js';
 import 'dotenv/config';
-
-// MongoDB configuration
-const uri = process.env.MONGODB_URI;
-const client = new MongoClient(uri);
 
 const dbName = 'Images';
 const imagesCollectionName = 'URLs';
 
+let client;
+
 // Function to store image URLs in MongoDB
 async function storeImageUrlInMongoDB(imageUrl, iconUrl, googlePlayUrl, appleAppUrl) {
   try {
-    // Ensure the client is connected before performing any operations
-    if (!client.topology || !client.topology.isConnected()) {
-      await client.connect();
-    }
-
+    client = await connectToMongo();
     const db = client.db(dbName);
     const imagesCollection = db.collection(imagesCollectionName);
 
@@ -41,10 +35,6 @@ async function storeImageUrlInMongoDB(imageUrl, iconUrl, googlePlayUrl, appleApp
 // Function to scrape image URLs from the Google Play Store and store them in MongoDB
 async function scrapeAndStoreImageUrls(playStoreUrl, appleAppURL) {
   try {
-    console.log('Connecting to MongoDB...');
-    await client.connect();
-    console.log('Connected to MongoDB.');
-
     console.log(`Fetching page from ${playStoreUrl}...`);
     const response = await fetch(playStoreUrl);
 

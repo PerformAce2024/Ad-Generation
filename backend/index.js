@@ -10,7 +10,7 @@ import fs from 'fs';
 import { fileURLToPath } from "url";
 import { savePhraseToDatabase } from './storeCommunications.js';
 import { scrapeAndStoreImageUrls } from './connect.js';
-import { connectToMongo } from './db.js';
+import { createAdsForAllImages } from './oneSixty.js';
 
 const app = express();
 app.use(express.json());
@@ -51,6 +51,10 @@ console.log('__dirname set to:', __dirname);
 // Serve static files from the Frontend directory
 app.use(express.static(path.join(__dirname, "..", "Frontend")));
 console.log('Serving static files from the Frontend directory');
+
+// Serve static files from the 'generated' folder for images
+app.use('/generated', express.static(path.join(__dirname, 'generated')));
+console.log('Serving static images from /generated directory');
 
 // Function to extract app ID from the Apple App Store URL
 function extractAppleAppId(url) {
@@ -208,7 +212,7 @@ app.post("/generate-phrases", async (req, res) => {
     return res.status(200).json(uspPhrases);
   } catch (error) {
     console.error("Error generating USP phrases:", error);
-    return res.status(500).json({ message: "Error generating USP phrases.", error: error.message });
+    return res.status(500).json({ message: "Error generating USP phrases. Possible issue with external API or data formatting.", error: error.message });
   }
 });
 
@@ -219,7 +223,7 @@ app.post("/approved", async (req, res) => {
     console.error('Error: Phrase and email are required');
     return res.status(400).send("Phrase and email are required.");
   }
-  
+
   try {
     console.log(`Saving approved phrase for ${email}`);
     await savePhraseToDatabase("approvedCommunication", email, phrase);
@@ -265,20 +269,34 @@ app.post('/scrape', async (req, res) => {
   }
 });
 
-app.get('/creatives', (req, res) => {
-  const creativesDir = path.join(__dirname, 'creatives');
-  fs.readdir(creativesDir, (err, files) => {
-    if (err) return res.status(500).json({ message: "Failed to retrieve creatives." });
-    const creatives = files.map(file => ({ name: file, url: `/creatives/${file}`, description: "Generated Ad Creative" }));
-    return res.status(200).json(creatives);
-  });
-});
+// Route to generate creatives and save them as files
+app.post('/oneSixty', async (req, res) => {
+  const { email, google_play } = req.body;
 
-app.use('/creatives', express.static(path.join(__dirname, 'creatives')));
+  if (!email || !google_play) {
+    return res.status(400).json({ message: 'Email and Google Play URL are required' });
+  }
 
-// Route to serve oneSixty.js directly if needed
-app.get('/oneSixty', (req, res) => {
-  res.sendFile(path.join(__dirname, 'oneSixty.js'));
+  try {
+    console.log('Generating creatives...');
+    const adImages = await createAdsForAllImages({ email, google_play });
+
+    const savedImages = [];
+
+    // Save each creative image to a file and send the file URLs in response
+    adImages.forEach((image, index) => {
+      const filePath = path.join(__dirname, 'generated', `creative_${email}_${index}.jpg`);
+      fs.writeFileSync(filePath, image, 'base64'); // Saving the image to the server
+      savedImages.push(`/generated/creative_${email}_${index}.jpg`); // Adding the saved image URL to the list
+      console.log(`Saved image: ${filePath}`);
+    });
+
+    // Respond with the URLs of the saved images
+    res.status(200).json({ images: savedImages });
+  } catch (error) {
+    console.error('Error generating creatives:', error);
+    return res.status(500).json({ message: 'Error generating creatives.', error: error.message });
+  }
 });
 
 const PORT = process.env.PORT || 8000;

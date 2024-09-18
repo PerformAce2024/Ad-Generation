@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "postinstall": "npx playwright install",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -13,18 +14,20 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.645.0",
     "aws-sdk": "^2.1691.0",
-    "axios": "^1.7.3",
+    "axios": "^1.7.7",
+    "canvas": "^2.11.2",
     "cheerio": "^1.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^4.19.2",
+    "express": "^4.20.0",
     "firebase": "^10.12.5",
     "form-data": "^4.0.0",
     "google-play-scraper": "^10.0.0",
     "mongodb": "^6.8.1",
     "node-fetch": "^3.3.2",
     "nodemon": "^3.1.4",
-    "playwright": "^1.47.0"
+    "playwright": "^1.47.0",
+    "puppeteer": "^23.3.0"
   },
   "devDependencies": {
     "tailwindcss": "^3.4.10"
