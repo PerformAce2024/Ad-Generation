@@ -168,7 +168,8 @@ async function processImages() {
             }
 
             console.log('Trigger createAdsForAllImages function!');
-            await createAdsForAllImages();
+            const email = localStorage.getItem('userEmail'); 
+            await createAdsForAllImages({ email, google_play: google_play_url });
         }
     } catch (error) {
         console.error('Error during image processing:', error);
