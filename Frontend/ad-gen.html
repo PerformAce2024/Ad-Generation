@@ -68,7 +68,6 @@
   </style>
 
   <!-------------------------------Hero section----------------------------------------- -->
-
   <section class="text-black-900 body-font">
     <div class="container px-5 py-24 mx-auto">
       <div class="flex flex-col text-center w-full mb-12">
@@ -95,6 +94,7 @@
     </div>
   </section>
 
+  <!--Bg-Gradient!-->
   <div class="gradient-bg absolute left-0 top-0 -z-10 h-full w-full overflow-hidden opacity-[20%] blur-3xl"
     style="background: linear-gradient(40deg, rgb(17, 19, 21), rgb(17, 19, 21));">
     <div class="h-full w-full">
@@ -110,12 +110,14 @@
     </div>
   </div>
 
+  <!--Phrases Display-->
   <section>
     <div id="phrases-container">
       <div id="phrases-list" class="overflow-x-auto overflow-hidden"></div>
     </div>
   </section>
 
+  <!--loader-->
   <div id="loader" class="hidden fixed inset-0 items-center justify-center bg-black bg-opacity-50 z-50">
     <div class="loader"></div>
   </div>
@@ -124,14 +126,8 @@
     class="rounded-full text-white bg-green-500 relative text-base/6 font-semibold hover:opacity-80 px-4 py-2 sm:text-sm/6 cursor-pointer"> Get
     Creatives!</button>
 
-  <script>
-    // Add event listener to the button
-    document.getElementById('getCreativesBtn').addEventListener('click', function () {
-      window.location.href = '/display-creatives.html';  // Redirect to the page that shows creatives
-    });
-  </script>
-
-  <script type="module" src="./ad.js"></script>
+  <script type="module" src="./phrases.js"></script>
+  <script type="module" src="./ads.js"></script>
   <script type="module" src="./ad-gen.js"></script>
   <script type="module" src="../backend/creative.js"></script>
 </body>

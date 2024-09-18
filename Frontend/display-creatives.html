@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="ad-gen.css">
 </head>
 
+<!--Navbar-->
 <body class="bg-[#1a202c] tracking-[0.15rem]">
   <header class="text-black-600 body-font">
     <div class="container mx-auto flex justify-between p-5 items-center">
@@ -63,16 +64,17 @@
     }
   </style>
 
+  <!--Hero Section-->
   <section class="text-black-900 body-font">
     <div class="container px-5 py-12 mx-auto">
       <div class="flex flex-col text-center w-full mb-12">
-        <h1 class="sm:text-6xl text-xl font-bold title-font text-green-400 mb-4 tracking-[0.25rem]">Generated Creatives!
-        </h1>
+        <h1 class="sm:text-6xl text-xl font-bold title-font text-green-400 mb-4 tracking-[0.25rem]">Generated Creatives!</h1>
         <p class="lg:w-2/3 mx-auto leading-relaxed text-base ">Here are all the Generated Creatives:</p>
       </div>
     </div>
   </section>
 
+  <!--Bg-Gradient-->
   <div class="gradient-bg absolute left-0 top-0 -z-10 h-full w-full overflow-hidden opacity-[20%] blur-3xl"
     style="background: linear-gradient(40deg, #111315, rgb(17, 19, 21));">
     <div class="h-full w-full">
@@ -91,23 +93,8 @@
   <!-- Add the container to hold the creatives -->
   <div id="creatives-container" class="container mx-auto px-5 py-12 flex flex-wrap justify-center gap-8"></div>
 
-  <div class="gradient-bg absolute left-0 top-0 -z-10 h-full w-full overflow-hidden opacity-[20%] blur-3xl"
-    style="background: linear-gradient(40deg, #111315, rgb(17, 19, 21));">
-    <div class="h-full w-full">
-      <div class="Mix-blend-hard-light absolute -left-[25%] -top-[15%] h-[140%] w-[140%] origin-center opacity-100"
-        style="background: radial-gradient(circle, rgba(133, 127, 249, 0.8) 0px, rgba(133, 127, 249, 0) 50%) no-repeat;">
-      </div>
-      <div class="Mix-blend-hard-light absolute -left-[15%] -top-[35%] h-[100%] w-[100%] opacity-100"
-        style="background: radial-gradient(circle, rgba(189, 140, 255, 0.8) 0px, rgba(189, 140, 255, 0) 50%) no-repeat; transform-origin: calc(50% - 400px) center;">
-      </div>
-      <div class="Mix-blend-hard-light absolute -top-[15%] left-[15%] h-[220%] w-[220%] opacity-70"
-        style="background: radial-gradient(circle, rgba(189, 140, 255, 0.8) 0px, rgba(189, 140, 255, 0) 50%) no-repeat; transform-origin: calc(50% - 200px) center;">
-      </div>
-    </div>
-  </div>
-
-  <script src="./ad-gen.js"></script>
-  <script src="./display-creatives.js"></script>
+  <script type="module" src="./ads.js"></script>
+  <script type="module" src="./ad-gen.js"></script>
 </body>
 
 </html>

@@ -3,14 +3,14 @@
 
 <head>
   <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-RSVRN03MZQ"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-RSVRN03MZQ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
 
-  gtag('config', 'G-RSVRN03MZQ');
-</script>
+    gtag('config', 'G-RSVRN03MZQ');
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/x-icon" href="./images/GrowthZ-Favicon.png">
@@ -27,150 +27,139 @@
 <body class=" text-white tracking-[0.15rem] ">
   <nav x-data="{ isOpen: false }" class="text-white text-2xl sticky top-0 z-50 backdrop-blur pt-4">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-            <!-- Logo -->
-            <div class="w-[120px] lg:w-[150px] sm:w-[120px]">
-                <a href="./index.html"><img src="./images/logo.png" alt="growthZ.ai" srcset=""></a>
-            </div>
-
-            <!-- Desktop menu -->
-            <div class="hidden md:block">
-                <div class="ml-10 flex items-center space-x-4">
-                  <div class="relative" x-data="{ open: false, timer: null }" 
-                  @mouseover="clearTimeout(timer); open = true"
-                  @mouseleave="timer = setTimeout(() => open = false, 300)">
-                        <button
-                            class="flex items-center text-white hover:text-green-400 px-3 py-2 rounded-md text-xl font-medium">
-                            Products
-                            <svg class="ml-1 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                fill="currentColor" aria-hidden="true">
-                                <path fill-rule="evenodd"
-                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </button>
-
-                        <!-- Dropdown menu content -->
-                        <div x-show="open"
-                            class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5"
-                            role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
-                            <a href="./products/genius.html"
-                                class="block px-4 py-2 text-xl text-white hover:bg-gray-700 font-semibold"
-                                role="menuitem">
-                                <span class="text-green-400 font-bold">G</span>enius
-                            </a>
-                            <a href="./products/rainbow.html"
-                                class="block px-4 py-2 text-xl text-white hover:bg-gray-700 font-semibold"
-                                role="menuitem">
-                                <span class="text-green-400 font-bold">R</span>ainbow
-                            </a>
-                            <a href="./products/opus.html"
-                                class="block px-4 py-2 text-xl text-white hover:bg-gray-700 font-semibold"
-                                role="menuitem">
-                                <span class="text-green-400 font-bold">O</span>pus
-                            </a>
-                            <a href="./products/wildcard.html"
-                                class="block px-4 py-2 text-xl text-white hover:bg-gray-700 font-semibold"
-                                role="menuitem">
-                                <span class="text-green-400 font-bold">W</span>ildcard
-                            </a>
-                            <a href="./products/thrive.html"
-                                class="block px-4 py-2 text-xl text-white hover:bg-gray-700 font-semibold"
-                                role="menuitem">
-                                <span class="text-green-400 font-bold">T</span>hrive
-                            </a>
-                            <a href="./products/hawkeye.html"
-                                class="block px-4 py-2 text-xl text-white hover:bg-gray-700 font-semibold"
-                                role="menuitem">
-                                <span class="text-green-400 font-bold">H</span>awkeye
-                            </a>
-                        </div>
-                    </div>
-
-
-                    <a href="./partner.html"
-                        class="text-white hover:text-green-400 px-3 py-2 rounded-md text-xl font-medium">Partners</a>
-                    <a href="./pricing.html"
-                        class="text-white hover:text-green-400 px-3 py-2 rounded-md text-xl font-medium">Pricing</a>
-                    <a href="#about"
-                        class="text-white hover:text-green-400 px-3 py-2 rounded-md text-xl font-medium">About
-                        Us</a>
-                </div>
-            </div>
-
-            <!-- Get Started button (desktop) -->
-            <div class="hidden md:block">
-                <a href="./login.html"
-                    class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-xl font-medium">Get Started</a>
-            </div>
-
-            <!-- Mobile menu button -->
-            <div class="md:hidden">
-                <button @click="isOpen = !isOpen" type="button"
-                    class="inline-flex items-center justify-center p-2  text-gray-400 hover:text-white hover:bg-gray-700 "
-                    aria-controls="mobile-menu" aria-expanded="false">
-                    <span class="sr-only">Toggle menu</span>
-                    <svg x-show="!isOpen" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                    <svg x-show="isOpen" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor" style="display: none;">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo -->
+        <div class="w-[120px] lg:w-[150px] sm:w-[120px]">
+          <a href="./index.html"><img src="./images/logo.png" alt="growthZ.ai" srcset=""></a>
         </div>
+
+        <!-- Desktop menu -->
+        <div class="hidden md:block">
+          <div class="ml-10 flex items-center space-x-4">
+            <div class="relative" x-data="{ open: false, timer: null }" @mouseover="clearTimeout(timer); open = true"
+              @mouseleave="timer = setTimeout(() => open = false, 300)">
+              <button
+                class="flex items-center text-white hover:text-green-400 px-3 py-2 rounded-md text-xl font-medium">
+                Products
+                <svg class="ml-1 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                  aria-hidden="true">
+                  <path fill-rule="evenodd"
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                    clip-rule="evenodd" />
+                </svg>
+              </button>
+
+              <!-- Dropdown menu content -->
+              <div x-show="open"
+                class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5"
+                role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                <a href="./products/genius.html"
+                  class="block px-4 py-2 text-xl text-white hover:bg-gray-700 font-semibold" role="menuitem">
+                  <span class="text-green-400 font-bold">G</span>enius
+                </a>
+                <a href="./products/rainbow.html"
+                  class="block px-4 py-2 text-xl text-white hover:bg-gray-700 font-semibold" role="menuitem">
+                  <span class="text-green-400 font-bold">R</span>ainbow
+                </a>
+                <a href="./products/opus.html"
+                  class="block px-4 py-2 text-xl text-white hover:bg-gray-700 font-semibold" role="menuitem">
+                  <span class="text-green-400 font-bold">O</span>pus
+                </a>
+                <a href="./products/wildcard.html"
+                  class="block px-4 py-2 text-xl text-white hover:bg-gray-700 font-semibold" role="menuitem">
+                  <span class="text-green-400 font-bold">W</span>ildcard
+                </a>
+                <a href="./products/thrive.html"
+                  class="block px-4 py-2 text-xl text-white hover:bg-gray-700 font-semibold" role="menuitem">
+                  <span class="text-green-400 font-bold">T</span>hrive
+                </a>
+                <a href="./products/hawkeye.html"
+                  class="block px-4 py-2 text-xl text-white hover:bg-gray-700 font-semibold" role="menuitem">
+                  <span class="text-green-400 font-bold">H</span>awkeye
+                </a>
+              </div>
+            </div>
+
+
+            <a href="./partner.html"
+              class="text-white hover:text-green-400 px-3 py-2 rounded-md text-xl font-medium">Partners</a>
+            <a href="./pricing.html"
+              class="text-white hover:text-green-400 px-3 py-2 rounded-md text-xl font-medium">Pricing</a>
+            <a href="#about" class="text-white hover:text-green-400 px-3 py-2 rounded-md text-xl font-medium">About
+              Us</a>
+          </div>
+        </div>
+
+        <!-- Get Started button (desktop) -->
+        <div class="hidden md:block">
+          <a href="./login.html"
+            class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-xl font-medium">Get Started</a>
+        </div>
+
+        <!-- Mobile menu button -->
+        <div class="md:hidden">
+          <button @click="isOpen = !isOpen" type="button"
+            class="inline-flex items-center justify-center p-2  text-gray-400 hover:text-white hover:bg-gray-700 "
+            aria-controls="mobile-menu" aria-expanded="false">
+            <span class="sr-only">Toggle menu</span>
+            <svg x-show="!isOpen" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <svg x-show="isOpen" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor" style="display: none;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Mobile menu -->
     <div x-show="isOpen" class="md:hidden" id="mobile-menu" style="display: none;">
-        <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <div x-data="{ productOpen: false }">
-                <button @click="productOpen = !productOpen"
-                    class="flex items-center w-full text-white hover:text-gray-300 px-3 py-2 rounded-md text-base font-medium">
-                    Products
-                    <svg class="ml-1 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                        fill="currentColor">
-                        <path fill-rule="evenodd"
-                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                            clip-rule="evenodd" />
-                    </svg>
-                </button>
-                <div x-show="productOpen" class="pl-4 pb-2">
-                    <a href="./products/genius.html"
-                        class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">
-                        <span class="text-green-400 font-bold">G</span>enius</a>
-                    <a href="./products/rainbow.html"
-                        class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">
-                        <span class="text-green-400 font-bold">R</span>ainbow</a>
-                    <a href="./products/opus.html"
-                        class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">
-                        <span class="text-green-400 font-bold">O</span>pus</a>
-                    <a href="./products/wildcard.html"
-                        class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">
-                        <span class="text-green-400 font-bold">W</span>ildcard</a>
-                    <a href="./products/thrive.html"
-                        class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">
-                        <span class="text-green-400 font-bold">T</span>hrive</a>
-                    <a href="./products/hawkeye.html"
-                        class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">
-                        <span class="text-green-400 font-bold">H</span>awkeye</a>
-                </div>
-            </div>
-            <a href="./partner.html"
-                class="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-gray-300">Partners</a>
-            <a href="#"
-                class="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-gray-300">Pricing</a>
-            <a href="#about"
-                class="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-gray-300">About Us</a>
-            <a href="./index.html"
-                class="block px-3 py-2 rounded-md text-base text-center font-medium bg-green-500 text-white hover:bg-green-600">Get Started</a>
+      <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+        <div x-data="{ productOpen: false }">
+          <button @click="productOpen = !productOpen"
+            class="flex items-center w-full text-white hover:text-gray-300 px-3 py-2 rounded-md text-base font-medium">
+            Products
+            <svg class="ml-1 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd"
+                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                clip-rule="evenodd" />
+            </svg>
+          </button>
+          <div x-show="productOpen" class="pl-4 pb-2">
+            <a href="./products/genius.html"
+              class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">
+              <span class="text-green-400 font-bold">G</span>enius</a>
+            <a href="./products/rainbow.html"
+              class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">
+              <span class="text-green-400 font-bold">R</span>ainbow</a>
+            <a href="./products/opus.html"
+              class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">
+              <span class="text-green-400 font-bold">O</span>pus</a>
+            <a href="./products/wildcard.html"
+              class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">
+              <span class="text-green-400 font-bold">W</span>ildcard</a>
+            <a href="./products/thrive.html"
+              class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">
+              <span class="text-green-400 font-bold">T</span>hrive</a>
+            <a href="./products/hawkeye.html"
+              class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700">
+              <span class="text-green-400 font-bold">H</span>awkeye</a>
+          </div>
         </div>
+        <a href="./partner.html"
+          class="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-gray-300">Partners</a>
+        <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-gray-300">Pricing</a>
+        <a href="#about" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-gray-300">About
+          Us</a>
+        <a href="./index.html"
+          class="block px-3 py-2 rounded-md text-base text-center font-medium bg-green-500 text-white hover:bg-green-600">Get
+          Started</a>
+      </div>
     </div>
-</nav>
+  </nav>
 
   <main class="flex items-center justify-center min-h-screen px-4">
     <div class="text-center content-wrapper">
@@ -219,42 +208,36 @@
     </div>
   </div>
 
-  <footer class="text-gray-600 body-font">
-    <div class="container px-5 py-12 mx-auto flex flex-wrap md:flex-nowrap flex-col md:flex-row items-start">
-      <div class="w-full md:w-1/4 flex-shrink-0 text-center md:text-left mb-6 md:mb-0">
-        <div class="w-[150px] mx-auto md:mx-0">
-          <img src="./images/logo.png" alt="growthZ.ai" srcset="">
-        </div>
-        <!-- <p class="mt-2 text-sm text-gray-500">Air plant banjo lyft occupy retro adaptogen indego</p> -->
-      </div>
-      <div class="flex-grow flex flex-wrap justify-around">
-        <div class="w-1/2 sm:w-1/4 md:w-1/4 px-4">
+  <footer class="text-gray-600 body-font ">
+    <div class="container px-5 py-12 mx-auto">
+      <div class="flex flex-wrap md:flex-nowrap justify-between">
+        <div class="w-full md:w-auto mb-10 md:mb-0" style="margin-left: 20px;">
           <h2 class="title-font font-medium text-green-400 tracking-widest text-sm mb-3">Solutions</h2>
-          <nav class="list-none mb-10">
+          <nav class="list-none">
             <li class="mb-3"><a class="text-white hover:text-gray-600">Communication</a></li>
             <li class="mb-3"><a class="text-white hover:text-gray-600">Static creative</a></li>
-            <li class="mb-3"><a class="text-white hover:text-gray-600"> Video ads</a></li>
+            <li class="mb-3"><a class="text-white hover:text-gray-600">Video ads</a></li>
             <li class="mb-3"><a class="text-white hover:text-gray-600">Campaign management</a></li>
             <li class="mb-3"><a class="text-white hover:text-gray-600">Insights & Reporting</a></li>
           </nav>
         </div>
-        <div class="w-1/2 sm:w-1/4 md:w-1/4 px-4">
+        <div class="w-full md:w-auto mb-10 md:mb-0">
           <h2 class="title-font font-medium text-green-400 tracking-widest text-sm mb-3">Resource</h2>
-          <nav class="list-none mb-10">
+          <nav class="list-none">
             <li class="mb-2"><a class="text-white hover:text-gray-600">Blogs</a></li>
             <li class="mb-2"><a class="text-white hover:text-gray-600">Case Study</a></li>
             <li class="mb-2"><a class="text-white hover:text-gray-600">Reports</a></li>
           </nav>
         </div>
-        <div class="w-1/2 sm:w-1/4 md:w-1/4 px-4">
+        <div class="w-full md:w-auto mb-10 md:mb-0">
           <h2 class="title-font font-medium text-green-400 tracking-widest text-sm mb-3">Privacy</h2>
-          <nav class="list-none mb-10">
+          <nav class="list-none">
             <li class="mb-2"><a class="text-white hover:text-gray-600">Compliance & Regulations</a></li>
           </nav>
         </div>
-        <div class="w-1/2 sm:w-1/4 md:w-1/4 px-4">
+        <div class="w-full md:w-auto" style="margin-right: 20px;">
           <h2 class="title-font font-medium text-green-400 tracking-widest text-sm mb-3">Engage With Us</h2>
-          <nav class="list-none mb-10">
+          <nav class="list-none">
             <li class="mb-2"><a class="text-white hover:text-gray-600">Linkedin</a></li>
             <li class="mb-2"><a class="text-white hover:text-gray-600">Twitter</a></li>
             <li class="mb-2"><a class="text-white hover:text-gray-600">Instagram</a></li>
@@ -264,7 +247,7 @@
     </div>
     <div>
       <div class="container mx-auto py-4 px-5 flex flex-wrap flex-col sm:flex-row">
-        <p class="text-grayz-500 text-sm text-center sm:text-left">© 2024 growthZ.ai</p>
+        <p class="text-gray-500 text-sm text-center sm:text-left">© 2024 growthZ.ai</p>
         <span class="inline-flex sm:ml-auto sm:mt-0 mt-2 justify-center sm:justify-start">
           <a class="text-gray-500">
             <svg fill="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="w-5 h-5"
@@ -299,33 +282,34 @@
       </div>
     </div>
   </footer>
+
   <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
   <script src="script.js"></script>
   <script>
     gsap.registerPlugin(ScrollTrigger);
     const aboutContainer = document.getElementById('about');
     const textContent = new SplitType(aboutContainer.querySelectorAll('p'), {
-        types: 'words, chars'
+      types: 'words, chars'
     });
     gsap.timeline({
-        scrollTrigger: {
-            trigger: aboutContainer,
-            start: 'top 90%',
-            end: '70% 20%',
-            scrub: 1.5,
-            onUpdate: (self) => {
-                if (self.progress === 1) {
-                    textContent.chars.forEach(char => char.style.opacity = 1); // Ensure all characters are fully visible
-                }
-            }
-        },
-        ease: 'none'
+      scrollTrigger: {
+        trigger: aboutContainer,
+        start: 'top 90%',
+        end: '70% 20%',
+        scrub: 1.5,
+        onUpdate: (self) => {
+          if (self.progress === 1) {
+            textContent.chars.forEach(char => char.style.opacity = 1); // Ensure all characters are fully visible
+          }
+        }
+      },
+      ease: 'none'
     }).from(textContent.chars, {
-        opacity: 0.1,
-        stagger: 0.01,
-        duration: 0.1
+      opacity: 0.1,
+      stagger: 0.01,
+      duration: 0.1
     });
-</script>
+  </script>
 </body>
 
 </html>

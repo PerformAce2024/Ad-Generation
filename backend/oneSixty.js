@@ -1,8 +1,8 @@
-import fs from 'fs';
 import fetch from 'node-fetch';
 import path from 'path';
 import { createCanvas, loadImage } from 'canvas';
 import { spawn } from 'child_process';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { extractFontDetails } from './font-extractor.js';
 import { connectToMongo } from './db.js';
@@ -22,7 +22,7 @@ async function downloadImage(url) {
         console.log(`Starting download of image from URL: ${url}`);
         const response = await fetch(url);
         const buffer = await response.buffer();
-        console.log('Downloading image');
+        console.log('Image downloaded');
         return buffer; // Return the image as a buffer
     } catch (error) {
         console.error(`Failed to download image from ${url}:`, error);
@@ -117,8 +117,8 @@ async function fetchAllImageData() {
     }
 }
 
-// Create ad image with downloaded images and phrases
-async function createAdImage(imageData, phrase, fontDetails) {
+// Create ad image with downloaded images and phrases, and save to disk
+async function createAdImage(imageData, phrase, fontDetails, index, email) {
     try {
         console.log(`Creating ad image for index ${index} with phrase: "${phrase}"`);
 
@@ -132,10 +132,10 @@ async function createAdImage(imageData, phrase, fontDetails) {
         const imageBuffer = imageData.image_url ? await downloadImage(imageData.image_url) : null;
         const extractedBuffer = imageData.extracted_url ? await downloadImage(imageData.extracted_url) : null;
 
-        const backgroundColor = `rgb${await getBackgroundColor(localImagePath)}`;
+        const backgroundColor = `rgb${await getBackgroundColor(imageBuffer)}`;
         console.log(`Background color is: ${backgroundColor}`);
 
-        const iconColor = `rgb${await getBackgroundColor(localIconPath)}`;
+        const iconColor = `rgb${await getBackgroundColor(iconBuffer)}`;
         console.log(`Icon color is: ${iconColor}`);
 
         // Background and icon drawing
@@ -206,41 +206,44 @@ async function createAdImage(imageData, phrase, fontDetails) {
 
         console.log('Ad image created!');
 
-        // Return the image buffer instead of saving to disk
-        return canvas.toBuffer('image/jpeg');
+        // Save the image to disk
+        const outputPath = path.join(__dirname, 'generated', `creative_${email}_${index}.jpg`);
+        const buffer = canvas.toBuffer('image/jpeg');
+        fs.writeFileSync(outputPath, buffer);
+        console.log(`Ad image saved at ${outputPath}`);
+
+        // Return the file path of the saved image
+        return `/generated/creative_${email}_${index}.jpg`;
     } catch (error) {
         console.error('Error creating ad image:', error);
         throw error;
     }
 }
 
-async function createAdsForAllImages(req, res) {
+async function createAdsForAllImages({ email, google_play }) {
     try {
         console.log('Starting process to create ads for all images...');
-        const imageDataArray = await fetchAllImageData();
-        const email = req.body.email;
 
         const approvedPhrases = await fetchApprovedPhrases(email);
-        const fontDetails = await extractFontDetails(req.body.google_play);
+        const imageDataArray = await fetchAllImageData();
+        const fontDetails = await extractFontDetails(google_play);
 
-        const adImages = [];
-
+        const savedImagePaths = [];
         for (let i = 0; i < imageDataArray.length; i++) {
             const imageData = imageDataArray[i];
 
             for (let j = 0; j < approvedPhrases.length; j++) {
                 console.log(`Processing image ${i} and phrase ${j}`);
-                const adImageBuffer = await createAdImage(imageData, approvedPhrases[j], fontDetails);
-                adImages.push(adImageBuffer.toString('base64')); // Convert buffer to Base64 to send to frontend
+                const savedImagePath = await createAdImage(imageData, approvedPhrases[j], fontDetails, `${i}_${j}`, email);
+                savedImagePaths.push(savedImagePath); // Store file paths
             }
         }
 
-        // Respond with the generated images as Base64
-        res.json(adImages); // Send the images as Base64 strings
         console.log('Finished creating ads for all images.');
+        return savedImagePaths; // Return the array of file paths
     } catch (error) {
         console.error('Error processing ad images:', error);
-        res.status(500).send('Error processing ad images.');
+        throw error;
     }
 }
 

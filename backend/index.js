@@ -52,6 +52,10 @@ console.log('__dirname set to:', __dirname);
 app.use(express.static(path.join(__dirname, "..", "Frontend")));
 console.log('Serving static files from the Frontend directory');
 
+// Serve static files from the 'generated' folder for images
+app.use('/generated', express.static(path.join(__dirname, 'generated')));
+console.log('Serving static images from /generated directory');
+
 // Function to extract app ID from the Apple App Store URL
 function extractAppleAppId(url) {
   const match = url.match(/id(\d+)/);
@@ -265,7 +269,7 @@ app.post('/scrape', async (req, res) => {
   }
 });
 
-// Route to serve oneSixty.js directly if needed
+// Route to generate creatives and save them as files
 app.post('/oneSixty', async (req, res) => {
   const { email, google_play } = req.body;
 
@@ -274,12 +278,21 @@ app.post('/oneSixty', async (req, res) => {
   }
 
   try {
-    console.log(`Processing ad generation for email: ${email} and Google Play URL: ${google_play}`);
-    // Call createAdsForAllImages to generate ads and return Base64 encoded images
+    console.log('Generating creatives...');
     const adImages = await createAdsForAllImages({ email, google_play });
 
-    // Respond with the generated Base64 encoded images
-    return res.status(200).json(adImages);
+    const savedImages = [];
+
+    // Save each creative image to a file and send the file URLs in response
+    adImages.forEach((image, index) => {
+      const filePath = path.join(__dirname, 'generated', `creative_${email}_${index}.jpg`);
+      fs.writeFileSync(filePath, image, 'base64'); // Saving the image to the server
+      savedImages.push(`/generated/creative_${email}_${index}.jpg`); // Adding the saved image URL to the list
+      console.log(`Saved image: ${filePath}`);
+    });
+
+    // Respond with the URLs of the saved images
+    res.status(200).json({ images: savedImages });
   } catch (error) {
     console.error('Error generating creatives:', error);
     return res.status(500).json({ message: 'Error generating creatives.', error: error.message });

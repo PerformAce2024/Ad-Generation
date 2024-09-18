@@ -10,15 +10,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
   } else {
     console.error("AdButton not found");
   }
-
-  // Attach the event listener to the GetCreativesBtn after the DOM is fully loaded
-  const getCreativesButton = document.getElementById("getCreativesBtn");
-  if (getCreativesButton) {
-    console.log("GetCreativesBtn found, attaching event listener");
-    getCreativesButton.addEventListener("click", onGetCreativesHandler);
-  } else {
-    console.error("GetCreativesBtn not found");
-  }
 });
 
 const BASE_URL = 'https://ad-generation.onrender.com';
@@ -52,9 +43,6 @@ async function onClickHandler(event) {
   try {
     console.log("Sending requests to /generate-phrases");
 
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-
     const requestBody = JSON.stringify({
       google_play: googlePlayURL,
       apple_app: appleAppURL,
@@ -62,7 +50,7 @@ async function onClickHandler(event) {
 
     const requestOptions = {
       method: "POST",
-      headers: myHeaders,
+      headers: { "Content-Type": "application/json" },
       body: requestBody,
       redirect: "follow",
     };
@@ -103,84 +91,6 @@ async function onClickHandler(event) {
     }
 
     document.getElementById("phrases-container").innerHTML = "Error retrieving phrases. Please check your connection or try again later.";
-  }
-}
-
-// Function for Get Creatives Button
-async function onGetCreativesHandler(event) {
-  event.preventDefault();
-  console.log("Get Creatives button clicked");
-
-  const loader = document.getElementById("loader");
-  if (loader) {
-    console.log("Displaying loader");
-    loader.classList.remove("hidden");
-    loader.classList.add('flex');
-  }
-
-  const googlePlayURL = document.getElementById("google-play-url").value;
-  const appleAppURL = document.getElementById("apple-app-url").value;
-
-  const requestBody = JSON.stringify({
-    google_play: googlePlayURL,
-    apple_app: appleAppURL,
-  });
-
-  var myHeaders = new Headers();
-  myHeaders.append("Content-Type", "application/json");
-
-  const requestOptions = {
-    method: "POST",
-    headers: myHeaders,
-    body: requestBody,
-    redirect: "follow",
-  };
-
-  try {
-    console.log("Sending requests to /scrape");
-
-    const scrapeRequestUrl = `${BASE_URL}/scrape`;
-
-    // First, call /scrape API
-    const scrapeResponse = await fetch(scrapeRequestUrl, requestOptions);
-
-    if (!scrapeResponse.ok) {
-      const errorText = await scrapeResponse.text();
-      console.error(`Error in response from ${scrapeRequestUrl}:`, errorText);
-      throw new Error("Error scraping data");
-    }
-
-    console.log("Scrape completed successfully.");
-
-
-    // After scrape, call /oneSixty API
-    console.log("Sending request to /oneSixty");
-
-    const creativesRequestUrl = `${BASE_URL}/oneSixty`;
-
-    const creativeResponse = await fetch(creativesRequestUrl, { method: 'GET' });
-
-    if (!creativeResponse.ok) {
-      const errorText = await creativeResponse.text();
-      console.error(`Error in response from ${creativesRequestUrl}:`, errorText);
-      throw new Error('Error generating creatives');
-    }
-
-    const result = await creativeResponse.text();
-    console.log("Creatives received from the server:", result);  // Ensure the backend is responding correctly
-
-    // Hide loader
-    if (loader) {
-      loader.classList.add("hidden");
-    }
-
-    // Redirect to display creatives page after generation
-    window.location.href = '/display-creatives.html';
-  } catch (error) {
-    console.error("Error generating creatives:", error);
-    if (loader) {
-      loader.classList.add("hidden");
-    }
   }
 }
 
