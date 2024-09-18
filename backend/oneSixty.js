@@ -61,19 +61,36 @@ async function fetchApprovedPhrases(email) {
 
 // Extract background color using Python script
 async function getBackgroundColor(imagePath) {
+    console.log(`Extracting background color for image at: ${imagePath}`);
+    
     return new Promise((resolve, reject) => {
-        console.log(`Extracting background color for image at: ${imagePath}`);
-        const pythonProcess = spawn('python', [path.join(__dirname, 'backgroundColor.py'), imagePath]);
+        // Ensure the image path is correct and exists
+        if (!imagePath) {
+            reject('Image path is not provided.');
+            return;
+        }
+
+        const absoluteImagePath = path.resolve(imagePath); // Convert to absolute path
+        console.log(`Extracting background color for image at: ${absoluteImagePath}`);
+
+        // Spawn the Python process
+        const pythonProcess = spawn('python', [path.join(__dirname, 'backgroundColor.py'), absoluteImagePath]);
 
         pythonProcess.stdout.on('data', (data) => {
             const color = data.toString().trim();
+            if (!color) {
+                console.error('No color data extracted');
+                reject('No color data extracted.');
+                return;
+            }
             console.log(`Extracted background color: ${color}`);
-            resolve(color);
+            resolve(color); // Send the extracted color back to the caller
         });
 
         pythonProcess.stderr.on('data', (data) => {
-            console.error(`Python error while extracting background color: ${data}`);
-            reject(`Python error: ${data}`);
+            const errorMsg = data.toString().trim();
+            console.error(`Python error while extracting background color: ${errorMsg}`);
+            reject(`Python error: ${errorMsg}`);
         });
 
         pythonProcess.on('close', (code) => {
