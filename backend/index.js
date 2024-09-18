@@ -253,7 +253,7 @@ app.post("/rejected", async (req, res) => {
 
 // Route to trigger scraping and storing
 app.post('/scrape', async (req, res) => {
-  const { google_play, apple_app } = req.body;
+  const { email, google_play, apple_app } = req.body;
 
   if (!google_play) {
     return res.status(400).send('Google Play Store URL is required');
@@ -261,7 +261,7 @@ app.post('/scrape', async (req, res) => {
 
   try {
     console.log(`Scraping started for ${google_play} and ${apple_app}`);
-    await scrapeAndStoreImageUrls(google_play, apple_app);  // Assuming scrapeAndStoreImageUrls is already defined
+    await scrapeAndStoreImageUrls(email, google_play, apple_app);  // Assuming scrapeAndStoreImageUrls is already defined
     return res.status(200).send('Scraping, storing, and background removal process completed.');
   } catch (error) {
     console.error('Error during scraping or background removal process:', error);

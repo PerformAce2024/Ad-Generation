@@ -33,7 +33,7 @@ async function storeImageUrlInMongoDB(imageUrl, iconUrl, googlePlayUrl, appleApp
 }
 
 // Function to scrape image URLs from the Google Play Store and store them in MongoDB
-async function scrapeAndStoreImageUrls(playStoreUrl, appleAppURL) {
+async function scrapeAndStoreImageUrls(email, playStoreUrl, appleAppURL) {
   try {
     console.log(`Fetching page from ${playStoreUrl}...`);
     const response = await fetch(playStoreUrl);
@@ -88,7 +88,7 @@ async function scrapeAndStoreImageUrls(playStoreUrl, appleAppURL) {
 
     // Call processImages from remove-bg.js after successfully storing URLs in MongoDB
     console.log('Starting background removal process...');
-    await processImages(); // Trigger background removal process
+    await processImages(email); // Trigger background removal process
 
   } catch (error) {
     console.error(`Error during scraping or storing process: ${error.message}`);

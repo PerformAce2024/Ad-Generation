@@ -122,7 +122,7 @@ function extractAppleAppName(url) {
 }
 
 // Main function to process images
-async function processImages() {
+async function processImages(email) {
     let client;
     try {
         console.log('Starting image processing...');
@@ -168,7 +168,6 @@ async function processImages() {
             }
 
             console.log('Trigger createAdsForAllImages function!');
-            const email = localStorage.getItem('userEmail'); 
             await createAdsForAllImages({ email, google_play: google_play_url });
         }
     } catch (error) {
