@@ -5,7 +5,7 @@ import { getFirestore, getDoc, doc } from "https://www.gstatic.com/firebasejs/10
 console.log("Initializing Firebase App");
 
 const firebaseConfig = {
-    apiKey: "AIzaSyCvDykDpbRvjpHf0MBfKTTY2S9P2LpXNOw",
+    apiKey: "AIzaSyDSt7NQZlFcOSmerHV2-K6zUgnbv2Hn5Bs",
     authDomain: "performacemedia-750e2.firebaseapp.com",
     projectId: "performacemedia-750e2",
     storageBucket: "performacemedia-750e2.appspot.com",
