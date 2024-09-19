@@ -1,16 +1,23 @@
-// document.addEventListener("DOMContentLoaded", (event) => {
-//     event.preventDefault();
-//     console.log("DOM fully loaded and parsed");
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("DOM fully loaded and parsed");
 
-//     // Attach the event listener to the GetCreativesBtn after the DOM is fully loaded
-//     const getCreativesButton = document.getElementById("getCreativesBtn");
-//     if (getCreativesButton) {
-//         console.log("GetCreativesBtn found, attaching event listener");
-//         getCreativesButton.addEventListener("click", onGetCreativesHandler);
-//     } else {
-//         console.error("GetCreativesBtn not found");
-//     }
-// });
+    // Attach the event listener to the GetCreativesBtn after the DOM is fully loaded
+    const getCreativesButton = document.getElementById("getCreativesBtn");
+    if (getCreativesButton) {
+        console.log("GetCreativesBtn found, attaching event listener");
+        getCreativesButton.addEventListener("click", onGetCreativesHandler);
+    } else {
+        console.error("GetCreativesBtn not found");
+    }
+});
+
+async function onGetCreativesHandler(event) {
+    event.preventDefault();
+    console.log("Inside function onGetCreativesHandler");
+
+    // Your logic for handling the button click goes here
+}
+
 
 const BASE_URL = 'https://ad-generation.onrender.com';
 
