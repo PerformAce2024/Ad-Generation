@@ -2,7 +2,7 @@ import fetch from 'node-fetch';
 import path from 'path';
 import { createCanvas, loadImage } from 'canvas';
 import { spawn } from 'child_process';
-import fs from 'fs';
+import fs from 'fs/promises'; // Use fs.promises for async file operations
 import { fileURLToPath } from 'url';
 import { extractFontDetails } from './font-extractor.js';
 import { connectToMongo } from './db.js';
@@ -21,16 +21,15 @@ async function downloadImage(url) {
     try {
         console.log(`Starting download of image from URL: ${url}`);
         const controller = new AbortController();
-        const timeout = setTimeout(() => {
+        const timeoutId = setTimeout(() => {
             controller.abort();
         }, 10000); // 10-second timeout
 
         const response = await fetch(url, { signal: controller.signal });
 
         // Clear the timeout once the fetch is successful
-        clearTimeout(timeout);
+        clearTimeout(timeoutId);
 
-        // Check for valid response and content type
         if (!response.ok || !response.headers.get('content-type').includes('image')) {
             throw new Error(`Failed to download image from ${url}`);
         }
@@ -38,7 +37,7 @@ async function downloadImage(url) {
         const arrayBuffer = await response.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
         console.log('Image downloaded');
-        return buffer; // Return the image as a buffer
+        return buffer;
     } catch (error) {
         if (error.name === 'AbortError') {
             console.error(`Download aborted for ${url}: Request timed out`);
@@ -77,38 +76,32 @@ async function getBackgroundColor(imagePath) {
     console.log(`Extracting background color for image at: ${imagePath}`);
 
     return new Promise((resolve, reject) => {
-        // Ensure the image path is correct and exists
         if (!imagePath) {
             reject('Image path is not provided.');
             return;
         }
 
-        const absoluteImagePath = path.resolve(imagePath); // Convert to absolute path
+        const absoluteImagePath = path.resolve(imagePath);
         console.log(`Extracting background color for image at: ${absoluteImagePath}`);
 
-        // Spawn the Python process
         const pythonProcess = spawn('python', [path.join(__dirname, 'backgroundColor.py'), absoluteImagePath]);
 
         pythonProcess.stdout.on('data', (data) => {
             const color = data.toString().trim();
             if (!color) {
-                console.error('No color data extracted');
                 reject('No color data extracted.');
                 return;
             }
-            console.log(`Extracted background color: ${color}`);
-            resolve(color); // Send the extracted color back to the caller
+            resolve(color);
         });
 
         pythonProcess.stderr.on('data', (data) => {
             const errorMsg = data.toString().trim();
-            console.error(`Python error while extracting background color: ${errorMsg}`);
             reject(`Python error: ${errorMsg}`);
         });
 
         pythonProcess.on('close', (code) => {
             if (code !== 0) {
-                console.error(`Python script exited with code ${code}`);
                 reject(`Python script exited with code ${code}`);
             }
         });
@@ -126,30 +119,42 @@ function calculateFontSize(ctx, phrase, maxWidth) {
         ctx.font = `${fontSize}px Times New Roman`;
     }
 
-    console.log(`Calculated font size for phrase "${phrase}" is: ${fontSize}`);
     return fontSize;
+}
+
+// Ensure directory exists and create it if it doesn't
+async function ensureDirExists(dir) {
+    try {
+        await fs.mkdir(dir, { recursive: true });
+    } catch (error) {
+        if (error.code !== 'EEXIST') {
+            throw error;
+        }
+    }
+}
+
+// Save buffer to temporary file
+async function saveBufferToTempFile(buffer) {
+    const tempDir = path.join(__dirname, 'temp');
+    const tempFilePath = path.join(tempDir, `${Date.now()}.png`);
+    await ensureDirExists(tempDir);
+    await fs.writeFile(tempFilePath, buffer);
+    return tempFilePath;
 }
 
 // Fetch all image data from MongoDB
 async function fetchAllImageData() {
     try {
-        console.log('Connecting to MongoDB...');
         const client = await connectToMongo();
         const db = client.db(dbCreativeName);
         const urlsCollection = db.collection(urlsCollectionName);
 
-        console.log('Fetching all image data from MongoDB...');
         const imageDataArray = await urlsCollection.find({}).toArray();
-
         if (imageDataArray.length === 0) {
-            console.error('No image data found in MongoDB');
             throw new Error('No image data found in MongoDB');
         }
-
-        console.log(`Fetched ${imageDataArray.length} image data entries.`);
         return imageDataArray;
     } catch (error) {
-        console.error('Error fetching image data from MongoDB:', error);
         throw error;
     }
 }
@@ -157,48 +162,41 @@ async function fetchAllImageData() {
 // Create ad image with downloaded images and phrases, and save to disk
 async function createAdImage(imageData, phrase, fontDetails, index, email) {
     try {
-        console.log(`Creating ad image for index ${index} with phrase: "${phrase}"`);
-
         const width = 160;
         const height = 600;
         const canvas = createCanvas(width, height);
         const ctx = canvas.getContext('2d');
 
-        // Download images as buffers
         const iconBuffer = imageData.icon_url ? await downloadImage(imageData.icon_url) : null;
         const imageBuffer = imageData.image_url ? await downloadImage(imageData.image_url) : null;
         const extractedBuffer = imageData.extracted_url ? await downloadImage(imageData.extracted_url) : null;
 
-        if (!imageBuffer || imageBuffer.length === 0) {
-            throw new Error('Downloaded image buffer is empty');
+        const iconFilePath = iconBuffer ? await saveBufferToTempFile(iconBuffer) : null;
+        const imageFilePath = imageBuffer ? await saveBufferToTempFile(imageBuffer) : null;
+        const extractedImageFilePath = extractedBuffer ? await saveBufferToTempFile(extractedBuffer) : null;
+
+        if (!imageFilePath) {
+            throw new Error('Downloaded image path is empty');
         }
 
-        const backgroundColor = `rgb${await getBackgroundColor(imageBuffer)}`;
-        console.log(`Background color is: ${backgroundColor}`);
+        const backgroundColor = `rgb${await getBackgroundColor(imageFilePath)}`;
+        const iconColor = iconFilePath ? `rgb${await getBackgroundColor(iconFilePath)}` : 'rgb(255,255,255)';
 
-        const iconColor = `rgb${await getBackgroundColor(iconBuffer)}`;
-        console.log(`Icon color is: ${iconColor}`);
-
-        // Background and icon drawing
         ctx.fillStyle = backgroundColor;
         ctx.fillRect(0, 0, width, height);
 
-        const iconSize = 50;
-        if (iconBuffer) {
-            const iconImage = await loadImage(iconBuffer);
-            ctx.drawImage(iconImage, width - iconSize - 10, 10, iconSize, iconSize);
+        if (iconFilePath) {
+            const iconImage = await loadImage(iconFilePath);
+            ctx.drawImage(iconImage, width - 50 - 10, 10, 50, 50);
         }
 
-        const baseImage = await loadImage(extractedBuffer);
-
-        // Calculate and set the font size based on the phrase length
+        const baseImage = await loadImage(extractedImageFilePath);
         const fontSize = calculateFontSize(ctx, phrase, width - 40);
         ctx.font = `${fontSize * 1.5}px ${fontDetails.fontFamily}`;
         ctx.fillStyle = 'black';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
 
-        // Add text to the canvas
         let textY = 80;
         const words = phrase.split(" ");
         let line = "";
@@ -217,7 +215,6 @@ async function createAdImage(imageData, phrase, fontDetails, index, email) {
         });
         ctx.fillText(line, width / 2, textY);
 
-        // Draw the image
         const textHeight = textY + fontSize + 5;
         const availableHeightForImage = height - textHeight - 60;
         const aspectRatio = baseImage.width / baseImage.height;
@@ -232,7 +229,6 @@ async function createAdImage(imageData, phrase, fontDetails, index, email) {
         const x = (width - imgWidth) / 2;
         ctx.drawImage(baseImage, x, textHeight, imgWidth, imgHeight);
 
-        // Draw the button
         const buttonHeight = 40;
         const buttonWidth = 120;
         const buttonX = (width - buttonWidth) / 2;
@@ -244,34 +240,21 @@ async function createAdImage(imageData, phrase, fontDetails, index, email) {
         ctx.fillStyle = 'white';
         ctx.fillText('Order Now', buttonX + buttonWidth / 2, buttonY + buttonHeight / 2);
 
-        console.log('Ad image created!');
-
-        // Save the image to disk
-        const outputPath = path.join(__dirname, 'generated', `creative_${email}_${index}.jpg`);
-
-        // Check if 'generated' directory exists, create it if it doesn't
-        const outputDir = path.dirname(outputPath);
-        if (!fs.existsSync(outputDir)) {
-            fs.mkdirSync(outputDir);
-        }
+        const outputDir = path.join(__dirname, 'generated');
+        await ensureDirExists(outputDir);
+        const outputPath = path.join(outputDir, `creative_${email}_${index}.jpg`);
 
         const buffer = canvas.toBuffer('image/jpeg');
-        fs.writeFileSync(outputPath, buffer);
-        console.log(`Ad image saved at ${outputPath}`);
-
-        // Return the file path of the saved image (string, not buffer)
+        await fs.writeFile(outputPath, buffer);
         return `/generated/creative_${email}_${index}.jpg`;
     } catch (error) {
-        console.error('Error creating ad image:', error);
         throw error;
     }
 }
 
-
+// Create ads for all images
 async function createAdsForAllImages({ email, google_play }) {
     try {
-        console.log('Starting process to create ads for all images...');
-
         const approvedPhrases = await fetchApprovedPhrases(email);
         const imageDataArray = await fetchAllImageData();
         const fontDetails = await extractFontDetails(google_play);
@@ -281,24 +264,14 @@ async function createAdsForAllImages({ email, google_play }) {
             const imageData = imageDataArray[i];
 
             for (let j = 0; j < approvedPhrases.length; j++) {
-                console.log(`Processing image ${i} and phrase ${j}`);
-
-                // createAdImage now returns the file path (string)
                 const imagePath = await createAdImage(imageData, approvedPhrases[j], fontDetails, `${i}_${j}`, email);
-
-                // Push the file path to the savedImagePaths array
                 savedImagePaths.push(imagePath);
-                console.log(`Saved image at: ${imagePath}`);
             }
         }
-
-        console.log('Finished creating ads for all images.');
-        return savedImagePaths;  // Return the array of file paths
+        return savedImagePaths;
     } catch (error) {
-        console.error('Error processing ad images:', error);
         throw error;
     }
 }
-
 
 export { createAdsForAllImages };
