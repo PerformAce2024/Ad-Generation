@@ -15,7 +15,6 @@ const approvedCollectionName = 'approvedCommunication';
 
 const dbCreativeName = 'Images';
 const urlsCollectionName = 'URLs';
-
 // Download image function
 async function downloadImage(url) {
     try {
