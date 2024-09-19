@@ -199,12 +199,11 @@ async function createAdImage(imageData, phrase, fontDetails, index, email) {
         ctx.textBaseline = 'top';
 
         // Add text to the canvas
-        let textY = 80; // Start text 80px from the top
+        let textY = 80;
         const words = phrase.split(" ");
         let line = "";
         const maxLineWidth = width - 40;
 
-        // Handle text wrapping for long phrases
         words.forEach((word, idx) => {
             const testLine = line + word + " ";
             const testWidth = ctx.measureText(testLine).width;
@@ -220,7 +219,7 @@ async function createAdImage(imageData, phrase, fontDetails, index, email) {
 
         // Draw the image
         const textHeight = textY + fontSize + 5;
-        const availableHeightForImage = height - textHeight - 60; // Reserve space for the button
+        const availableHeightForImage = height - textHeight - 60;
         const aspectRatio = baseImage.width / baseImage.height;
         let imgWidth = availableHeightForImage * aspectRatio;
         let imgHeight = availableHeightForImage;
@@ -260,13 +259,14 @@ async function createAdImage(imageData, phrase, fontDetails, index, email) {
         fs.writeFileSync(outputPath, buffer);
         console.log(`Ad image saved at ${outputPath}`);
 
-        // Return the file path of the saved image
+        // Return the file path of the saved image (string, not buffer)
         return `/generated/creative_${email}_${index}.jpg`;
     } catch (error) {
         console.error('Error creating ad image:', error);
         throw error;
     }
 }
+
 
 async function createAdsForAllImages({ email, google_play }) {
     try {
@@ -282,25 +282,23 @@ async function createAdsForAllImages({ email, google_play }) {
 
             for (let j = 0; j < approvedPhrases.length; j++) {
                 console.log(`Processing image ${i} and phrase ${j}`);
-                const imageBuffer = await createAdImage(imageData, approvedPhrases[j], fontDetails, `${i}_${j}`, email);
-                const filePath = path.join(__dirname, 'generated', `creative_${email}_${i}_${j}.jpg`);
 
-                if (Buffer.isBuffer(imageBuffer)) {
-                    fs.writeFileSync(filePath, imageBuffer);  // Write buffer to file
-                    savedImagePaths.push(`/generated/creative_${email}_${i}_${j}.jpg`);  // Save the file path
-                    console.log(`Saved image: ${filePath}`);
-                } else {
-                    console.error(`Expected a buffer but received: ${typeof imageBuffer}`);
-                }
+                // createAdImage now returns the file path (string)
+                const imagePath = await createAdImage(imageData, approvedPhrases[j], fontDetails, `${i}_${j}`, email);
+
+                // Push the file path to the savedImagePaths array
+                savedImagePaths.push(imagePath);
+                console.log(`Saved image at: ${imagePath}`);
             }
-
-            console.log('Finished creating ads for all images.');
-            return savedImagePaths;  // Return the array of file paths
         }
+
+        console.log('Finished creating ads for all images.');
+        return savedImagePaths;  // Return the array of file paths
     } catch (error) {
         console.error('Error processing ad images:', error);
         throw error;
     }
 }
+
 
 export { createAdsForAllImages };
