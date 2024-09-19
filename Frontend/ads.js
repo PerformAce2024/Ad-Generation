@@ -11,12 +11,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-async function onGetCreativesHandler(event) {
-    event.preventDefault();
-    console.log("Inside function onGetCreativesHandler");
 
-    // Your logic for handling the button click goes here
-}
+// async function onGetCreativesHandler(event) {
+//     event.preventDefault();
+//     console.log("Inside function onGetCreativesHandler");
+
+//     // Your logic for handling the button click goes here
+// }
 
 
 const BASE_URL = 'https://ad-generation.onrender.com';
@@ -25,7 +26,7 @@ const BASE_URL = 'https://ad-generation.onrender.com';
 async function onGetCreativesHandler(event) {
     event.preventDefault();
     console.log("Inside function onGetCreativesHandler");
-    
+
     const loader = document.getElementById("loader");
     if (loader) {
         loader.classList.remove("hidden");
@@ -34,7 +35,7 @@ async function onGetCreativesHandler(event) {
 
     const googlePlayURL = document.getElementById("google-play-url").value;
     const appleAppURL = document.getElementById("apple-app-url").value;
-    const email = localStorage.getItem('userEmail'); 
+    const email = localStorage.getItem('userEmail');
 
     if (!googlePlayURL || !email) {
         alert("Please provide both Google Play Store URL and Email.");
@@ -89,7 +90,7 @@ async function onGetCreativesHandler(event) {
         // Save creatives to localStorage
         localStorage.setItem('savedImageUrls', JSON.stringify(savedImageUrls));
 
-        // Redirect after creatives are generated
+        // Redirect to display-creatives.html after creatives are generated
         window.location.href = '/display-creatives.html';
 
     } catch (error) {
@@ -103,32 +104,33 @@ async function onGetCreativesHandler(event) {
 }
 
 
+
 // Function to display creatives
-function displayCreatives(imageUrls) {
-    const container = document.getElementById("creatives-container");
-    if (!container) {
-        console.error("Creatives container not found.");
-        return;
-    }
+// function displayCreatives(imageUrls) {
+//     const container = document.getElementById("creatives-container");
+//     if (!container) {
+//         console.error("Creatives container not found.");
+//         return;
+//     }
 
-    container.innerHTML = ""; // Clear previous content
+//     container.innerHTML = ""; // Clear previous content
 
-    if (imageUrls.length === 0) {
-        container.innerHTML = "<p>No creatives available.</p>";
-        return;
-    }
+//     if (imageUrls.length === 0) {
+//         container.innerHTML = "<p>No creatives available.</p>";
+//         return;
+//     }
 
-    // Loop over image URLs and create image elements
-    imageUrls.forEach((url, index) => {
-        const creativeDiv = document.createElement("div");
-        creativeDiv.className = "bg-white shadow-xl rounded-lg overflow-hidden";
-        creativeDiv.innerHTML = `
-            <img src="${BASE_URL}${url}" alt="Creative ${index + 1}" class="w-full">
-            <div class="p-4">
-                <p class="text-lg font-semibold">Creative ${index + 1}</p>
-                <p class="text-sm text-gray-500">Generated Ad Creative</p>
-            </div>
-        `;
-        container.appendChild(creativeDiv);
-    });
-}
+//     // Loop over image URLs and create image elements
+//     imageUrls.forEach((url, index) => {
+//         const creativeDiv = document.createElement("div");
+//         creativeDiv.className = "bg-white shadow-xl rounded-lg overflow-hidden";
+//         creativeDiv.innerHTML = `
+//             <img src="${BASE_URL}${url}" alt="Creative ${index + 1}" class="w-full">
+//             <div class="p-4">
+//                 <p class="text-lg font-semibold">Creative ${index + 1}</p>
+//                 <p class="text-sm text-gray-500">Generated Ad Creative</p>
+//             </div>
+//         `;
+//         container.appendChild(creativeDiv);
+//     });
+// }
