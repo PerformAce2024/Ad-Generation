@@ -1,23 +1,24 @@
-document.addEventListener("DOMContentLoaded", (event) => {
-    event.preventDefault();
-    console.log("DOM fully loaded and parsed");
+// document.addEventListener("DOMContentLoaded", (event) => {
+//     event.preventDefault();
+//     console.log("DOM fully loaded and parsed");
 
-    // Attach the event listener to the GetCreativesBtn after the DOM is fully loaded
-    const getCreativesButton = document.getElementById("getCreativesBtn");
-    if (getCreativesButton) {
-        console.log("GetCreativesBtn found, attaching event listener");
-        getCreativesButton.addEventListener("click", onGetCreativesHandler);
-    } else {
-        console.error("GetCreativesBtn not found");
-    }
-});
+//     // Attach the event listener to the GetCreativesBtn after the DOM is fully loaded
+//     const getCreativesButton = document.getElementById("getCreativesBtn");
+//     if (getCreativesButton) {
+//         console.log("GetCreativesBtn found, attaching event listener");
+//         getCreativesButton.addEventListener("click", onGetCreativesHandler);
+//     } else {
+//         console.error("GetCreativesBtn not found");
+//     }
+// });
 
 const BASE_URL = 'https://ad-generation.onrender.com';
 
 // Function for Get Creatives Button
 async function onGetCreativesHandler(event) {
     event.preventDefault();
-
+    console.log("Inside function onGetCreativesHandler");
+    
     const loader = document.getElementById("loader");
     if (loader) {
         loader.classList.remove("hidden");
@@ -78,8 +79,11 @@ async function onGetCreativesHandler(event) {
         const savedImageUrls = await creativeResponse.json();
         console.log("Creatives received from server:", savedImageUrls);
 
-        // Step 3: Display creatives on the page
-        displayCreatives(savedImageUrls);
+        // Save creatives to localStorage
+        localStorage.setItem('savedImageUrls', JSON.stringify(savedImageUrls));
+
+        // Redirect after creatives are generated
+        window.location.href = '/display-creatives.html';
 
     } catch (error) {
         console.error("Error generating creatives:", error);
@@ -90,6 +94,7 @@ async function onGetCreativesHandler(event) {
         }
     }
 }
+
 
 // Function to display creatives
 function displayCreatives(imageUrls) {

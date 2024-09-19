@@ -93,6 +93,32 @@
   <!-- Add the container to hold the creatives -->
   <div id="creatives-container" class="container mx-auto px-5 py-12 flex flex-wrap justify-center gap-8"></div>
 
+  <!-- Add JavaScript to retrieve and display the creatives -->
+  <script>
+    // Retrieve the saved image URLs from localStorage
+    const savedImageUrls = JSON.parse(localStorage.getItem('savedImageUrls'));
+
+    // Get the container element to display creatives
+    const container = document.getElementById('creatives-container');
+
+    if (savedImageUrls && savedImageUrls.length > 0) {
+      savedImageUrls.forEach((url, index) => {
+        const creativeDiv = document.createElement("div");
+        creativeDiv.className = "bg-white shadow-xl rounded-lg overflow-hidden";
+        creativeDiv.innerHTML = `
+          <img src="${url}" alt="Creative ${index + 1}" class="w-full h-64 object-cover">
+          <div class="p-4">
+            <p class="text-lg font-semibold">Creative ${index + 1}</p>
+            <p class="text-sm text-gray-500">Generated Ad Creative</p>
+          </div>
+        `;
+        container.appendChild(creativeDiv);
+      });
+    } else {
+      container.innerHTML = "<p class='text-white text-center'>No creatives available. Please generate creatives first.</p>";
+    }
+  </script>
+
   <script type="module" src="./ads.js"></script>
   <script type="module" src="./ad-gen.js"></script>
 </body>
