@@ -15,6 +15,7 @@ const approvedCollectionName = 'approvedCommunication';
 
 const dbCreativeName = 'Images';
 const urlsCollectionName = 'URLs';
+
 // Download image function
 async function downloadImage(url) {
     try {
@@ -239,12 +240,22 @@ async function createAdImage(imageData, phrase, fontDetails, index, email) {
         ctx.fillStyle = 'white';
         ctx.fillText('Order Now', buttonX + buttonWidth / 2, buttonY + buttonHeight / 2);
 
-        const outputDir = path.join(__dirname, 'generated');
-        await ensureDirExists(outputDir);
-        const outputPath = path.join(outputDir, `creative_${email}_${index}.jpg`);
+        // Adding Approve and Reject buttons
+        ctx.fillStyle = 'green';
+        ctx.fillRect(10, height - 60, 60, 30);
+        ctx.fillStyle = 'white';
+        ctx.fillText('Approve', 40, height - 50);
 
+        ctx.fillStyle = 'red';
+        ctx.fillRect(width - 70, height - 60, 60, 30);
+        ctx.fillStyle = 'white';
+        ctx.fillText('Reject', width - 40, height - 50);
+
+        const outputPath = path.join(__dirname, 'generated', `creative_${email}_${index}.jpg`);
+        await ensureDirExists(path.dirname(outputPath));
         const buffer = canvas.toBuffer('image/jpeg');
         await fs.writeFile(outputPath, buffer);
+
         return `/generated/creative_${email}_${index}.jpg`;
     } catch (error) {
         throw error;
