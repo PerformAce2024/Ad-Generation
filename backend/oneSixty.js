@@ -164,19 +164,30 @@ async function createAdImage(imageData, phrase, fontDetails, index, email) {
         const canvas = createCanvas(width, height);
         const ctx = canvas.getContext('2d');
 
+        // Save the buffer to a temporary file
+        async function saveBufferToTempFile(buffer) {
+            const tempFilePath = path.join(__dirname, 'temp', `${Date.now()}.png`);
+            await fs.writeFile(tempFilePath, buffer);
+            return tempFilePath;
+        }
+
         // Download images as buffers
         const iconBuffer = imageData.icon_url ? await downloadImage(imageData.icon_url) : null;
         const imageBuffer = imageData.image_url ? await downloadImage(imageData.image_url) : null;
         const extractedBuffer = imageData.extracted_url ? await downloadImage(imageData.extracted_url) : null;
 
-        if (!imageBuffer || imageBuffer.length === 0) {
-            throw new Error('Downloaded image buffer is empty');
+        const iconFilePath = imageData.icon_url ? await saveBufferToTempFile(iconBuffer) : null;
+        const imageFilePath = imageData.image_url ? await saveBufferToTempFile(imageBuffer) : null;
+        const extractedImageFilePath = imageData.extracted_url ? await saveBufferToTempFile(extractedBuffer) : null;
+
+        if (!imageFilePath || imageFilePath.length === 0) {
+            throw new Error('Downloaded image path is empty');
         }
 
-        const backgroundColor = `rgb${await getBackgroundColor(imageBuffer)}`;
+        const backgroundColor = `rgb${await getBackgroundColor(imageFilePath)}`;
         console.log(`Background color is: ${backgroundColor}`);
 
-        const iconColor = `rgb${await getBackgroundColor(iconBuffer)}`;
+        const iconColor = `rgb${await getBackgroundColor(iconFilePath)}`;
         console.log(`Icon color is: ${iconColor}`);
 
         // Background and icon drawing
@@ -184,12 +195,12 @@ async function createAdImage(imageData, phrase, fontDetails, index, email) {
         ctx.fillRect(0, 0, width, height);
 
         const iconSize = 50;
-        if (iconBuffer) {
-            const iconImage = await loadImage(iconBuffer);
+        if (iconFilePath) {
+            const iconImage = await loadImage(iconFilePath);
             ctx.drawImage(iconImage, width - iconSize - 10, 10, iconSize, iconSize);
         }
 
-        const baseImage = await loadImage(extractedBuffer);
+        const baseImage = await loadImage(extractedImageFilePath);
 
         // Calculate and set the font size based on the phrase length
         const fontSize = calculateFontSize(ctx, phrase, width - 40);
