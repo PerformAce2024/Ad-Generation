@@ -73,35 +73,24 @@ async function fetchApprovedPhrases(email) {
 
 // Extract background color using Python script
 async function getBackgroundColor(imagePath) {
-    console.log(`Extracting background color for image at: ${imagePath}`);
-
     return new Promise((resolve, reject) => {
-        if (!imagePath) {
-            reject('Image path is not provided.');
-            return;
-        }
-
-        const absoluteImagePath = path.resolve(imagePath);
-        console.log(`Extracting background color for image at: ${absoluteImagePath}`);
-
-        const pythonProcess = spawn('python', [path.join(__dirname, 'backgroundColor.py'), absoluteImagePath]);
+        console.log(`Extracting background color for image at: ${imagePath}`);
+        const pythonProcess = spawn('python', [path.join(__dirname, 'backgroundColor.py'), imagePath]);
 
         pythonProcess.stdout.on('data', (data) => {
             const color = data.toString().trim();
-            if (!color) {
-                reject('No color data extracted.');
-                return;
-            }
+            console.log(`Extracted background color: ${color}`);
             resolve(color);
         });
 
         pythonProcess.stderr.on('data', (data) => {
-            const errorMsg = data.toString().trim();
-            reject(`Python error: ${errorMsg}`);
+            console.error(`Python error while extracting background color: ${data}`);
+            reject(`Python error: ${data}`);
         });
 
         pythonProcess.on('close', (code) => {
             if (code !== 0) {
+                console.error(`Python script exited with code ${code}`);
                 reject(`Python script exited with code ${code}`);
             }
         });
@@ -145,16 +134,23 @@ async function saveBufferToTempFile(buffer) {
 // Fetch all image data from MongoDB
 async function fetchAllImageData() {
     try {
+        console.log('Connecting to MongoDB...');
         const client = await connectToMongo();
         const db = client.db(dbCreativeName);
         const urlsCollection = db.collection(urlsCollectionName);
 
+        console.log('Fetching all image data from MongoDB...');
         const imageDataArray = await urlsCollection.find({}).toArray();
+
         if (imageDataArray.length === 0) {
+            console.error('No image data found in MongoDB');
             throw new Error('No image data found in MongoDB');
         }
+
+        console.log(`Fetched ${imageDataArray.length} image data entries.`);
         return imageDataArray;
     } catch (error) {
+        console.error('Error fetching image data from MongoDB:', error);
         throw error;
     }
 }
@@ -180,7 +176,10 @@ async function createAdImage(imageData, phrase, fontDetails, index, email) {
         }
 
         const backgroundColor = `rgb${await getBackgroundColor(imageFilePath)}`;
+        console.log(`Background color is: ${backgroundColor}`);
+
         const iconColor = iconFilePath ? `rgb${await getBackgroundColor(iconFilePath)}` : 'rgb(255,255,255)';
+        console.log(`Icon color is: ${iconColor}`);
 
         ctx.fillStyle = backgroundColor;
         ctx.fillRect(0, 0, width, height);
@@ -191,6 +190,7 @@ async function createAdImage(imageData, phrase, fontDetails, index, email) {
         }
 
         const baseImage = await loadImage(extractedImageFilePath);
+
         const fontSize = calculateFontSize(ctx, phrase, width - 40);
         ctx.font = `${fontSize * 1.5}px ${fontDetails.fontFamily}`;
         ctx.fillStyle = 'black';
@@ -240,24 +240,15 @@ async function createAdImage(imageData, phrase, fontDetails, index, email) {
         ctx.fillStyle = 'white';
         ctx.fillText('Order Now', buttonX + buttonWidth / 2, buttonY + buttonHeight / 2);
 
-        // Adding Approve and Reject buttons
-        ctx.fillStyle = 'green';
-        ctx.fillRect(10, height - 60, 60, 30);
-        ctx.fillStyle = 'white';
-        ctx.fillText('Approve', 40, height - 50);
-
-        ctx.fillStyle = 'red';
-        ctx.fillRect(width - 70, height - 60, 60, 30);
-        ctx.fillStyle = 'white';
-        ctx.fillText('Reject', width - 40, height - 50);
-
         const outputPath = path.join(__dirname, 'generated', `creative_${email}_${index}.jpg`);
         await ensureDirExists(path.dirname(outputPath));
         const buffer = canvas.toBuffer('image/jpeg');
         await fs.writeFile(outputPath, buffer);
+        console.log(`Ad image created at ${outputPath}`);
 
         return `/generated/creative_${email}_${index}.jpg`;
     } catch (error) {
+        console.error('Error creating ad image:', error);
         throw error;
     }
 }
@@ -274,10 +265,13 @@ async function createAdsForAllImages({ email, google_play }) {
             const imageData = imageDataArray[i];
 
             for (let j = 0; j < approvedPhrases.length; j++) {
+                console.log(`Processing image ${i} and phrase ${j}`);
                 const imagePath = await createAdImage(imageData, approvedPhrases[j], fontDetails, `${i}_${j}`, email);
                 savedImagePaths.push(imagePath);
             }
         }
+
+        console.log('Finished creating ads for all images.');
         return savedImagePaths;
     } catch (error) {
         throw error;
