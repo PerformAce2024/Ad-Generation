@@ -155,6 +155,10 @@ async function fetchAllImageData() {
     }
 }
 
+function convertToBase64(buffer) {
+    return buffer.toString('base64');
+}
+
 // Create ad image with downloaded images and phrases, and save to disk
 async function createAdImage(imageData, phrase, fontDetails, index, email) {
     try {
@@ -240,13 +244,18 @@ async function createAdImage(imageData, phrase, fontDetails, index, email) {
         ctx.fillStyle = 'white';
         ctx.fillText('Order Now', buttonX + buttonWidth / 2, buttonY + buttonHeight / 2);
 
-        const outputPath = path.join(__dirname, 'generated', `creative_${email}_${index}.jpg`);
-        await ensureDirExists(path.dirname(outputPath));
         const buffer = canvas.toBuffer('image/jpeg');
-        await fs.writeFile(outputPath, buffer);
-        console.log(`Ad image created at ${outputPath}`);
+        const base64String = convertToBase64(buffer);
 
-        return `/generated/creative_${email}_${index}.jpg`;
+        // Store the base64 string in localStorage
+        let savedImageBase64 = JSON.parse(localStorage.getItem('savedImageBase64')) || [];
+        savedImageBase64.push(`data:image/jpeg;base64,${base64String}`);
+        localStorage.setItem('savedImageBase64', JSON.stringify(savedImageBase64));
+
+        console.log('Ad image stored as base64 in localStorage.');
+
+        return base64String;  // Returning the base64 string for reference
+
     } catch (error) {
         console.error('Error creating ad image:', error);
         throw error;
