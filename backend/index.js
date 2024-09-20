@@ -54,7 +54,6 @@ console.log('Serving static files from the Frontend directory');
 
 // Serve static files from the 'generated' folder for images
 app.use('/generated', express.static(path.join(__dirname, 'generated')));
-console.log('Serving static images from /generated directory');
 
 // Function to extract app ID from the Apple App Store URL
 function extractAppleAppId(url) {
@@ -280,22 +279,36 @@ app.post('/oneSixty', async (req, res) => {
   try {
     console.log('Generating creatives...');
     const adImages = await createAdsForAllImages({ email, google_play });
-
-    const savedImages = [];
-
-    // Save each creative image to a file and send the file URLs in response
-    adImages.forEach((image, index) => {
-      const filePath = path.join(__dirname, 'generated', `creative_${email}_${index}.jpg`);
-      fs.writeFileSync(filePath, image, 'base64'); // Saving the image to the server
-      savedImages.push(`/generated/creative_${email}_${index}.jpg`); // Adding the saved image URL to the list
-      console.log(`Saved image: ${filePath}`);
-    });
-
-    // Respond with the URLs of the saved images
-    res.status(200).json({ images: savedImages });
+    return res.status(200).json({ images: adImages });
   } catch (error) {
     console.error('Error generating creatives:', error);
     return res.status(500).json({ message: 'Error generating creatives.', error: error.message });
+  }
+});
+
+// Route to get creatives URLs from MongoDB
+app.post('/getCreatives', async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+      return res.status(400).json({ message: 'Email is required to fetch creatives' });
+  }
+
+  try {
+      const client = await connectToMongo();
+      const db = client.db('Images');
+      const urlsCollection = db.collection('Creatives');
+
+      const document = await urlsCollection.findOne({ email });
+
+      if (!document) {
+          return res.status(404).json({ message: 'No creatives found for this email' });
+      }
+
+      return res.status(200).json({ urls: document.urls });
+  } catch (error) {
+      console.error('Error fetching creatives from MongoDB:', error);
+      return res.status(500).json({ message: 'Error fetching creatives' });
   }
 });
 

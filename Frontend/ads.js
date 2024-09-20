@@ -35,26 +35,26 @@ async function onGetCreativesHandler(event) {
         return;
     }
 
-    const scrapeRequestOptions = {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            email: email,
-            google_play: googlePlayURL,
-            apple_app: appleAppURL,
-        })
-    };
-
-    const creativeRequestOptions = {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            email: email,
-            google_play: googlePlayURL,
-        })
-    };
-
     try {
+        const scrapeRequestOptions = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                email: email,
+                google_play: googlePlayURL,
+                apple_app: appleAppURL,
+            })
+        };
+
+        const creativeRequestOptions = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                email: email,
+                google_play: googlePlayURL,
+            })
+        };
+
         // Step 1: Call /scrape API
         const scrapeRequestUrl = `${BASE_URL}/scrape`;
         const scrapeResponse = await fetch(scrapeRequestUrl, scrapeRequestOptions);
@@ -66,7 +66,7 @@ async function onGetCreativesHandler(event) {
 
         console.log("Scrape completed successfully.");
 
-        // Step 2: Call /oneSixty API to generate creatives
+        // Step 2: Trigger creative generation
         const creativesRequestUrl = `${BASE_URL}/oneSixty`;
         const creativeResponse = await fetch(creativesRequestUrl, creativeRequestOptions);
 
@@ -75,18 +75,10 @@ async function onGetCreativesHandler(event) {
             throw new Error(`Error generating creatives: ${errorText}`);
         }
 
-        const savedImageUrls = await creativeResponse.json();
-        console.log("Creatives received from server:", savedImageUrls);
+        console.log("Creatives generated successfully.");
 
-        // Step 3: Convert images to Base64 and store in localStorage
-        for (let i = 0; i < savedImageUrls.images.length; i++) {
-            const imageUrl = `${BASE_URL}${savedImageUrls.images[i]}`;
-            const base64Image = await convertToBase64(imageUrl); // Function to convert image to Base64
-            localStorage.setItem(`imgData${i}`, base64Image);  // Store each image with a unique key
-        }
-
-        // Redirect to display-creatives.html after creatives are generated
-        window.location.href = '/display-creatives.html';
+         // Redirect the user to the display page or refresh creatives
+         window.location.href = "display-creatives.html";
 
     } catch (error) {
         console.error("Error generating creatives:", error);
@@ -96,16 +88,4 @@ async function onGetCreativesHandler(event) {
             loader.classList.add("hidden");
         }
     }
-}
-
-// Function to convert an image URL to Base64
-async function convertToBase64(url) {
-    const response = await fetch(url);
-    const blob = await response.blob();
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);  // Base64 encoded string
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-    });
 }

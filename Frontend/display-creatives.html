@@ -2,44 +2,157 @@
 <html lang="en">
 
 <head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-RSVRN03MZQ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-RSVRN03MZQ');
+  </script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/x-icon" href="./images/GrowthZ-Favicon.png">
   <title>Creative Display</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="ad-gen.css">
 </head>
 
-<body>
+<!--Navbar-->
+
+<body class="bg-[#1a202c] tracking-[0.15rem]">
+  <header class="text-black-600 body-font">
+    <div class="container mx-auto flex justify-between p-5 items-center">
+      <div class="w-[120px] lg:w-[150px] sm:w-[120px]">
+        <a href="./index.html"><img src="./images/logo.png" alt="growthZ.ai" srcset=""></a>
+      </div>
+      <div class="flex justify-center">
+        <a href="./index.html">
+          <button id="logout"
+            class="logout-btn rounded-full text-white bg-green-500 relative text-base/6 font-semibold hover:opacity-80 px-4 py-2 sm:text-sm/6 cursor-pointer">
+            Logout
+          </button>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <style>
+    header .container {
+      padding-left: 15%;
+      padding-right: 15%;
+    }
+
+    @media (max-width: 768px) {
+      header .container {
+        padding-left: 15px;
+        padding-right: 15px;
+      }
+
+      header a {
+        margin-left: 0;
+      }
+
+      header div {
+        margin-right: 0;
+      }
+
+      header .container .title-font {
+        flex-grow: 1;
+      }
+    }
+  </style>
+
+  <!--Hero Section-->
+  <section class="text-black-900 body-font">
+    <div class="container px-5 py-12 mx-auto">
+      <div class="flex flex-col text-center w-full mb-12">
+        <h1 class="sm:text-6xl text-xl font-bold title-font text-green-400 mb-4 tracking-[0.25rem]">Generated Creatives!
+        </h1>
+        <p class="lg:w-2/3 mx-auto leading-relaxed text-base ">Here are all the Generated Creatives:</p>
+      </div>
+    </div>
+  </section>
+
+  <!--Bg-Gradient-->
+  <div class="gradient-bg absolute left-0 top-0 -z-10 h-full w-full overflow-hidden opacity-[20%] blur-3xl"
+    style="background: linear-gradient(40deg, #111315, rgb(17, 19, 21));">
+    <div class="h-full w-full">
+      <div class="Mix-blend-hard-light absolute -left-[25%] -top-[15%] h-[140%] w-[140%] origin-center opacity-100"
+        style="background: radial-gradient(circle, rgba(133, 127, 249, 0.8) 0px, rgba(133, 127, 249, 0) 50%) no-repeat;">
+      </div>
+      <div class="Mix-blend-hard-light absolute -left-[15%] -top-[35%] h-[100%] w-[100%] opacity-100"
+        style="background: radial-gradient(circle, rgba(189, 140, 255, 0.8) 0px, rgba(189, 140, 255, 0) 50%) no-repeat; transform-origin: calc(50% - 400px) center;">
+      </div>
+      <div class="Mix-blend-hard-light absolute -top-[15%] left-[15%] h-[220%] w-[220%] opacity-70"
+        style="background: radial-gradient(circle, rgba(189, 140, 255, 0.8) 0px, rgba(189, 140, 255, 0) 50%) no-repeat; transform-origin: calc(50% - 200px) center;">
+      </div>
+    </div>
+  </div>
+
+  <!-- Loader -->
+  <div id="loader" class="loader hidden w-16 h-16 border-4 border-gray-200 rounded-full mb-8"></div>
+
   <!-- Add the container to hold the creatives -->
   <div id="creatives-container" class="container mx-auto px-5 py-12 flex flex-wrap justify-center gap-8"></div>
 
-  <!-- Add JavaScript to retrieve and display the creatives -->
+  <!-- Script to fetch and display creatives -->
   <script>
-    // Retrieve Base64-encoded images from localStorage
-    const container = document.getElementById('creatives-container');
-    let index = 0;
-    let dataImage;
+    document.addEventListener('DOMContentLoaded', async () => {
+      const container = document.getElementById('creatives-container');
+      const loader = document.getElementById('loader');
+      const email = localStorage.getItem('userEmail');
 
-    // Display each image stored in localStorage
-    while (dataImage = localStorage.getItem(`imgData${index}`)) {
-      const creativeDiv = document.createElement("div");
-      creativeDiv.className = "bg-white shadow-xl rounded-lg overflow-hidden";
-      creativeDiv.innerHTML = `
-            <img src="${dataImage}" alt="Creative ${index + 1}" class="w-full h-64 object-cover">
-            <div class="p-4">
+      // Show the loader while fetching creatives
+      loader.classList.remove('hidden');
+
+      try {
+        const response = await fetch('https://ad-generation.onrender.com/getCreatives', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Error fetching creatives: ${errorText}`);
+        }
+
+        const { urls } = await response.json();
+
+        if (urls && urls.length > 0) {
+          urls.forEach((url, index) => {
+            const creativeDiv = document.createElement('div');
+            creativeDiv.className = 'bg-white shadow-xl rounded-lg overflow-hidden max-w-sm';
+
+            creativeDiv.innerHTML = `
+              <img src="${url}" alt="Creative ${index + 1}" class="w-full h-64 object-cover">
+              <div class="p-4">
                 <p class="text-lg font-semibold">Creative ${index + 1}</p>
                 <p class="text-sm text-gray-500">Generated Ad Creative</p>
-            </div>
-        `;
-      container.appendChild(creativeDiv);
-      index++;
-    }
+              </div>
+            `;
 
-    if (index === 0) {
-      container.innerHTML = "<p class='text-white text-center'>No creatives available. Please generate creatives first.</p>";
-    }
+            container.appendChild(creativeDiv);
+          });
+        } else {
+          container.innerHTML = "<p class='text-white text-center'>No creatives available. Please generate creatives first.</p>";
+        }
+      } catch (error) {
+        console.error('Error fetching creatives:', error);
+        alert('An error occurred while fetching creatives. Please try again.');
+        container.innerHTML = "<p class='text-white text-center'>Error fetching creatives.</p>";
+      } finally {
+        // Hide the loader after fetching creatives
+        loader.classList.add('hidden');
+      }
+    });
   </script>
+  
+  <script type="module" src="./ads.js"></script>
+  <script type="module" src="./ad-gen.js"></script>
 </body>
 
 </html>

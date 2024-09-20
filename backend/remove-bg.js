@@ -10,9 +10,9 @@ const urlsCollectionName = 'URLs'; // Collection name for storing image URLs
 
 // Configure AWS S3
 const s3 = new AWS.S3({
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    region: process.env.AWS_REGION,
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID_EXTRACTED_IMAGE,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY_EXTRACTED_IMAGE,
+    region: process.env.AWS_REGION_EXTRACTED_IMAGE,
 });
 
 // Fetch image URLs from MongoDB

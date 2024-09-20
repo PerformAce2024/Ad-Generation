@@ -1,8 +1,8 @@
 import fetch from 'node-fetch';
 import path from 'path';
+import AWS from 'aws-sdk';
 import { createCanvas, loadImage } from 'canvas';
 import { spawn } from 'child_process';
-import fs from 'fs/promises'; // Use fs.promises for async file operations
 import { fileURLToPath } from 'url';
 import { extractFontDetails } from './font-extractor.js';
 import { connectToMongo } from './db.js';
@@ -16,37 +16,18 @@ const approvedCollectionName = 'approvedCommunication';
 const dbCreativeName = 'Images';
 const urlsCollectionName = 'URLs';
 
-// Download image function
+// Configure AWS S3
+const s3 = new AWS.S3({
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID_CREATIVE,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY_CREATIVE,
+    region: process.env.AWS_REGION_CREATIVE,
+});
+
+/// Download image function
 async function downloadImage(url) {
-    try {
-        console.log(`Starting download of image from URL: ${url}`);
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => {
-            controller.abort();
-        }, 10000); // 10-second timeout
-
-        const response = await fetch(url, { signal: controller.signal });
-
-        // Clear the timeout once the fetch is successful
-        clearTimeout(timeoutId);
-
-        if (!response.ok || !response.headers.get('content-type').includes('image')) {
-            throw new Error(`Failed to download image from ${url}`);
-        }
-
-        const arrayBuffer = await response.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
-        console.log('Image downloaded');
-        return buffer;
-    } catch (error) {
-        if (error.name === 'AbortError') {
-            console.error(`Download aborted for ${url}: Request timed out`);
-            throw new Error(`Request timed out for ${url}`);
-        } else {
-            console.error(`Failed to download image from ${url}:`, error);
-            throw new Error(`Failed to download image from ${url}`);
-        }
-    }
+    const response = await fetch(url);
+    const buffer = await response.buffer();
+    return buffer;
 }
 
 // Fetch approved phrases from MongoDB
@@ -116,26 +97,6 @@ function calculateFontSize(ctx, phrase, maxWidth) {
     return fontSize;
 }
 
-// Ensure directory exists and create it if it doesn't
-async function ensureDirExists(dir) {
-    try {
-        await fs.mkdir(dir, { recursive: true });
-    } catch (error) {
-        if (error.code !== 'EEXIST') {
-            throw error;
-        }
-    }
-}
-
-// Save buffer to a file
-async function saveBufferToFile(buffer, email, index) {
-    const outputPath = path.join(__dirname, 'generated', `creative_${email}_${index}.png`);
-    await ensureDirExists(path.dirname(outputPath));
-    await fs.writeFile(outputPath, buffer);
-    console.log(`Ad image saved to ${outputPath}`);
-    return outputPath;
-}
-
 // Fetch all image data from MongoDB
 async function fetchAllImageData() {
     try {
@@ -168,7 +129,49 @@ async function fetchAllImageData() {
     }
 }
 
-// Create ad image with downloaded images and phrases, and save to disk
+// Store the generated S3 URLs in MongoDB
+async function storeCreativeUrlsInMongo(email, creativeUrls) {
+    try {
+        const client = await connectToMongo();
+        const db = client.db('Images');
+        const urlsCollection = db.collection('Creatives');
+
+        // Insert the document with email and URLs
+        const result = await urlsCollection.updateOne(
+            { email },
+            { $set: { email, urls: creativeUrls } },
+            { upsert: true } // Create a new document if one doesn't exist
+        );
+
+        console.log(`Successfully stored ${creativeUrls.length} URLs in MongoDB for ${email}.`);
+    } catch (error) {
+        console.error('Error storing creative URLs in MongoDB:', error);
+        throw error;
+    }
+}
+
+// Upload image to S3
+async function uploadCreativesToS3(filename, buffer) {
+    try {
+        console.log(`Uploading creative ${filename} to S3...`);
+        const params = {
+            Bucket: 'growthz-creatives',
+            Key: filename,
+            Body: Buffer.from(buffer),
+            ContentType: 'image/png',
+            ACL: 'public-read',
+        };
+
+        const data = await s3.upload(params).promise();
+        console.log(`Creative ${filename} uploaded successfully. URL: ${data.Location}`);
+        return data.Location;
+    } catch (error) {
+        console.error('Error uploading image to S3:', error);
+        throw error;
+    }
+}
+
+// Create ad image with downloaded images and phrases, and save/upload to S3
 async function createAdImage(imageData, phrase, fontDetails, index, email) {
     try {
         const width = 160;
@@ -246,9 +249,12 @@ async function createAdImage(imageData, phrase, fontDetails, index, email) {
         ctx.fillText('Order Now', buttonX + buttonWidth / 2, buttonY + buttonHeight / 2);
 
         const buffer = canvas.toBuffer('image/png');
-        const filePath = await saveBufferToFile(buffer, email, index);  // Save to file and return path
 
-        return filePath;  // Returning the file path
+        // Upload to S3 and return the URL
+        const filename = `creative_${email}_${index}.png`;
+        const s3Url = await uploadCreativesToS3(filename, buffer);
+
+        return s3Url; // Returning the URL of the uploaded creative
     } catch (error) {
         console.error('Error creating ad image:', error);
         throw error;
@@ -262,19 +268,19 @@ async function createAdsForAllImages({ email, google_play }) {
         const imageDataArray = await fetchAllImageData();
         const fontDetails = await extractFontDetails(google_play);
 
-        const savedImagePaths = [];
+        const savedImageUrls = [];
         for (let i = 0; i < imageDataArray.length; i++) {
-            const imageData = imageDataArray[i];
-
             for (let j = 0; j < approvedPhrases.length; j++) {
-                console.log(`Processing image ${i} and phrase ${j}`);
-                const imagePath = await createAdImage(imageData, approvedPhrases[j], fontDetails, `${i}_${j}`, email);
-                savedImagePaths.push(imagePath);
+                const imageUrl = await createAdImage(imageDataArray[i], approvedPhrases[j], email, `${i}_${j}`);
+                savedImageUrls.push(imageUrl);
             }
         }
 
-        console.log('Finished creating ads for all images.');
-        return savedImagePaths;  // Return array of saved image paths
+        // Store the collected URLs in MongoDB
+        await storeCreativeUrlsInMongo(email, savedImageUrls);
+
+        console.log('Finished creating and uploading ads for all images.');
+        return savedImageUrls;  // Return array of S3 URLs
     } catch (error) {
         throw error;
     }
