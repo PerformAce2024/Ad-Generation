@@ -140,7 +140,15 @@ async function fetchAllImageData() {
         const urlsCollection = db.collection(urlsCollectionName);
 
         console.log('Fetching all image data from MongoDB...');
-        const imageDataArray = await urlsCollection.find({}).toArray();
+        const imageDataArray = await urlsCollection.find({}, {
+            projection: {
+              image_url: 1,
+              icon_url: 1,
+              google_play_url: 1,
+              apple_app_url: 1,
+              extracted_url: 1
+            }
+          }).toArray();      
 
         if (imageDataArray.length === 0) {
             console.error('No image data found in MongoDB');
@@ -244,12 +252,12 @@ async function createAdImage(imageData, phrase, fontDetails, index, email) {
         ctx.fillStyle = 'white';
         ctx.fillText('Order Now', buttonX + buttonWidth / 2, buttonY + buttonHeight / 2);
 
-        const buffer = canvas.toBuffer('image/jpeg');
+        const buffer = canvas.toBuffer('image/png');
         const base64String = convertToBase64(buffer);
 
         // Store the base64 string in localStorage
         let savedImageBase64 = JSON.parse(localStorage.getItem('savedImageBase64')) || [];
-        savedImageBase64.push(`data:image/jpeg;base64,${base64String}`);
+        savedImageBase64.push(`data:image/png;base64,${base64String}`);
         localStorage.setItem('savedImageBase64', JSON.stringify(savedImageBase64));
 
         console.log('Ad image stored as base64 in localStorage.');
