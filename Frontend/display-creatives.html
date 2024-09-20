@@ -97,7 +97,7 @@
 
   <!-- Add JavaScript to retrieve and display the creatives -->
   <script>
-    // Retrieve Base64-encoded images from localStorage
+    // Retrieve Base64 images from localStorage and display them
     const container = document.getElementById('creatives-container');
     let index = 0;
     let dataImage;
@@ -107,18 +107,15 @@
       const creativeDiv = document.createElement("div");
       creativeDiv.className = "bg-white shadow-xl rounded-lg overflow-hidden";
       creativeDiv.innerHTML = `
-            <img src="${dataImage}" alt="Creative ${index + 1}" class="w-full h-64 object-cover">
-            <div class="p-4">
-                <p class="text-lg font-semibold">Creative ${index + 1}</p>
-                <p class="text-sm text-gray-500">Generated Ad Creative</p>
-            </div>
-        `;
+        <img src="${dataImage}" alt="Creative ${index + 1}">
+        <p>Creative ${index + 1}</p>
+      `;
       container.appendChild(creativeDiv);
       index++;
     }
 
     if (index === 0) {
-      container.innerHTML = "<p class='text-white text-center'>No creatives available. Please generate creatives first.</p>";
+      container.innerHTML = "<p>No creatives available. Please generate creatives first.</p>";
     }
   </script>
 

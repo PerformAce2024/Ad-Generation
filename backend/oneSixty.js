@@ -122,13 +122,13 @@ async function ensureDirExists(dir) {
     }
 }
 
-// Save buffer to temporary file
-async function saveBufferToTempFile(buffer) {
-    const tempDir = path.join(__dirname, 'temp');
-    const tempFilePath = path.join(tempDir, `${Date.now()}.png`);
-    await ensureDirExists(tempDir);
-    await fs.writeFile(tempFilePath, buffer);
-    return tempFilePath;
+// Save buffer to a file
+async function saveBufferToFile(buffer, email, index) {
+    const outputPath = path.join(__dirname, 'generated', `creative_${email}_${index}.png`);
+    await ensureDirExists(path.dirname(outputPath));
+    await fs.writeFile(outputPath, buffer);
+    console.log(`Ad image saved to ${outputPath}`);
+    return outputPath;
 }
 
 // Fetch all image data from MongoDB
@@ -142,13 +142,13 @@ async function fetchAllImageData() {
         console.log('Fetching all image data from MongoDB...');
         const imageDataArray = await urlsCollection.find({}, {
             projection: {
-              image_url: 1,
-              icon_url: 1,
-              google_play_url: 1,
-              apple_app_url: 1,
-              extracted_url: 1
+                image_url: 1,
+                icon_url: 1,
+                google_play_url: 1,
+                apple_app_url: 1,
+                extracted_url: 1
             }
-          }).toArray();      
+        }).toArray();
 
         if (imageDataArray.length === 0) {
             console.error('No image data found in MongoDB');
@@ -163,10 +163,6 @@ async function fetchAllImageData() {
     }
 }
 
-function convertToBase64(buffer) {
-    return buffer.toString('base64');
-}
-
 // Create ad image with downloaded images and phrases, and save to disk
 async function createAdImage(imageData, phrase, fontDetails, index, email) {
     try {
@@ -179,29 +175,21 @@ async function createAdImage(imageData, phrase, fontDetails, index, email) {
         const imageBuffer = imageData.image_url ? await downloadImage(imageData.image_url) : null;
         const extractedBuffer = imageData.extracted_url ? await downloadImage(imageData.extracted_url) : null;
 
-        const iconFilePath = iconBuffer ? await saveBufferToTempFile(iconBuffer) : null;
-        const imageFilePath = imageBuffer ? await saveBufferToTempFile(imageBuffer) : null;
-        const extractedImageFilePath = extractedBuffer ? await saveBufferToTempFile(extractedBuffer) : null;
-
-        if (!imageFilePath) {
-            throw new Error('Downloaded image path is empty');
-        }
-
-        const backgroundColor = `rgb${await getBackgroundColor(imageFilePath)}`;
+        const backgroundColor = `rgb${await getBackgroundColor(extractedBuffer)}`;
         console.log(`Background color is: ${backgroundColor}`);
 
-        const iconColor = iconFilePath ? `rgb${await getBackgroundColor(iconFilePath)}` : 'rgb(255,255,255)';
+        const iconColor = iconBuffer ? `rgb${await getBackgroundColor(iconBuffer)}` : 'rgb(255,255,255)';
         console.log(`Icon color is: ${iconColor}`);
 
         ctx.fillStyle = backgroundColor;
         ctx.fillRect(0, 0, width, height);
 
-        if (iconFilePath) {
-            const iconImage = await loadImage(iconFilePath);
+        if (iconBuffer) {
+            const iconImage = await loadImage(iconBuffer);
             ctx.drawImage(iconImage, width - 50 - 10, 10, 50, 50);
         }
 
-        const baseImage = await loadImage(extractedImageFilePath);
+        const baseImage = await loadImage(extractedBuffer);
 
         const fontSize = calculateFontSize(ctx, phrase, width - 40);
         ctx.font = `${fontSize * 1.5}px ${fontDetails.fontFamily}`;
@@ -253,17 +241,9 @@ async function createAdImage(imageData, phrase, fontDetails, index, email) {
         ctx.fillText('Order Now', buttonX + buttonWidth / 2, buttonY + buttonHeight / 2);
 
         const buffer = canvas.toBuffer('image/png');
-        const base64String = convertToBase64(buffer);
+        const filePath = await saveBufferToFile(buffer, email, index);  // Save to file and return path
 
-        // Store the base64 string in localStorage
-        let savedImageBase64 = JSON.parse(localStorage.getItem('savedImageBase64')) || [];
-        savedImageBase64.push(`data:image/png;base64,${base64String}`);
-        localStorage.setItem('savedImageBase64', JSON.stringify(savedImageBase64));
-
-        console.log('Ad image stored as base64 in localStorage.');
-
-        return base64String;  // Returning the base64 string for reference
-
+        return filePath;  // Returning the file path
     } catch (error) {
         console.error('Error creating ad image:', error);
         throw error;
@@ -289,7 +269,7 @@ async function createAdsForAllImages({ email, google_play }) {
         }
 
         console.log('Finished creating ads for all images.');
-        return savedImagePaths;
+        return savedImagePaths;  // Return array of saved image paths
     } catch (error) {
         throw error;
     }

@@ -78,14 +78,12 @@ async function onGetCreativesHandler(event) {
         const savedImageUrls = await creativeResponse.json();
         console.log("Creatives received from server:", savedImageUrls);
 
-        // Convert image URLs to Base64 and store in localStorage
-        const base64Promises = savedImageUrls.images.map(async (imageUrl, i) => {
-            const fullImageUrl = `${BASE_URL}${imageUrl}`;
-            const base64Image = await toDataURL(fullImageUrl);
-            localStorage.setItem(`imgData${i}`, base64Image); // Store each image with a unique key
-        });
-
-        await Promise.all(base64Promises);  // Ensure all images are converted
+        // Step 3: Convert images to Base64 and store in localStorage
+        for (let i = 0; i < savedImageUrls.images.length; i++) {
+            const imageUrl = `${BASE_URL}${savedImageUrls.images[i]}`;
+            const base64Image = await convertToBase64(imageUrl); // Function to convert image to Base64
+            localStorage.setItem(`imgData${i}`, base64Image);  // Store each image with a unique key
+        }
 
         // Redirect to display-creatives.html after creatives are generated
         window.location.href = '/display-creatives.html';
@@ -101,7 +99,7 @@ async function onGetCreativesHandler(event) {
 }
 
 // Function to convert an image URL to Base64
-async function toDataURL(url) {
+async function convertToBase64(url) {
     const response = await fetch(url);
     const blob = await response.blob();
     return new Promise((resolve, reject) => {
