@@ -183,10 +183,10 @@ async function createAdImage(imageData, phrase, fontDetails, index, email) {
         const imageBuffer = imageData.image_url ? await downloadImage(imageData.image_url) : null;
         const extractedBuffer = imageData.extracted_url ? await downloadImage(imageData.extracted_url) : null;
 
-        const backgroundColor = `rgb${await getBackgroundColor(extractedBuffer)}`;
+        const backgroundColor = `rgb${await getBackgroundColor(imageBuffer)}`;
         console.log(`Background color is: ${backgroundColor}`);
 
-        const iconColor = iconBuffer ? `rgb${await getBackgroundColor(iconBuffer)}` : 'rgb(255,255,255)';
+        const iconColor = `rgb${await getBackgroundColor(iconBuffer)}`;
         console.log(`Icon color is: ${iconColor}`);
 
         ctx.fillStyle = backgroundColor;
