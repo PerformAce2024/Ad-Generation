@@ -267,7 +267,7 @@ async function createAdsForAllImages({ email, google_play }) {
         const savedImageUrls = [];
         for (let i = 0; i < imageDataArray.length; i++) {
             for (let j = 0; j < approvedPhrases.length; j++) {
-                const imageUrl = await createAdImage(imageDataArray[i], approvedPhrases[j], email, `${i}_${j}`);
+                const imageUrl = await createAdImage(imageDataArray[i], approvedPhrases[j], fontDetails, `${i}_${j}`, email);
                 savedImageUrls.push(imageUrl);
             }
         }
