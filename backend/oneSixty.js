@@ -179,25 +179,21 @@ async function createAdImage(imageData, phrase, fontDetails, index, email) {
         const canvas = createCanvas(width, height);
         const ctx = canvas.getContext('2d');
 
-        const iconBuffer = imageData.icon_url ? await downloadImage(imageData.icon_url) : null;
-        const imageBuffer = imageData.image_url ? await downloadImage(imageData.image_url) : null;
-        const extractedBuffer = imageData.extracted_url ? await downloadImage(imageData.extracted_url) : null;
-
-        const backgroundColor = `rgb${await getBackgroundColor(imageBuffer)}`;
+        const backgroundColor = `rgb${await getBackgroundColor(imageData.image_url)}`;
         console.log(`Background color is: ${backgroundColor}`);
 
-        const iconColor = `rgb${await getBackgroundColor(iconBuffer)}`;
+        const iconColor = `rgb${await getBackgroundColor(imageData.icon_url)}`;
         console.log(`Icon color is: ${iconColor}`);
 
         ctx.fillStyle = backgroundColor;
         ctx.fillRect(0, 0, width, height);
 
-        if (iconBuffer) {
-            const iconImage = await loadImage(iconBuffer);
+        if (imageData.icon_url) {
+            const iconImage = await loadImage(imageData.icon_url);
             ctx.drawImage(iconImage, width - 50 - 10, 10, 50, 50);
         }
 
-        const baseImage = await loadImage(extractedBuffer);
+        const baseImage = await loadImage(imageData.extracted_url);
 
         const fontSize = calculateFontSize(ctx, phrase, width - 40);
         ctx.font = `${fontSize * 1.5}px ${fontDetails.fontFamily}`;
