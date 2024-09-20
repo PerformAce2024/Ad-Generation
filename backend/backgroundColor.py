@@ -1,30 +1,44 @@
 import cv2
+import requests
 import numpy as np
 import sys
 
-def extract_background_color(image_path):
-    # Load the image
-    image = cv2.imread(image_path)
-    
-    if image is None:
-        print(f"Error: Could not load image from {image_path}")
-        sys.exit(1)
-    
-    # Convert the image to RGB (OpenCV loads in BGR by default)
-    image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+def download_image(url):
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            image_array = np.asarray(bytearray(response.content), dtype=np.uint8)
+            image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+            return image
+        else:
+            print(f"Failed to download image from {url}, status code: {response.status_code}")
+            return None
+    except Exception as e:
+        print(f"Error downloading image: {e}")
+        return None
 
-    # Get the average color (mean across the image)
-    average_color = np.mean(image_rgb, axis=(0, 1))  # Mean across width and height
-    rgb_color = tuple(map(int, average_color))  # Convert to integers
-
-    # Return the color in the format "rgb(r, g, b)"
-    print(f"rgb{rgb_color}")
+def extract_background_color(image):
+    try:
+        # Assuming some OpenCV logic to extract the dominant background color
+        avg_color_per_row = np.average(image, axis=0)
+        avg_color = np.average(avg_color_per_row, axis=0)
+        return avg_color
+    except Exception as e:
+        print(f"Error extracting background color: {e}")
+        return None
 
 if __name__ == "__main__":
-    # Ensure that the script receives the image path as an argument
-    if len(sys.argv) != 2:
-        print("Usage: python backgroundColor.py <image_path>")
-        sys.exit(1)
+    image_url = sys.argv[1]
+    print(f"Downloading image from {image_url}")
 
-    image_path = sys.argv[1]
-    extract_background_color(image_path)
+    image = download_image(image_url)
+    
+    if image is not None:
+        print(f"Image downloaded successfully, extracting background color...")
+        background_color = extract_background_color(image)
+        if background_color is not None:
+            print(f"Extracted background color: {background_color}")
+        else:
+            print("Failed to extract background color")
+    else:
+        print("Failed to load image for background color extraction")
