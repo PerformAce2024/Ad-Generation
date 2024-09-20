@@ -6,6 +6,7 @@ import { spawn } from 'child_process';
 import { fileURLToPath } from 'url';
 import { extractFontDetails } from './font-extractor.js';
 import { connectToMongo } from './db.js';
+import 'dotenv/config';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -159,7 +160,6 @@ async function uploadCreativesToS3(filename, buffer) {
             Key: filename,
             Body: Buffer.from(buffer),
             ContentType: 'image/png',
-            ACL: 'public-read',
         };
 
         const data = await s3.upload(params).promise();
