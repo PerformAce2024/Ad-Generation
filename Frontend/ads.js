@@ -11,15 +11,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-
-// async function onGetCreativesHandler(event) {
-//     event.preventDefault();
-//     console.log("Inside function onGetCreativesHandler");
-
-//     // Your logic for handling the button click goes here
-// }
-
-
 const BASE_URL = 'https://ad-generation.onrender.com';
 
 // Function for Get Creatives Button
@@ -87,8 +78,14 @@ async function onGetCreativesHandler(event) {
         const savedImageUrls = await creativeResponse.json();
         console.log("Creatives received from server:", savedImageUrls);
 
-        // Save creatives to localStorage
-        localStorage.setItem('savedImageUrls', JSON.stringify(savedImageUrls));
+        // Convert image URLs to Base64 and store in localStorage
+        const base64Promises = savedImageUrls.images.map(async (imageUrl, i) => {
+            const fullImageUrl = `${BASE_URL}${imageUrl}`;
+            const base64Image = await toDataURL(fullImageUrl);
+            localStorage.setItem(`imgData${i}`, base64Image); // Store each image with a unique key
+        });
+
+        await Promise.all(base64Promises);  // Ensure all images are converted
 
         // Redirect to display-creatives.html after creatives are generated
         window.location.href = '/display-creatives.html';
@@ -103,34 +100,14 @@ async function onGetCreativesHandler(event) {
     }
 }
 
-
-
-// Function to display creatives
-// function displayCreatives(imageUrls) {
-//     const container = document.getElementById("creatives-container");
-//     if (!container) {
-//         console.error("Creatives container not found.");
-//         return;
-//     }
-
-//     container.innerHTML = ""; // Clear previous content
-
-//     if (imageUrls.length === 0) {
-//         container.innerHTML = "<p>No creatives available.</p>";
-//         return;
-//     }
-
-//     // Loop over image URLs and create image elements
-//     imageUrls.forEach((url, index) => {
-//         const creativeDiv = document.createElement("div");
-//         creativeDiv.className = "bg-white shadow-xl rounded-lg overflow-hidden";
-//         creativeDiv.innerHTML = `
-//             <img src="${BASE_URL}${url}" alt="Creative ${index + 1}" class="w-full">
-//             <div class="p-4">
-//                 <p class="text-lg font-semibold">Creative ${index + 1}</p>
-//                 <p class="text-sm text-gray-500">Generated Ad Creative</p>
-//             </div>
-//         `;
-//         container.appendChild(creativeDiv);
-//     });
-// }
+// Function to convert an image URL to Base64
+async function toDataURL(url) {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);  // Base64 encoded string
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
+}
