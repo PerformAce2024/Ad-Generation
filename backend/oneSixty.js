@@ -79,8 +79,13 @@ async function getBackgroundColor(imagePath) {
 
         pythonProcess.stdout.on('data', (data) => {
             const color = data.toString().trim();
-            console.log(`Extracted background color: ${color}`);
-            resolve(color);
+            if (color.startsWith("Error")) {
+                console.error(`Error from Python script: ${color}`);
+                reject(color);
+            } else {
+                console.log(`Extracted background color: ${color}`);
+                resolve(color);
+            }
         });
 
         pythonProcess.stderr.on('data', (data) => {
