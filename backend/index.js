@@ -8,6 +8,7 @@ import gplay from "google-play-scraper";
 import path from "path";
 import fs from 'fs';
 import { fileURLToPath } from "url";
+import { connectToMongo } from './db.js';
 import { savePhraseToDatabase } from './storeCommunications.js';
 import { scrapeAndStoreImageUrls } from './connect.js';
 import { createAdsForAllImages } from './oneSixty.js';
@@ -284,8 +285,8 @@ app.post('/oneSixty', async (req, res) => {
       return res.status(500).json({ message: 'No creatives generated. Possible issue during creative generation.' });
     }
 
-    // Send a success response with a URL to redirect
-    return res.status(200).json({ redirectUrl: '/display-creatives.html' });
+    // Send a success response with a signal to show the button
+    return res.status(200).json({ showCreativesButton: true });
   } catch (error) {
     console.error('Error generating creatives:', error);
     return res.status(500).json({ message: 'Error generating creatives.', error: error.message });
@@ -307,15 +308,11 @@ app.post('/getCreatives', async (req, res) => {
 
     const document = await urlsCollection.findOne({ email });
 
-    if (!document) {
+    if (!document || !document.creativeUrls || document.creativeUrls.length === 0) {
       return res.status(404).json({ message: 'No creatives found for this email' });
     }
 
-    if (!document.urls || document.urls.length === 0) {
-      return res.status(404).json({ message: 'No creatives URLs found for this email' });
-    }
-
-    return res.status(200).json({ urls: document.urls });
+    return res.status(200).json({ urls: document.creativeUrls });
   } catch (error) {
     console.error('Error fetching creatives from MongoDB:', error);
     return res.status(500).json({ message: 'Error fetching creatives' });

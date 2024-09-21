@@ -123,6 +123,7 @@ async function fetchAllImageData() {
         }
 
         console.log(`Fetched ${imageDataArray.length} image data entries.`);
+        console.log('Fetched image data:', imageDataArray);
         return imageDataArray;
     } catch (error) {
         console.error('Error fetching image data from MongoDB:', error);
@@ -155,6 +156,7 @@ async function storeCreativeUrlsInMongo(email, creativeUrl) {
             console.log('Failed to add creatives');
         }
 
+        console.log(`Storing creative URL: ${creativeUrl} for email: ${email}`);
         console.log(`Successfully stored Creatives URLs in MongoDB for ${email}.`);
     } catch (error) {
         console.error('Error storing creative URLs in MongoDB:', error);
@@ -184,28 +186,31 @@ async function uploadCreativesToS3(filename, buffer) {
 }
 
 // Create ad image with downloaded images and phrases, and save/upload to S3
-async function createAdImage(imageData, phrase, fontDetails, index, email) {
+async function createAdImage(index, phrase, email, imageData, fontDetails) {
     try {
+        console.log(`Creating ad image for index: ${index}, phrase: "${phrase}" & email: ${email}`);
         const width = 160;
         const height = 600;
         const canvas = createCanvas(width, height);
         const ctx = canvas.getContext('2d');
 
         const backgroundColor = `rgb${await getBackgroundColor(imageData.image_url)}`;
-        console.log(`Background color is: ${backgroundColor}`);
+        console.log(`Background color for image ${index}: ${backgroundColor}`);
 
         const iconColor = `rgb${await getBackgroundColor(imageData.icon_url)}`;
-        console.log(`Icon color is: ${iconColor}`);
+        console.log(`Icon color for image ${index}: ${iconColor}`);
 
         ctx.fillStyle = backgroundColor;
         ctx.fillRect(0, 0, width, height);
 
         if (imageData.icon_url) {
             const iconImage = await loadImage(imageData.icon_url);
+            console.log(`Drawing icon for image ${index}`);
             ctx.drawImage(iconImage, width - 50 - 10, 10, 50, 50);
         }
 
         const baseImage = await loadImage(imageData.extracted_url);
+        console.log(`Base image loaded for index ${index}`);
 
         const fontSize = calculateFontSize(ctx, phrase, width - 40);
         ctx.font = `${fontSize * 1.5}px ${fontDetails.fontFamily}`;
@@ -244,6 +249,7 @@ async function createAdImage(imageData, phrase, fontDetails, index, email) {
 
         const x = (width - imgWidth) / 2;
         ctx.drawImage(baseImage, x, textHeight, imgWidth, imgHeight);
+        console.log(`Image drawing completed for index ${index}`);
 
         const buttonHeight = 40;
         const buttonWidth = 120;
@@ -257,14 +263,16 @@ async function createAdImage(imageData, phrase, fontDetails, index, email) {
         ctx.fillText('Order Now', buttonX + buttonWidth / 2, buttonY + buttonHeight / 2);
 
         const buffer = canvas.toBuffer('image/png');
+        console.log(`Buffer created for index ${index}`);
 
         // Upload to S3 and return the URL
         const filename = `creative_${email}_${index}.png`;
         const s3Url = await uploadCreativesToS3(filename, buffer);
+        console.log(`Image uploaded to S3 for index ${index}`);
 
         return s3Url; // Returning the URL of the uploaded creative
     } catch (error) {
-        console.error('Error creating ad image:', error);
+        console.error(`Error creating ad image for index ${index}, phrase: ${phrase}`, error);
         throw error;
     }
 }
@@ -283,7 +291,8 @@ async function createAdsForAllImages({ email, google_play }) {
             const phrase = approvedPhrases[i % totalPhrases];
 
             try {
-                const imageUrl = await createAdImage(imageDataArray[i], phrase, fontDetails, i, email);
+                console.log(`Calling createAdImage with email: ${email}`);
+                const imageUrl = await createAdImage(i, phrase, email, imageDataArray[i], fontDetails);
                 await storeCreativeUrlsInMongo(email, imageUrl);
             } catch (error) {
                 console.error(`Error creating ad for image ${i}, phrase: ${phrase}`, error);
@@ -291,6 +300,7 @@ async function createAdsForAllImages({ email, google_play }) {
         }
 
         console.log('Finished creating and uploading ads for all images.');
+        return true;
     } catch (error) {
         throw error;
     }

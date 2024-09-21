@@ -2,7 +2,6 @@ import fetch from 'node-fetch';
 import FormData from 'form-data';
 import AWS from 'aws-sdk';
 import { connectToMongo } from './db.js';
-import { createAdsForAllImages } from './oneSixty.js';
 import 'dotenv/config';
 
 const dbName = 'Images'; // Database name
@@ -122,7 +121,7 @@ function extractAppleAppName(url) {
 }
 
 // Main function to process images
-async function processImages(email) {
+async function processImages() {
     let client;
     try {
         console.log('Starting image processing...');

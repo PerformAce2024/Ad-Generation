@@ -75,12 +75,12 @@ async function onGetCreativesHandler(event) {
             throw new Error(`Error generating creatives: ${errorText}`);
         }
 
+        // Parse the JSON response
         const responseData = await creativeResponse.json();
-        if (responseData.redirectUrl) {
-            console.log("Creatives generated, redirecting...");
-            window.location.href = responseData.redirectUrl; // Redirection logic
-        } else {
-            console.error("No redirectUrl found in response.");
+        if (responseData.showCreativesButton) {
+            console.log("Creatives generated, showing the button...");
+            if (loader) loader.classList.add("hidden");
+            showCreativesBtn.classList.remove("hidden"); // Show the button
         }
 
         console.log("Creatives generated successfully.");

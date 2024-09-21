@@ -176,6 +176,9 @@ function displayPhrases(phrases) {
       }
     }
   });
+
+  // Show the "Get Creatives" and "Show Creatives" buttons after phrases are displayed
+  document.getElementById('getCreativesBtn').classList.remove('hidden');
 }
 
 // Function to handle approval

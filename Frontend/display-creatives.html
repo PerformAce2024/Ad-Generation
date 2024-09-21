@@ -17,7 +17,75 @@
   <title>Creative Display</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" />
+  <link rel="stylesheet" type="text/css"
+    href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css" />
   <link rel="stylesheet" href="ad-gen.css">
+  <style>
+    @font-face {
+      font-family: Denton;
+      src: url(./fonts/Denton\ Test\ Medium\ 500.otf);
+    }
+
+    body {
+      font-family: "Denton", sans-serif;
+      background-color: #1a202c;
+      color: white;
+    }
+
+    .carousel {
+      width: 70%;
+      margin: 0 auto;
+      max-width: 600px;
+    }
+
+    .carousel .slick-slide {
+      transition: all 0.3s ease;
+      transform: scale(0.8);
+      opacity: 0.5;
+      /* Reduced opacity for side images */
+      padding: 0;
+    }
+
+    .carousel .slick-center {
+      transform: scale(0.95);
+      opacity: 1;
+      /* Full opacity for center image */
+    }
+
+    .carousel img {
+      width: 100%;
+      height: auto;
+      max-height: 550px;
+      object-fit: contain;
+      margin: 0 auto;
+    }
+
+    /* Updated styles for navigation arrows */
+    .slick-prev,
+    .slick-next {
+      font-size: 24px;
+      color: white;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    }
+
+    .slick-prev {
+      left: -30px;
+      /* Moved closer to the carousel */
+    }
+
+    .slick-next {
+      right: -30px;
+      /* Moved closer to the carousel */
+    }
+  </style>
 </head>
 
 <!--Navbar-->
@@ -26,44 +94,14 @@
   <header class="text-black-600 body-font">
     <div class="container mx-auto flex justify-between p-5 items-center">
       <div class="w-[120px] lg:w-[150px] sm:w-[120px]">
-        <a href="./index.html"><img src="./images/logo.png" alt="growthZ.ai" srcset=""></a>
+        <a href="./index.html"><img src="./images/logo.png" alt="growthZ.ai"></a>
       </div>
       <div class="flex justify-center">
-        <a href="./index.html">
-          <button id="logout"
-            class="logout-btn rounded-full text-white bg-green-500 relative text-base/6 font-semibold hover:opacity-80 px-4 py-2 sm:text-sm/6 cursor-pointer">
-            Logout
-          </button>
-        </a>
+        <button id="logout"
+          class="logout-btn rounded-full text-white bg-green-500 relative text-base/6 font-semibold hover:opacity-80 px-4 py-2 sm:text-sm/6 cursor-pointer">Logout</button>
       </div>
     </div>
   </header>
-
-  <style>
-    header .container {
-      padding-left: 15%;
-      padding-right: 15%;
-    }
-
-    @media (max-width: 768px) {
-      header .container {
-        padding-left: 15px;
-        padding-right: 15px;
-      }
-
-      header a {
-        margin-left: 0;
-      }
-
-      header div {
-        margin-right: 0;
-      }
-
-      header .container .title-font {
-        flex-grow: 1;
-      }
-    }
-  </style>
 
   <!--Hero Section-->
   <section class="text-black-900 body-font">
@@ -71,7 +109,7 @@
       <div class="flex flex-col text-center w-full mb-12">
         <h1 class="sm:text-6xl text-xl font-bold title-font text-green-400 mb-4 tracking-[0.25rem]">Generated Creatives!
         </h1>
-        <p class="lg:w-2/3 mx-auto leading-relaxed text-base ">Here are all the Generated Creatives:</p>
+        <p class="lg:w-2/3 mx-auto leading-relaxed text-base">Here are all the Generated Creatives:</p>
       </div>
     </div>
   </section>
@@ -92,18 +130,17 @@
     </div>
   </div>
 
-  <!-- Loader -->
-  <div id="loader" class="loader hidden w-16 h-16 border-4 border-gray-200 rounded-full mb-8"></div>
-
-  <!-- Add the container to hold the creatives -->
-  <div id="creatives-container" class="container mx-auto px-5 py-12 flex flex-wrap justify-center gap-8"></div>
+  <div class="carousel"></div>
+  <!-- Carousel items will be injected here -->
+  </div>
 
   <!-- Script to fetch and display creatives -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
-      const container = document.getElementById('creatives-container');
-      const loader = document.getElementById('loader');
       const email = localStorage.getItem('userEmail');
+      const carousel = document.querySelector('.carousel');
 
       // Ensure email is available
       if (!email) {
@@ -112,14 +149,11 @@
         return;
       }
 
-      // Show the loader while fetching creatives
-      loader.classList.remove('hidden');
-
       try {
         const response = await fetch('https://ad-generation.onrender.com/getCreatives', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email })
+          body: JSON.stringify({ email })  // Pass user email as JSON body
         });
 
         if (!response.ok) {
@@ -130,35 +164,39 @@
         const { urls } = await response.json();
 
         if (urls && urls.length > 0) {
-          urls.forEach((url, index) => {
-            const creativeDiv = document.createElement('div');
-            creativeDiv.className = 'bg-white shadow-xl rounded-lg overflow-hidden max-w-sm';
-
-            creativeDiv.innerHTML = `
-              <img src="${url}" alt="Creative ${index + 1}" class="w-full h-64 object-cover">
-              <div class="p-4">
-                <p class="text-lg font-semibold">Creative ${index + 1}</p>
-                <p class="text-sm text-gray-500">Generated Ad Creative</p>
-              </div>
-            `;
-
-            container.appendChild(creativeDiv);
+          urls.forEach((url) => {
+            const imgDiv = document.createElement('div');
+            imgDiv.innerHTML = `<img src="${url}" alt="Creative Image">`;
+            carousel.appendChild(imgDiv);
+          });
+          // Initialize the carousel after loading images
+          $(carousel).slick({
+            centerMode: true,
+            centerPadding: '0px',
+            slidesToShow: 3,
+            prevArrow: '<button type="button" class="slick-prev">&lt;</button>',
+            nextArrow: '<button type="button" class="slick-next">&gt;</button>',
+            responsive: [{
+              breakpoint: 768,
+              settings: {
+                arrows: false,
+                centerMode: true,
+                centerPadding: '40px',
+                slidesToShow: 1
+              }
+            }]
           });
         } else {
-          container.innerHTML = "<p class='text-white text-center'>No creatives available. Please generate creatives first.</p>";
+          carousel.innerHTML = "<p class='text-white text-center'>No creatives available. Please generate creatives first.</p>";
         }
       } catch (error) {
         console.error('Error fetching creatives:', error);
         alert('An error occurred while fetching creatives. Please try again.');
-        container.innerHTML = "<p class='text-white text-center'>Error fetching creatives.</p>";
-      } finally {
-        // Hide the loader after fetching creatives
-        loader.classList.add('hidden');
+        carousel.innerHTML = "<p class='text-white text-center'>Error fetching creatives.</p>";
       }
     });
   </script>
-  
-  <script type="module" src="./ads.js"></script>
+
   <script type="module" src="./ad-gen.js"></script>
 </body>
 
