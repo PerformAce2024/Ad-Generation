@@ -279,6 +279,11 @@ app.post('/oneSixty', async (req, res) => {
   try {
     console.log('Generating creatives...');
     const adImages = await createAdsForAllImages({ email, google_play });
+
+    if (!adImages || adImages.length === 0) {
+      return res.status(500).json({ message: 'No creatives generated. Possible issue during creative generation.' });
+    }
+
     return res.status(200).json({ images: adImages });
   } catch (error) {
     console.error('Error generating creatives:', error);

@@ -18,9 +18,6 @@ async function onGetCreativesHandler(event) {
     event.preventDefault();
     console.log("Inside function onGetCreativesHandler");
 
-    // Redirect the user to the display page or refresh creatives
-    window.location.href = "display-creatives.html";
-
     const loader = document.getElementById("loader");
     if (loader) {
         loader.classList.remove("hidden");
@@ -79,6 +76,9 @@ async function onGetCreativesHandler(event) {
         }
 
         console.log("Creatives generated successfully.");
+
+        // Redirect the user to the display page or refresh creatives
+        window.location.href = "display-creatives.html";
     } catch (error) {
         console.error("Error generating creatives:", error);
         alert("An error occurred while generating creatives. Please try again.");
