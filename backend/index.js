@@ -285,7 +285,7 @@ app.post('/oneSixty', async (req, res) => {
     }
 
     // Send a success response with a URL to redirect
-    return res.status(200).json({ redirectUrl: 'display-creatives.html' });
+    return res.status(200).json({ redirectUrl: '/display-creatives.html' });
   } catch (error) {
     console.error('Error generating creatives:', error);
     return res.status(500).json({ message: 'Error generating creatives.', error: error.message });
