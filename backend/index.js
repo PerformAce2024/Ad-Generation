@@ -284,7 +284,8 @@ app.post('/oneSixty', async (req, res) => {
       return res.status(500).json({ message: 'No creatives generated. Possible issue during creative generation.' });
     }
 
-    return res.status(200).json({ images: adImages });
+    // Send a success response with a URL to redirect
+    return res.status(200).json({ redirectUrl: 'display-creatives.html' });
   } catch (error) {
     console.error('Error generating creatives:', error);
     return res.status(500).json({ message: 'Error generating creatives.', error: error.message });

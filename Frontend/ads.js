@@ -75,10 +75,14 @@ async function onGetCreativesHandler(event) {
             throw new Error(`Error generating creatives: ${errorText}`);
         }
 
-        console.log("Creatives generated successfully.");
+        // Parse the JSON response
+        const responseData = await creativeResponse.json();
+        if (responseData.redirectUrl) {
+            console.log("Creatives generated, redirecting...");
+            window.location.href = responseData.redirectUrl;
+        }
 
-        // Redirect the user to the display page or refresh creatives
-        window.location.href = "display-creatives.html";
+        console.log("Creatives generated successfully.");
     } catch (error) {
         console.error("Error generating creatives:", error);
         alert("An error occurred while generating creatives. Please try again.");
