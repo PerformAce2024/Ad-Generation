@@ -145,6 +145,13 @@ async function storeCreativeUrlsInMongo(email, creativeUrls) {
             { upsert: true } // Create a new document if one doesn't exist
         );
 
+        // Check if the document was updated or inserted
+        if (updateResult.matchedCount > 0) {
+            console.log(`Successfully updated document for email: ${email}`);
+        } else {
+            console.log(`No document found for email: ${email}, a new one was created.`);
+        }
+
         console.log(`Successfully stored ${creativeUrls.length} URLs in MongoDB for ${email}.`);
     } catch (error) {
         console.error('Error storing creative URLs in MongoDB:', error);
@@ -267,14 +274,17 @@ async function createAdsForAllImages({ email, google_play }) {
         const fontDetails = await extractFontDetails(google_play);
 
         const savedImageUrls = [];
+        const totalPhrases = approvedPhrases.length;
+
         for (let i = 0; i < imageDataArray.length; i++) {
-            for (let j = 0; j < approvedPhrases.length; j++) {
-                try {
-                    const imageUrl = await createAdImage(imageDataArray[i], approvedPhrases[j], fontDetails, `${i}_${j}`, email);
-                    savedImageUrls.push(imageUrl);
-                } catch (error) {
-                    console.error(`Error creating ad for image ${i}, phrase ${j}:`, error);
-                }
+            // Use modulo to loop through the phrases if images exceed the number of phrases
+            const phrase = approvedPhrases[i % totalPhrases];
+
+            try {
+                const imageUrl = await createAdImage(imageDataArray[i], phrase, fontDetails, i, email);
+                savedImageUrls.push(imageUrl);
+            } catch (error) {
+                console.error(`Error creating ad for image ${i}, phrase: ${phrase}`, error);
             }
         }
 
