@@ -105,6 +105,13 @@
       const loader = document.getElementById('loader');
       const email = localStorage.getItem('userEmail');
 
+      // Ensure email is available
+      if (!email) {
+        alert('No user email found. Please log in.');
+        window.location.href = '/login.html';  // Redirect to login if no email is found
+        return;
+      }
+
       // Show the loader while fetching creatives
       loader.classList.remove('hidden');
 

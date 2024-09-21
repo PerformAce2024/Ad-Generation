@@ -291,24 +291,28 @@ app.post('/getCreatives', async (req, res) => {
   const { email } = req.body;
 
   if (!email) {
-      return res.status(400).json({ message: 'Email is required to fetch creatives' });
+    return res.status(400).json({ message: 'Email is required to fetch creatives' });
   }
 
   try {
-      const client = await connectToMongo();
-      const db = client.db('Images');
-      const urlsCollection = db.collection('Creatives');
+    const client = await connectToMongo();
+    const db = client.db('Images');
+    const urlsCollection = db.collection('Creatives');
 
-      const document = await urlsCollection.findOne({ email });
+    const document = await urlsCollection.findOne({ email });
 
-      if (!document) {
-          return res.status(404).json({ message: 'No creatives found for this email' });
-      }
+    if (!document) {
+      return res.status(404).json({ message: 'No creatives found for this email' });
+    }
 
-      return res.status(200).json({ urls: document.urls });
+    if (!document.urls || document.urls.length === 0) {
+      return res.status(404).json({ message: 'No creatives URLs found for this email' });
+    }
+
+    return res.status(200).json({ urls: document.urls });
   } catch (error) {
-      console.error('Error fetching creatives from MongoDB:', error);
-      return res.status(500).json({ message: 'Error fetching creatives' });
+    console.error('Error fetching creatives from MongoDB:', error);
+    return res.status(500).json({ message: 'Error fetching creatives' });
   }
 });
 
