@@ -166,9 +166,6 @@ async function processImages(email) {
             } catch (error) {
                 console.error(`Error processing image for document ID: ${_id}`, error);
             }
-
-            console.log('Trigger createAdsForAllImages function!');
-            await createAdsForAllImages({ email, google_play: google_play_url });
         }
     } catch (error) {
         console.error('Error during image processing:', error);
