@@ -131,28 +131,31 @@ async function fetchAllImageData() {
 }
 
 // Store the generated S3 URLs in MongoDB
-async function storeCreativeUrlsInMongo(email, creativeUrls) {
+async function storeCreativeUrlsInMongo(email, creativeUrl) {
     try {
         console.log(`Updating MongoDB record for email: ${email}`);
         const client = await connectToMongo();
         const db = client.db('Images');
-        const urlsCollection = db.collection('Creatives');
+        console.log('Connected to Images database');
 
-        // Insert the document with email and URLs
+        const urlsCollection = db.collection('Creatives');
+        console.log('Accessed collection: Creatives');
+
+        console.log(`Upserting creative for email: ${email}`);
         const updateResult = await urlsCollection.updateOne(
-            { email }, // Find the document by email
-            { $push: { urls: { $each: creativeUrls } } }, // Append new URLs to the existing "urls" array
-            { upsert: true } // Create a new document if one doesn't exist
+            { email: email },
+            { $push: { creativeUrls: creativeUrl } }, // Append new URLs to the existing "urls" array
+            { upsert: true }
         );
 
         // Check if the document was updated or inserted
-        if (updateResult.matchedCount > 0) {
-            console.log(`Successfully updated document for email: ${email}`);
+        if (updateResult.matchedCount > 0 || updateResult.upsertedCount > 0) {
+            console.log(`Creatives added successfully for email: ${email}`);
         } else {
-            console.log(`No document found for email: ${email}, a new one was created.`);
+            console.log('Failed to add creatives');
         }
 
-        console.log(`Successfully stored ${creativeUrls.length} URLs in MongoDB for ${email}.`);
+        console.log(`Successfully stored Creatives URLs in MongoDB for ${email}.`);
     } catch (error) {
         console.error('Error storing creative URLs in MongoDB:', error);
         throw error;
@@ -273,7 +276,6 @@ async function createAdsForAllImages({ email, google_play }) {
         const imageDataArray = await fetchAllImageData();
         const fontDetails = await extractFontDetails(google_play);
 
-        const savedImageUrls = [];
         const totalPhrases = approvedPhrases.length;
 
         for (let i = 0; i < imageDataArray.length; i++) {
@@ -282,17 +284,13 @@ async function createAdsForAllImages({ email, google_play }) {
 
             try {
                 const imageUrl = await createAdImage(imageDataArray[i], phrase, fontDetails, i, email);
-                savedImageUrls.push(imageUrl);
+                await storeCreativeUrlsInMongo(email, imageUrl);
             } catch (error) {
                 console.error(`Error creating ad for image ${i}, phrase: ${phrase}`, error);
             }
         }
 
-        // Store the collected URLs in MongoDB
-        await storeCreativeUrlsInMongo(email, savedImageUrls);
-
         console.log('Finished creating and uploading ads for all images.');
-        return savedImageUrls;  // Return array of S3 URLs
     } catch (error) {
         throw error;
     }
