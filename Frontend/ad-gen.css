@@ -1,6 +1,6 @@
 @font-face {
   font-family: Denton;
-  src: url(Denton\ Test\ Medium\ 500.otf);
+  src: url(./fonts/Denton\ Test\ Medium\ 500.otf);
 }
 body {
   font-family: "Denton", sans-serif;
