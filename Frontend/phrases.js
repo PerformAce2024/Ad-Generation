@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
   }
 });
 
-const BASE_URL = 'https://ad-generation.onrender.com';
+const BASE_URL = 'https://deployment:ad-generation-backend-b65zxufu2-performace-projects.vercel.app';
 
 async function onClickHandler(event) {
   event.preventDefault()
