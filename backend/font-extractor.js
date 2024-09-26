@@ -87,29 +87,23 @@ async function extractFontDetails(googlePlayUrl) {
     console.log('Attempting to extract font details from the app website...');
     const fontDetails = await page.evaluate(() => {
       const h1 = document.querySelector('h1');
-      if (h1) {
-        const computedStyle = window.getComputedStyle(h1);
-        return {
-          fontFamily: computedStyle.fontFamily || 'Times New Roman',
-        };
-      }
-      return null;
+      const computedStyle = h1 ? window.getComputedStyle(h1) : null;
+      return {
+        fontFamily: computedStyle ? computedStyle.fontFamily : 'Times New Roman', // Fallback to Times New Roman
+      };
     });
 
-    if (fontDetails) {
-      console.log(`Extracted font details: ${JSON.stringify(fontDetails)}`);
-    } else {
-      console.warn('No font details found on the app website.');
-    }
-
+    console.log(`Extracted font details: ${JSON.stringify(fontDetails)}`);
+    
     await browser.close();
     console.log('Browser closed.');
-    return fontDetails;
+    
+    return fontDetails.fontFamily || 'Times New Roman'; // Return the font family, or Times New Roman if undefined
 
   } catch (error) {
     console.error('An error occurred during font extraction:', error);
     await browser.close();
-    return null;
+    return 'Times New Roman'; // Return Times New Roman on error
   }
 }
 
