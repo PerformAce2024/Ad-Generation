@@ -81,6 +81,13 @@ async function scrapeAndStoreImageUrls(email, playStoreUrl, appleAppURL) {
 
     console.log(`Found ${imageUrls.length} screenshot URLs (limited to <=10). Now storing in MongoDB...`);
 
+    // Store each screenshot image along with the icon URL and app URLs in MongoDB
+    for (const imageUrl of imageUrls) {
+      await storeImageUrlInMongoDB(imageUrl, iconUrl, playStoreUrl, appleAppURL);
+    }
+
+    console.log('All URLs have been successfully stored in MongoDB.');
+
     // Call processImages from remove-bg.js after successfully storing URLs in MongoDB
     console.log('Starting background removal process...');
     await processImages(email); // Trigger background removal process
