@@ -56,19 +56,21 @@ async function scrapeAndStoreImageUrls(email, playStoreUrl, appleAppURL) {
       console.log('No icon image found.');
     }
 
-    // Extract screenshot image URLs
+    // Extract screenshot image URLs (limit to first 10 images)
     const imageUrls = [];
     $('img[alt="Screenshot image"]').each((i, elem) => {
-      let imageUrl = $(elem).attr('src') || $(elem).attr('data-src');
+      if (i < 10) { // Limit to 10 images
+        let imageUrl = $(elem).attr('src') || $(elem).attr('data-src');
 
-      if (imageUrl) {
-        if (imageUrl.startsWith('//')) {
-          imageUrl = 'https:' + imageUrl; // Ensure URL is absolute
-        } else if (imageUrl.startsWith('/')) {
-          imageUrl = 'https://play.google.com' + imageUrl;
+        if (imageUrl) {
+          if (imageUrl.startsWith('//')) {
+            imageUrl = 'https:' + imageUrl; // Ensure URL is absolute
+          } else if (imageUrl.startsWith('/')) {
+            imageUrl = 'https://play.google.com' + imageUrl;
+          }
+          imageUrls.push(imageUrl);
+          console.log(`Found image URL: ${imageUrl}`);
         }
-        imageUrls.push(imageUrl);
-        console.log(`Found image URL: ${imageUrl}`);
       }
     });
 
@@ -77,7 +79,7 @@ async function scrapeAndStoreImageUrls(email, playStoreUrl, appleAppURL) {
       return;
     }
 
-    console.log(`Found ${imageUrls.length} image URLs. Storing URLs in MongoDB...`);
+    console.log(`Found ${imageUrls.length} screenshot URLs (limited to <=10). Now storing in MongoDB...`);
 
     // Store each screenshot image along with the icon URL and app URLs in MongoDB
     for (const imageUrl of imageUrls) {
@@ -93,9 +95,11 @@ async function scrapeAndStoreImageUrls(email, playStoreUrl, appleAppURL) {
   } catch (error) {
     console.error(`Error during scraping or storing process: ${error.message}`);
   } finally {
-    console.log('Closing MongoDB connection...');
-    await client.close();
-    console.log('MongoDB connection closed.');
+    if (client) {
+      console.log('Closing MongoDB connection...');
+      await client.close();
+      console.log('MongoDB connection closed.');
+    }
   }
 }
 
