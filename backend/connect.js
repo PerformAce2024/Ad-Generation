@@ -88,9 +88,11 @@ async function scrapeAndStoreImageUrls(email, playStoreUrl, appleAppURL) {
   } catch (error) {
     console.error(`Error during scraping or storing process: ${error.message}`);
   } finally {
-    console.log('Closing MongoDB connection...');
-    await client.close();
-    console.log('MongoDB connection closed.');
+    if (client) {
+      console.log('Closing MongoDB connection...');
+      await client.close();
+      console.log('MongoDB connection closed.');
+    }
   }
 }
 
