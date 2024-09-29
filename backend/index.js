@@ -1,27 +1,20 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
 import express from "express";
 import cors from "cors";
 import axios from "axios";
 import gplay from "google-play-scraper";
 import path from "path";
-import fs from 'fs';
+import sendEmail from './sendEmail.js';
 import { fileURLToPath } from "url";
 import { connectToMongo } from './db.js';
 import { savePhraseToDatabase } from './storeCommunications.js';
 import { scrapeAndStoreImageUrls } from './connect.js';
 import { createAdsForAllImages } from './oneSixty.js';
+import 'dotenv/config';
 
 const app = express();
 app.use(express.json());
 
 console.log('Initializing server...');
-
-// // app.use(cors()); // Temporarily allow all origins during development
-// app.use(cors({
-//   origin: "https://www.growthz.ai" // Replace with your actual Vercel frontend domain
-// }));
 
 // CORS configuration
 const allowedOrigins = ['https://www.growthz.ai'];
@@ -53,14 +46,11 @@ console.log('__dirname set to:', __dirname);
 app.use(express.static(path.join(__dirname, "..", "Frontend")));
 console.log('Serving static files from the Frontend directory');
 
-// Serve static files from the 'generated' folder for images
-app.use('/generated', express.static(path.join(__dirname, 'generated')));
-
 // Function to extract app ID from the Apple App Store URL
 function extractAppleAppId(url) {
-  const match = url.match(/id(\d+)/);
+  const match = url.match(/\/app\/([^/]+)\/id(\d+)/);
   const appId = match ? match[1] : null;
-  console.log('Extracted Apple App ID:', appId);
+  console.log('Extracted Apple app name: ', appId);
   return appId;
 }
 
@@ -70,6 +60,24 @@ function extractGooglePlayAppId(url) {
   const appId = match ? match[1] : null;
   console.log('Extracted Google Play App ID:', appId);
   return appId;
+}
+
+// Function to extract the app name from the Google Play URL
+async function getAppNameFromGooglePlay(url) {
+  const appId = extractGooglePlayAppId(url);
+  if (!appId) {
+    console.error('Invalid Google Play URL');
+    return null;
+  }
+
+  try {
+    const appDetails = await gplay.app({ appId });
+    console.log('App Name:', appDetails.title);
+    return appDetails.title;
+  } catch (error) {
+    console.error('Error fetching app details:', error);
+    return null;
+  }
 }
 
 // Scrape Google Play Store reviews
@@ -127,19 +135,15 @@ async function scrapeAppleStoreReviews(url) {
 // Combine and format reviews into a single string for the prompt
 function combineReviews(googleReviews, appleReviews) {
   console.log('Combining reviews from Google Play and Apple App Store');
-  const googleReviewsText = googleReviews
-    .map((review) => review.text || "")
-    .join(" ");
-  const appleReviewsText = appleReviews
-    .map((review) => review.review || "")
-    .join(" ");
+  const googleReviewsText = googleReviews.map((review) => review.text || "").join(" ");
+  const appleReviewsText = appleReviews.map((review) => review.review || "").join(" ");
   return `${googleReviewsText}\n${appleReviewsText}`;
 }
 
 // Generate USP phrases using Gemini API
-async function generateUSPhrases(reviews) {
+async function generateUSPhrases(appName, reviews) {
   const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
-  const prompt = `What can be the potential usp marketing headlines for ADs? Provide 20 most efficient phrases. Focus on main usp of brand.\n\n${reviews}`;
+  const prompt = `What can be the 20 most efficient USP marketing headlines for ads for ${appName}? Focus only on providing the phrases category and phrases, related to the brand's main USP. Ensure there are no extra lines, tips, notes, or commentary—just the 20 headlines with its respective categories. Here's the context from the reviews:\n\n${reviews}`;
 
   try {
     console.log('Sending prompt to Gemini API to generate USP phrases');
@@ -196,6 +200,13 @@ app.post("/generate-phrases", async (req, res) => {
 
   try {
     console.log('Processing /generate-phrases request...');
+
+    // Get the app name from Google Play
+    const appName = await getAppNameFromGooglePlay(google_play);
+    if (!appName) {
+      return res.status(400).send("Unable to extract app name from Google Play URL.");
+    }
+
     // Scrape reviews from both sources
     const googlePlayReviews = await scrapeGooglePlayReviews(google_play);
     const appleStoreReviews = apple_app ? await scrapeAppleStoreReviews(apple_app) : [];
@@ -204,7 +215,7 @@ app.post("/generate-phrases", async (req, res) => {
     const combinedReviews = combineReviews(googlePlayReviews, appleStoreReviews);
 
     // Generate USP phrases
-    const uspPhrases = await generateUSPhrases(combinedReviews);
+    const uspPhrases = await generateUSPhrases(appName, combinedReviews);
 
     console.log('Sending USP phrases as response');
 
@@ -277,11 +288,19 @@ app.post('/oneSixty', async (req, res) => {
     return res.status(400).json({ message: 'Email and Google Play URL are required' });
   }
 
+  const googleAppName = extractGooglePlayAppId(google_play);
+
+  // Modify input key to replace dots in app name with underscores
+  const sanitizedGoogleAppName = googleAppName.replace(/\./g, '_');
+  const key = `${sanitizedGoogleAppName}`;
+
+  console.log('Using key for fetching images - index.js:', key);
+
   try {
     console.log('Generating creatives...');
-    const adImages = await createAdsForAllImages({ email, google_play });
+    const adImages = await createAdsForAllImages({ email, key });
 
-    if (!adImages || adImages.length === 0) {
+    if (!adImages) {
       return res.status(500).json({ message: 'No creatives generated. Possible issue during creative generation.' });
     }
 
@@ -318,6 +337,9 @@ app.post('/getCreatives', async (req, res) => {
     return res.status(500).json({ message: 'Error fetching creatives' });
   }
 });
+
+// Add your email sending route here
+app.post('/api/send-email', sendEmail);
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {

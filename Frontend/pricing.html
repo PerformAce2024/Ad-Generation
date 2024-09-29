@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-RSVRN03MZQ"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-RSVRN03MZQ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
 
-  gtag('config', 'G-RSVRN03MZQ');
-</script>
+    gtag('config', 'G-RSVRN03MZQ');
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/x-icon" href="./images/GrowthZ-Favicon.png">
@@ -26,6 +27,7 @@
     }
   </style>
 </head>
+
 <body class="bg-[#1a202c] tracking-[0.15rem]">
   <nav x-data="{ isOpen: false }" class="text-white text-2xl sticky top-0 z-50 backdrop-blur pt-4">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -55,28 +57,28 @@
               <div x-show="open"
                 class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5"
                 role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
-                <a href="./products/genius.html" class="block px-4 py-2 text-xl text-white hover:bg-gray-700 font-semibold"
-                  role="menuitem">
+                <a href="./products/genius.html"
+                  class="block px-4 py-2 text-xl text-white hover:bg-gray-700 font-semibold" role="menuitem">
                   <span class="text-green-400 font-bold">G</span>enius
                 </a>
-                <a href="./products/rainbow.html" class="block px-4 py-2 text-xl text-white hover:bg-gray-700 font-semibold"
-                  role="menuitem">
+                <a href="./products/rainbow.html"
+                  class="block px-4 py-2 text-xl text-white hover:bg-gray-700 font-semibold" role="menuitem">
                   <span class="text-green-400 font-bold">R</span>ainbow
                 </a>
-                <a href="./products/opus.html" class="block px-4 py-2 text-xl text-white hover:bg-gray-700 font-semibold"
-                  role="menuitem">
+                <a href="./products/opus.html"
+                  class="block px-4 py-2 text-xl text-white hover:bg-gray-700 font-semibold" role="menuitem">
                   <span class="text-green-400 font-bold">O</span>pus
                 </a>
-                <a href="./products/wildcard.html" class="block px-4 py-2 text-xl text-white hover:bg-gray-700 font-semibold"
-                  role="menuitem">
+                <a href="./products/wildcard.html"
+                  class="block px-4 py-2 text-xl text-white hover:bg-gray-700 font-semibold" role="menuitem">
                   <span class="text-green-400 font-bold">W</span>ildcard
                 </a>
-                <a href="./products/thrive.html" class="block px-4 py-2 text-xl text-white hover:bg-gray-700 font-semibold"
-                  role="menuitem">
+                <a href="./products/thrive.html"
+                  class="block px-4 py-2 text-xl text-white hover:bg-gray-700 font-semibold" role="menuitem">
                   <span class="text-green-400 font-bold">T</span>hrive
                 </a>
-                <a href="./products/hawkeye.html" class="block px-4 py-2 text-xl text-white hover:bg-gray-700 font-semibold"
-                  role="menuitem">
+                <a href="./products/hawkeye.html"
+                  class="block px-4 py-2 text-xl text-white hover:bg-gray-700 font-semibold" role="menuitem">
                   <span class="text-green-400 font-bold">H</span>awkeye
                 </a>
               </div>
@@ -164,27 +166,34 @@
 
   <section>
     <div class="py-8 lg:py-16 px-4 mx-auto max-w-screen-md">
-        <h2 class="mb-4 text-6xl font-bold text-center text-green-400 ">Pricing</h2>
-        <p class="mb-8 lg:mb-16  text-center text-white sm:text-xl">Product is in beta and we are currently working on tailor made pricing model. Contact us for pricing</p>
-        <form action="./pricing.js" method="POST" class="space-y-8">
-            <div>
-                <label for="email" class="block mb-2 text-l font-large text-white">Your email</label>
-                <input type="email" id="email" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 dark:shadow-sm-light" placeholder="name@gmail.com" required>
-            </div>
-            <div>
-                <label for="number" class="block mb-2 text-l font-large text-white">Contact Number</label>
-                <input type="text" id="subject" class="block p-3 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 dark:shadow-sm-light" placeholder="+91" required>
-            </div>
-            <div class="sm:col-span-2">
-                <label for="message" class="block mb-2 text-l font-large text-white">Your message</label>
-                <textarea id="message" rows="6" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg shadow-sm border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="send all your queries"></textarea>
-            </div>
-       <button type="submit" class="inline-block bg-green-600 text-white 
+      <h2 class="mb-4 text-6xl font-bold text-center text-green-400 ">Pricing</h2>
+      <p class="mb-8 lg:mb-16  text-center text-white sm:text-xl">Product is in beta and we are currently working on
+        tailor made pricing model. Contact us for pricing</p>
+      <form id="pricingForm" class="space-y-8">
+        <div>
+          <label for="email" class="block mb-2 text-l font-large text-white">Your email</label>
+          <input type="email" id="email"
+            class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 dark:shadow-sm-light"
+            placeholder="name@gmail.com" required>
+        </div>
+        <div>
+          <label for="number" class="block mb-2 text-l font-large text-white">Contact Number</label>
+          <input type="text" id="number"
+            class="block p-3 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 dark:shadow-sm-light"
+            placeholder="+91" required>
+        </div>
+        <div class="sm:col-span-2">
+          <label for="message" class="block mb-2 text-l font-large text-white">Your message</label>
+          <textarea id="message" rows="6"
+            class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg shadow-sm border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+            placeholder="send all your queries"></textarea>
+        </div>
+        <button type="submit" class="inline-block bg-green-600 text-white 
             px-4 py-2 sm:px-4 sm:py-2 md:px-3 md:py-2 lg:px-4 lg:py-2 
             rounded-full hover:bg-green-700 transition duration-300 
             text-sm sm:text-base md:text-lg lg:text-xl font-semibold mt-10" style="margin-left: 280px;">
-      Send Message</button>
-        </form>
+          Send Message</button>
+      </form>
     </div>
     <div class="gradient-bg fixed left-0 top-0 -z-10 h-full w-full overflow-hidden opacity-[20%] blur-3xl"
       style="background: linear-gradient(40deg, rgb(17, 19, 21), rgb(17, 19, 21));">
@@ -201,7 +210,43 @@
       </div>
     </div>
   </section>
-  <script src="./pricing.js"></script>
+
+  <script>
+    // Handle form submission via JavaScript
+    document.getElementById('pricingForm').addEventListener('submit', async function (event) {
+      event.preventDefault();  // Prevent default form submission
+  
+      const email = document.getElementById('email').value;
+      const number = document.getElementById('number').value;
+      const message = document.getElementById('message').value;
+  
+      // Send the form data to the backend via POST request
+      try {
+        const response = await fetch('https://ad-generation.onrender.com/api/send-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: email,
+            number: number,
+            message: message,
+          }),
+        });
+  
+        if (response.ok) {
+          alert('Message sent successfully!');
+        } else {
+          alert('Failed to send message.');
+        }
+      } catch (error) {
+        console.error('Error sending message:', error);
+        alert('An error occurred. Please try again later.');
+      }
+    });
+  </script>
+
   <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
 </body>
+
 </html>

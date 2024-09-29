@@ -80,7 +80,7 @@
         <div class="flex flex-col items-center gap-y-4 mt-8">
           <button id="AdButton" onclick="onClickHandler(event)"
             class="rounded-full text-white bg-green-500 relative text-base/6 font-semibold hover:opacity-80 px-8 py-2 sm:text-sm/6 cursor-pointer">
-            Create Now
+            Create Now!
           </button>
 
           <button id="getCreativesBtn"
@@ -123,7 +123,9 @@
 
   <!--loader-->
   <div id="loader" class="hidden fixed inset-0 items-center justify-center bg-black bg-opacity-50 z-50">
-    <div class="loader"></div>
+    <video class="loader" width="200" height="200" autoplay loop muted>
+      <source src="./videos/Animation.webm" type="video/webm">
+    </video>
   </div>
 
   <script type="module" src="./ads.js"></script>

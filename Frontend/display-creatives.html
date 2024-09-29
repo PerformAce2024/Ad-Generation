@@ -166,7 +166,13 @@
         if (urls && urls.length > 0) {
           urls.forEach((url) => {
             const imgDiv = document.createElement('div');
-            imgDiv.innerHTML = `<img src="${url}" alt="Creative Image">`;
+
+            imgDiv.innerHTML = `<img src="${url}" alt="Creative Image" class="mx-auto">${index === 1 ? `<div class="button-container text-center mt-4">
+              <button class="approve-btn bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Approve</button>
+              <button class="reject-btn bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded ml-2">Reject</button>
+            </div>
+          ` : ''}`;
+
             carousel.appendChild(imgDiv);
           });
           // Initialize the carousel after loading images
@@ -185,6 +191,16 @@
                 slidesToShow: 1
               }
             }]
+          });
+
+          document.querySelector('.approve-btn').addEventListener('click', () => {
+            alert('Creative approved!');
+            // Add your approve logic here
+          });
+
+          document.querySelector('.reject-btn').addEventListener('click', () => {
+            alert('Creative rejected!');
+            // Add your reject logic here
           });
         } else {
           carousel.innerHTML = "<p class='text-white text-center'>No creatives available. Please generate creatives first.</p>";

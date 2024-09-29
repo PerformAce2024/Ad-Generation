@@ -4,8 +4,8 @@ import AWS from 'aws-sdk';
 import { connectToMongo } from './db.js';
 import 'dotenv/config';
 
-const dbName = 'Images'; // Database name
-const urlsCollectionName = 'URLs'; // Collection name for storing image URLs
+const dbName = 'Images';
+const urlsCollectionName = 'URLs';
 
 // Configure AWS S3
 const s3 = new AWS.S3({
@@ -14,28 +14,14 @@ const s3 = new AWS.S3({
     region: process.env.AWS_REGION_EXTRACTED_IMAGE,
 });
 
-// Fetch image URLs from MongoDB
-async function fetchImageUrlsFromMongoDB(db) {
-    try {
-        console.log('Fetching image URLs from MongoDB...');
-        const urlsCollection = db.collection(urlsCollectionName);
-        const urls = await urlsCollection.find({}, { projection: { image_url: 1, google_play_url: 1, apple_app_url: 1, icon_url: 1 } }).toArray();
-        console.log(`Found ${urls.length} image URLs in MongoDB.`);
-        return urls;
-    } catch (error) {
-        console.error('Error fetching image URLs:', error);
-        return [];
-    }
-}
-
 // Remove background from the image
 async function removeBg(imageURL) {
     try {
+        console.log(`Starting background removal for image URL: ${imageURL}`);
         const formData = new FormData();
-        formData.append("size", "auto");
+        formData.append("size", "full");
         formData.append("image_url", imageURL);
 
-        console.log(`Requesting RemoveBG for image URL: ${imageURL}`);
         const response = await fetch("https://api.remove.bg/v1.0/removebg", {
             method: "POST",
             headers: { "X-Api-Key": process.env.REMOVE_BG_API_KEY },
@@ -43,16 +29,16 @@ async function removeBg(imageURL) {
         });
 
         if (response.ok) {
-            console.log('Background removed successfully.');
-            return await response.arrayBuffer();
+            console.log('Background removed successfully for URL:', imageURL);
+            return await response.arrayBuffer(); // Return the processed image buffer
         } else {
             const errorText = await response.text();
-            console.error(`Failed to remove background: ${response.status} ${response.statusText} Response: ${errorText}`);
-            throw new Error(`${response.status}: ${response.statusText}`);
+            console.error(`Failed to remove background for ${imageURL}: ${response.status} ${response.statusText} - ${errorText}`);
+            return null; // Return null if it fails, so we can handle it later
         }
     } catch (error) {
-        console.error('Error in removeBg function:', error);
-        throw error;
+        console.error('Error in removeBg function for URL:', imageURL, error);
+        return null;
     }
 }
 
@@ -69,55 +55,39 @@ async function uploadImageToS3(filename, buffer) {
         };
 
         const data = await s3.upload(params).promise();
-        console.log(`Image ${filename} uploaded successfully. URL: ${data.Location}`);
+        console.log(`Image ${filename} uploaded successfully to S3. URL: ${data.Location}`);
         return data.Location;
     } catch (error) {
         console.error('Error uploading image to S3:', error);
-        throw error;
+        return null;
     }
 }
 
 // Update MongoDB record with extracted URL and app details
-async function updateImageRecord(db, id, extractedUrl, googleAppName, appleAppName) {
+async function updateImageRecord(db, email, key, imageIndex, extractedUrl) {
     try {
-        console.log(`Updating MongoDB record with ID: ${id}`);
+        console.log(`Updating MongoDB record for email: ${email}, field: ${key}, imageIndex: ${imageIndex}`);
         const urlsCollection = db.collection(urlsCollectionName);
+
+        // Dynamic update for the correct image in the array based on imageIndex
         const updateResult = await urlsCollection.updateOne(
-            { _id: id },
+            { email: email },
             {
                 $set: {
-                    extracted_url: extractedUrl,
-                    google_app_name: googleAppName,
-                    apple_app_name: appleAppName,
-                }
+                    [`${key}.scraped_images.${imageIndex}.extracted_image_url`]: extractedUrl, // Dynamically update the correct field
+                },
             }
         );
 
         if (updateResult.matchedCount > 0) {
-            console.log(`Successfully updated document with ID: ${id}`);
+            console.log(`Successfully updated document for email: ${email}, field: ${key}, imageIndex: ${imageIndex}`);
         } else {
-            console.log(`No document found with ID: ${id}`);
+            console.log(`No document found for email: ${email}, field: ${key}`);
         }
     } catch (error) {
-        console.error(`Error updating MongoDB record with ID: ${id}`, error);
+        console.error(`Error updating MongoDB record for email: ${email}, field: ${key}`, error);
         throw error;
     }
-}
-
-// Extract Google app name from the URL
-function extractGoogleAppName(url) {
-    const match = url.match(/id=([a-zA-Z0-9._]+)/);
-    const googleAppName = match ? match[1] : null;
-    console.log(`Extracted Google app name: ${googleAppName}`);
-    return googleAppName;
-}
-
-// Extract Apple app name from the URL
-function extractAppleAppName(url) {
-    const match = url.match(/\/id(\d+)/);
-    const appleAppName = match ? match[1] : null;
-    console.log(`Extracted Apple app ID: ${appleAppName}`);
-    return appleAppName;
 }
 
 // Main function to process images
@@ -128,42 +98,62 @@ async function processImages() {
         client = await connectToMongo();
         const db = client.db(dbName);
 
-        const urls = await fetchImageUrlsFromMongoDB(db);
+        // Fetch all documents that contain scraped images
+        const documents = await db.collection(urlsCollectionName).find({}).toArray();
 
-        for (const { image_url, _id, google_play_url, apple_app_url } of urls) {
-            if (!image_url) {
-                console.warn(`Document with ID ${_id} has no image_url defined. Skipping...`);
-                continue;
-            }
+        // Iterate through all documents
+        for (const doc of documents) {
+            const { email, ...fields } = doc;
+            console.log(`Processing images for email: ${email}`);
 
-            console.log(`Processing image from URL: ${image_url} & (Document ID: ${_id})`);
+            // Iterate through each field to find ones containing "scraped_images"
+            for (const key in fields) {
+                const inputField = doc[key];
 
-            if (!google_play_url || !apple_app_url) {
-                console.warn(`Warning: Missing google_play_url or apple_app_url for document ID: ${_id}. Skipping...`);
-                continue;
-            }
+                if (inputField.scraped_images && Array.isArray(inputField.scraped_images)) {
+                    const { scraped_images } = inputField;
 
-            try {
-                const noBgImageBuffer = await removeBg(image_url);
-                if (!noBgImageBuffer) {
-                    throw new Error('Background removal failed');
+                    console.log(`Processing field: ${key} with scraped_images:`, scraped_images);
+
+                    if (!scraped_images || scraped_images.length === 0) {
+                        console.log(`No images found to process for field: ${key} in email: ${email}`);
+                        continue;
+                    }
+
+                    // Process each scraped image
+                    for (const [imageIndex, { image_url }] of scraped_images.entries()) {
+                        if (!image_url) {
+                            console.log(`No image URL found for email: ${email}, field: ${key}, imageIndex: ${imageIndex}`);
+                            continue;
+                        }
+
+                        console.log(`Processing image from URL: ${image_url} for email: ${email}, field: ${key}, imageIndex: ${imageIndex}`);
+
+                        try {
+                            // Step 1: Remove background from image
+                            const noBgImageBuffer = await removeBg(image_url);
+                            if (!noBgImageBuffer) {
+                                console.error(`Background removal failed for image: ${image_url}, skipping...`);
+                                continue;
+                            }
+
+                            // Step 2: Upload processed image to S3
+                            const extractedFilename = `${key}_${Date.now()}.png`; // Use key to name the file
+                            const s3Url = await uploadImageToS3(extractedFilename, noBgImageBuffer);
+
+                            if (!s3Url) {
+                                console.error(`Image upload failed for ${image_url}, skipping...`);
+                                continue;
+                            }
+
+                            // Step 3: Update MongoDB record with extracted image URL
+                            await updateImageRecord(db, email, key, imageIndex, s3Url);
+                            console.log(`Successfully processed and uploaded image for email: ${email}, field: ${key}, imageIndex: ${imageIndex}`);
+                        } catch (error) {
+                            console.error(`Error processing image for email: ${email}, field: ${key}, imageIndex: ${imageIndex}`, error);
+                        }
+                    }
                 }
-
-                const googleAppName = extractGoogleAppName(google_play_url);
-                const appleAppName = extractAppleAppName(apple_app_url);
-
-                if (!googleAppName || !appleAppName) {
-                    console.warn(`Could not extract app names for document ID: ${_id}. Skipping...`);
-                    continue;
-                }
-
-                const extractedFilename = `${googleAppName || appleAppName}_${Date.now()}.png`;
-                const s3Url = await uploadImageToS3(extractedFilename, noBgImageBuffer);
-
-                await updateImageRecord(db, _id, s3Url, googleAppName, appleAppName);
-                console.log(`Successfully processed and uploaded image for document ID: ${_id}`);
-            } catch (error) {
-                console.error(`Error processing image for document ID: ${_id}`, error);
             }
         }
     } catch (error) {

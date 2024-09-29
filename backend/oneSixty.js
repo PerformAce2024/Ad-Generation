@@ -4,7 +4,7 @@ import AWS from 'aws-sdk';
 import { createCanvas, loadImage } from 'canvas';
 import { spawn } from 'child_process';
 import { fileURLToPath } from 'url';
-import { extractFontDetails } from './font-extractor.js';
+// import { extractFontDetails } from './font-extractor.js';
 import { connectToMongo } from './db.js';
 import 'dotenv/config';
 
@@ -46,6 +46,8 @@ async function fetchApprovedPhrases(email) {
             return ['Default USP phrase'];  // Fallback in case there are no approved phrases
         }
 
+        console.log('Approved Phrases are:', approvedPhrasesDocument.phrases);
+        console.log('Approved phrases extratced successfully.')
         return approvedPhrasesDocument.phrases;
     } catch (error) {
         console.error('Error fetching approved phrases:', error);
@@ -57,30 +59,59 @@ async function fetchApprovedPhrases(email) {
 async function getBackgroundColor(imagePath) {
     return new Promise((resolve, reject) => {
         console.log(`Extracting background color for image at: ${imagePath}`);
+
+        // Spawn the Python process and call the Python script
         const pythonProcess = spawn('python', [path.join(__dirname, 'backgroundColor.py'), imagePath]);
 
+        let result = '';
+        let errorOutput = '';
+
+        // Collect data from stdout
         pythonProcess.stdout.on('data', (data) => {
-            const color = data.toString().trim();
-            if (color.startsWith("Error")) {
-                console.error(`Error from Python script: ${color}`);
-                reject(color);
-            } else {
-                console.log(`Extracted background color: ${color}`);
-                resolve(color);
-            }
+            result += data.toString();
         });
 
+        // Collect error messages from stderr
         pythonProcess.stderr.on('data', (data) => {
-            console.error(`Python error while extracting background color: ${data}`);
-            reject(`Python error: ${data}`);
+            errorOutput += data.toString();
         });
 
+        // Handle process close event
         pythonProcess.on('close', (code) => {
             if (code !== 0) {
-                console.error(`Python script exited with code ${code}`);
-                reject(`Python script exited with code ${code}`);
+                console.error(`Python script exited with code ${code}. Error output: ${errorOutput}`);
+                return reject(`Python script exited with code ${code}`);
             }
+
+            // Trim and handle the result
+            result = result.trim();
+
+            // Check if result contains an error message
+            if (result.startsWith("Error")) {
+                console.error(`Error from Python script: ${result}`);
+                return reject(result);
+            }
+
+            if (!result) {
+                console.error('No data received from Python script.');
+                return reject('No data received from Python script.');
+            }
+
+            console.log(`Extracted background color: ${result}`);
+            resolve(result); // Successfully resolve the background color
         });
+
+        // Handle general errors
+        pythonProcess.on('error', (err) => {
+            console.error(`Failed to start Python process: ${err}`);
+            reject(`Failed to start Python process: ${err.message}`);
+        });
+
+        // Optional: Add a timeout to handle long-running processes
+        setTimeout(() => {
+            pythonProcess.kill();
+            reject('Python script took too long to execute and was terminated.');
+        }, 10000); // 10 seconds timeout, adjust as necessary
     });
 }
 
@@ -99,23 +130,28 @@ function calculateFontSize(ctx, phrase, maxWidth) {
 }
 
 // Fetch all image data from MongoDB
-async function fetchAllImageData() {
+async function fetchAllImageData(key) {
     try {
         console.log('Connecting to MongoDB...');
         const client = await connectToMongo();
         const db = client.db(dbCreativeName);
         const urlsCollection = db.collection(urlsCollectionName);
+        
+        console.log('Using key for fetching images - oneSixty.js:', key); // Log key for debugging
 
         console.log('Fetching all image data from MongoDB...');
-        const imageDataArray = await urlsCollection.find({}, {
-            projection: {
-                image_url: 1,
-                icon_url: 1,
-                google_play_url: 1,
-                apple_app_url: 1,
-                extracted_url: 1
-            }
-        }).toArray();
+        const query = {};
+        query[`${key}.scraped_images`] = { $exists: true, $ne: [] }; // Ensure scraped images exist
+
+        const projection = {
+            email: 1,
+            [`${key}.google_play_url`]: 1,
+            [`${key}.icon_url`]: 1,
+            [`${key}.scraped_images.image_url`]: 1,
+            [`${key}.scraped_images.extracted_image_url`]: 1
+        };
+
+        const imageDataArray = await urlsCollection.find(query, { projection }).toArray();
 
         if (imageDataArray.length === 0) {
             console.error('No image data found in MongoDB');
@@ -186,34 +222,41 @@ async function uploadCreativesToS3(filename, buffer) {
 }
 
 // Create ad image with downloaded images and phrases, and save/upload to S3
-async function createAdImage(index, phrase, email, imageData, fontDetails) {
+// async function createAdImage(dataIndex, imageIndex, phrase, email, scrapedImage, iconUrl, fontDetails) {
+async function createAdImage(dataIndex, imageIndex, phrase, email, scrapedImage, iconUrl) {
     try {
-        console.log(`Creating ad image for index: ${index}, phrase: "${phrase}" & email: ${email}`);
+        console.log(`Creating ad image for dataIndex: ${dataIndex}, imageIndex: ${imageIndex}, phrase: "${phrase}" & email: ${email}`);
         const width = 160;
         const height = 600;
         const canvas = createCanvas(width, height);
         const ctx = canvas.getContext('2d');
 
-        const backgroundColor = `rgb${await getBackgroundColor(imageData.image_url)}`;
-        console.log(`Background color for image ${index}: ${backgroundColor}`);
+        // Check if the scraped image has a valid image_url
+        if (!scrapedImage?.image_url) {
+            throw new Error(`No valid image URL found for scraped_image at index ${imageIndex} of dataIndex ${dataIndex}`);
+        }
 
-        const iconColor = `rgb${await getBackgroundColor(imageData.icon_url)}`;
-        console.log(`Icon color for image ${index}: ${iconColor}`);
+        const backgroundColor = `rgb${await getBackgroundColor(scrapedImage.image_url)}`;
+        console.log(`Background color for image ${imageIndex}: ${backgroundColor}`);
 
         ctx.fillStyle = backgroundColor;
         ctx.fillRect(0, 0, width, height);
 
-        if (imageData.icon_url) {
-            const iconImage = await loadImage(imageData.icon_url);
-            console.log(`Drawing icon for image ${index}`);
-            ctx.drawImage(iconImage, width - 50 - 10, 10, 50, 50);
+        // Check and get background color for the icon image (only if iconUrl exists)
+        let iconColor = 'rgb(0, 0, 0)'; // Default color in case no icon URL
+        if (iconUrl) {
+            iconColor = `rgb${await getBackgroundColor(iconUrl)}`;
+            console.log(`Icon color for image ${imageIndex}: ${iconColor}`);
+        } else {
+            console.warn(`No icon URL provided for image ${imageIndex}, using default icon color.`);
         }
 
-        const baseImage = await loadImage(imageData.extracted_url);
-        console.log(`Base image loaded for index ${index}`);
+        const baseImage = await loadImage(scrapedImage.image_url);
+        console.log(`Base image loaded for index ${imageIndex}`);
 
         const fontSize = calculateFontSize(ctx, phrase, width - 40);
-        ctx.font = `${fontSize * 1.5}px ${fontDetails.fontFamily}`;
+        ctx.font = `${fontSize * 1.5}px Times New Roman`;
+        // ctx.font = `${fontSize * 1.5}px ${fontDetails.fontFamily}`;
         ctx.fillStyle = 'black';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
@@ -249,7 +292,7 @@ async function createAdImage(index, phrase, email, imageData, fontDetails) {
 
         const x = (width - imgWidth) / 2;
         ctx.drawImage(baseImage, x, textHeight, imgWidth, imgHeight);
-        console.log(`Image drawing completed for index ${index}`);
+        console.log(`Image drawing completed for index ${imageIndex}`);
 
         const buttonHeight = 40;
         const buttonWidth = 120;
@@ -258,44 +301,59 @@ async function createAdImage(index, phrase, email, imageData, fontDetails) {
 
         ctx.fillStyle = iconColor;
         ctx.fillRect(buttonX, buttonY, buttonWidth, buttonHeight);
-        ctx.font = `bold 16px ${fontDetails.fontFamily}`;
+        ctx.font = 'bold 16px Times New Roman';
+        // ctx.font = `bold 16px ${fontDetails.fontFamily}`;
         ctx.fillStyle = 'white';
         ctx.fillText('Order Now', buttonX + buttonWidth / 2, buttonY + buttonHeight / 2);
 
         const buffer = canvas.toBuffer('image/png');
-        console.log(`Buffer created for index ${index}`);
+        console.log(`Buffer created for index ${imageIndex}`);
 
         // Upload to S3 and return the URL
-        const filename = `creative_${email}_${index}.png`;
+        const filename = `creative_${email}_${dataIndex}_${imageIndex}.png`;
         const s3Url = await uploadCreativesToS3(filename, buffer);
-        console.log(`Image uploaded to S3 for index ${index}`);
+        console.log(`Image uploaded to S3 for index ${imageIndex}`);
 
         return s3Url; // Returning the URL of the uploaded creative
     } catch (error) {
-        console.error(`Error creating ad image for index ${index}, phrase: ${phrase}`, error);
+        console.error(`Error creating ad image for dataIndex ${dataIndex}, imageIndex ${imageIndex}, phrase: ${phrase}`, error);
         throw error;
     }
 }
 
 // Create ads for all images
-async function createAdsForAllImages({ email, google_play }) {
+async function createAdsForAllImages({ email, key }) {
     try {
         const approvedPhrases = await fetchApprovedPhrases(email);
-        const imageDataArray = await fetchAllImageData();
-        const fontDetails = await extractFontDetails(google_play);
+        const imageDataArray = await fetchAllImageData(key);
+        // const fontDetails = await extractFontDetails(google_play);
 
         const totalPhrases = approvedPhrases.length;
+        console.log('Total Phrases are:', totalPhrases);
 
+        console.log('Calling loop ...');
+
+        // Loop through all imageData entries
         for (let i = 0; i < imageDataArray.length; i++) {
-            // Use modulo to loop through the phrases if images exceed the number of phrases
-            const phrase = approvedPhrases[i % totalPhrases];
+            const imageData = imageDataArray[i];
 
-            try {
-                console.log(`Calling createAdImage with email: ${email}`);
-                const imageUrl = await createAdImage(i, phrase, email, imageDataArray[i], fontDetails);
-                await storeCreativeUrlsInMongo(email, imageUrl);
-            } catch (error) {
-                console.error(`Error creating ad for image ${i}, phrase: ${phrase}`, error);
+            console.log('Inside Ad Creation i loop ...');
+
+            // Check if scraped_images exist and process each image_url
+            const scrapedImages = imageData?.[key]?.scraped_images || [];
+            console.log(`Scraped images length: ${scrapedImages.length}`);
+
+            for (let j = 0; j < scrapedImages.length; j++) {
+                const phrase = approvedPhrases[(i * scrapedImages.length + j) % totalPhrases]; // Rotate through phrases
+
+                try {
+                    console.log(`Calling createAdImage for email: ${email}, phrase: "${phrase}", image index: ${j}`);
+                    // const imageUrl = await createAdImage(i, j, phrase, email, scrapedImages[j], imageData.icon_url, fontDetails);
+                    const imageUrl = await createAdImage(i, j, phrase, email, scrapedImages[j], imageData.icon_url);
+                    await storeCreativeUrlsInMongo(email, imageUrl);
+                } catch (error) {
+                    console.error(`Error creating ad for image ${j} of imageData ${i}, phrase: "${phrase}"`, error);
+                }
             }
         }
 
