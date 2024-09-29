@@ -24,13 +24,6 @@ const s3 = new AWS.S3({
     region: process.env.AWS_REGION_CREATIVE,
 });
 
-/// Download image function
-async function downloadImage(url) {
-    const response = await fetch(url);
-    const buffer = await response.arrayBuffer();
-    return buffer;
-}
-
 // Fetch approved phrases from MongoDB
 async function fetchApprovedPhrases(email) {
     try {
