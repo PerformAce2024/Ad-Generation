@@ -136,7 +136,7 @@ async function scrapeAppleStoreReviews(url) {
 function combineReviews(googleReviews, appleReviews) {
   console.log('Combining reviews from Google Play and Apple App Store');
   const googleReviewsText = googleReviews.map((review) => review.text || "").join(" ");
-  const appleReviewsText = appleReviews.map((review) => review.review || "").join(" ");
+  const appleReviewsText = appleReviews.map((review) => review.text || "").join(" ");
   return `${googleReviewsText}\n${appleReviewsText}`;
 }
 

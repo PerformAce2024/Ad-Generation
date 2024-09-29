@@ -18,8 +18,7 @@
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" />
-  <link rel="stylesheet" type="text/css"
-    href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css" />
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css" />
   <link rel="stylesheet" href="ad-gen.css">
   <style>
     @font-face {
@@ -43,14 +42,12 @@
       transition: all 0.3s ease;
       transform: scale(0.8);
       opacity: 0.5;
-      /* Reduced opacity for side images */
       padding: 0;
     }
 
     .carousel .slick-center {
       transform: scale(0.95);
       opacity: 1;
-      /* Full opacity for center image */
     }
 
     .carousel img {
@@ -61,7 +58,6 @@
       margin: 0 auto;
     }
 
-    /* Updated styles for navigation arrows */
     .slick-prev,
     .slick-next {
       font-size: 24px;
@@ -78,17 +74,36 @@
 
     .slick-prev {
       left: -30px;
-      /* Moved closer to the carousel */
     }
 
     .slick-next {
       right: -30px;
-      /* Moved closer to the carousel */
+    }
+
+    .button-container {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .approve-btn, .reject-btn {
+      padding: 10px 20px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .approve-btn {
+      background-color: #38a169;
+      color: white;
+    }
+
+    .reject-btn {
+      background-color: #e53e3e;
+      color: white;
     }
   </style>
 </head>
-
-<!--Navbar-->
 
 <body class="bg-[#1a202c] tracking-[0.15rem]">
   <header class="text-black-600 body-font">
@@ -103,7 +118,6 @@
     </div>
   </header>
 
-  <!--Hero Section-->
   <section class="text-black-900 body-font">
     <div class="container px-5 py-12 mx-auto">
       <div class="flex flex-col text-center w-full mb-12">
@@ -114,25 +128,11 @@
     </div>
   </section>
 
-  <!--Bg-Gradient-->
   <div class="gradient-bg absolute left-0 top-0 -z-10 h-full w-full overflow-hidden opacity-[20%] blur-3xl"
-    style="background: linear-gradient(40deg, #111315, rgb(17, 19, 21));">
-    <div class="h-full w-full">
-      <div class="Mix-blend-hard-light absolute -left-[25%] -top-[15%] h-[140%] w-[140%] origin-center opacity-100"
-        style="background: radial-gradient(circle, rgba(133, 127, 249, 0.8) 0px, rgba(133, 127, 249, 0) 50%) no-repeat;">
-      </div>
-      <div class="Mix-blend-hard-light absolute -left-[15%] -top-[35%] h-[100%] w-[100%] opacity-100"
-        style="background: radial-gradient(circle, rgba(189, 140, 255, 0.8) 0px, rgba(189, 140, 255, 0) 50%) no-repeat; transform-origin: calc(50% - 400px) center;">
-      </div>
-      <div class="Mix-blend-hard-light absolute -top-[15%] left-[15%] h-[220%] w-[220%] opacity-70"
-        style="background: radial-gradient(circle, rgba(189, 140, 255, 0.8) 0px, rgba(189, 140, 255, 0) 50%) no-repeat; transform-origin: calc(50% - 200px) center;">
-      </div>
-    </div>
-  </div>
+    style="background: linear-gradient(40deg, #111315, rgb(17, 19, 21));"></div>
 
   <div class="carousel"></div>
   <!-- Carousel items will be injected here -->
-  </div>
 
   <!-- Script to fetch and display creatives -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -142,10 +142,9 @@
       const email = localStorage.getItem('userEmail');
       const carousel = document.querySelector('.carousel');
 
-      // Ensure email is available
       if (!email) {
         alert('No user email found. Please log in.');
-        window.location.href = '/login.html';  // Redirect to login if no email is found
+        window.location.href = '/login.html';
         return;
       }
 
@@ -153,7 +152,7 @@
         const response = await fetch('https://ad-generation.onrender.com/getCreatives', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email })  // Pass user email as JSON body
+          body: JSON.stringify({ email })
         });
 
         if (!response.ok) {
@@ -164,18 +163,18 @@
         const { urls } = await response.json();
 
         if (urls && urls.length > 0) {
-          urls.forEach((url) => {
+          urls.forEach((url, index) => {
             const imgDiv = document.createElement('div');
-
-            imgDiv.innerHTML = `<img src="${url}" alt="Creative Image" class="mx-auto">${index === 1 ? `<div class="button-container text-center mt-4">
-              <button class="approve-btn bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Approve</button>
-              <button class="reject-btn bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded ml-2">Reject</button>
-            </div>
-          ` : ''}`;
-
+            imgDiv.innerHTML = `
+              <img src="${url}" alt="Creative Image">
+              <div class="button-container">
+                <button class="approve-btn" data-index="${index}">Approve</button>
+                <button class="reject-btn" data-index="${index}">Reject</button>
+              </div>
+            `;
             carousel.appendChild(imgDiv);
           });
-          // Initialize the carousel after loading images
+
           $(carousel).slick({
             centerMode: true,
             centerPadding: '0px',
@@ -193,14 +192,19 @@
             }]
           });
 
-          document.querySelector('.approve-btn').addEventListener('click', () => {
-            alert('Creative approved!');
-            // Add your approve logic here
+          // Add event listeners for Approve and Reject buttons
+          document.querySelectorAll('.approve-btn').forEach(button => {
+            button.addEventListener('click', () => {
+              const index = button.getAttribute('data-index');
+              alert(`Creative ${index + 1} approved!`);
+            });
           });
 
-          document.querySelector('.reject-btn').addEventListener('click', () => {
-            alert('Creative rejected!');
-            // Add your reject logic here
+          document.querySelectorAll('.reject-btn').forEach(button => {
+            button.addEventListener('click', () => {
+              const index = button.getAttribute('data-index');
+              alert(`Creative ${index + 1} rejected!`);
+            });
           });
         } else {
           carousel.innerHTML = "<p class='text-white text-center'>No creatives available. Please generate creatives first.</p>";

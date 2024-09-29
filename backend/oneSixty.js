@@ -111,7 +111,7 @@ async function getBackgroundColor(imagePath) {
         setTimeout(() => {
             pythonProcess.kill();
             reject('Python script took too long to execute and was terminated.');
-        }, 10000); // 10 seconds timeout, adjust as necessary
+        }, 30000); // Increase timeout to 30 seconds or more based on typical processing times.          
     });
 }
 
@@ -136,7 +136,7 @@ async function fetchAllImageData(key) {
         const client = await connectToMongo();
         const db = client.db(dbCreativeName);
         const urlsCollection = db.collection(urlsCollectionName);
-        
+
         console.log('Using key for fetching images - oneSixty.js:', key); // Log key for debugging
 
         console.log('Fetching all image data from MongoDB...');
@@ -216,7 +216,7 @@ async function uploadCreativesToS3(filename, buffer) {
         console.log(`Creative ${filename} uploaded successfully. URL: ${data.Location}`);
         return data.Location;
     } catch (error) {
-        console.error('Error uploading image to S3:', error);
+        console.error(`Error uploading image to S3 for filename: ${filename}. Error:`, error);
         throw error;
     }
 }
@@ -242,16 +242,26 @@ async function createAdImage(dataIndex, imageIndex, phrase, email, scrapedImage,
         ctx.fillStyle = backgroundColor;
         ctx.fillRect(0, 0, width, height);
 
-        // Check and get background color for the icon image (only if iconUrl exists)
         let iconColor = 'rgb(0, 0, 0)'; // Default color in case no icon URL
+
+        // Only extract icon background color if iconUrl is valid
         if (iconUrl) {
+            console.log(`Extracting background color for the icon at: ${iconUrl}`);
             iconColor = `rgb${await getBackgroundColor(iconUrl)}`;
             console.log(`Icon color for image ${imageIndex}: ${iconColor}`);
         } else {
             console.warn(`No icon URL provided for image ${imageIndex}, using default icon color.`);
         }
 
-        const baseImage = await loadImage(scrapedImage.image_url);
+        // Load and draw icon image only if iconUrl is available
+        if (iconUrl) {
+            const iconImage = await loadImage(iconUrl);
+            const iconSize = 50;  // Set a default icon size
+            ctx.drawImage(iconImage, width - iconSize - 10, 10, iconSize, iconSize);
+            console.log(`Icon drawing completed for index ${imageIndex}`);
+        }
+
+        const baseImage = await loadImage(scrapedImage.extracted_image_url);
         console.log(`Base image loaded for index ${imageIndex}`);
 
         const fontSize = calculateFontSize(ctx, phrase, width - 40);
@@ -329,27 +339,29 @@ async function createAdsForAllImages({ email, key }) {
         // const fontDetails = await extractFontDetails(google_play);
 
         const totalPhrases = approvedPhrases.length;
-        console.log('Total Phrases are:', totalPhrases);
-
-        console.log('Calling loop ...');
+        console.log('Total Phrases:', totalPhrases);
 
         // Loop through all imageData entries
         for (let i = 0; i < imageDataArray.length; i++) {
             const imageData = imageDataArray[i];
+            console.log('Image data:', imageData);  // Print entire imageData to check structure
 
-            console.log('Inside Ad Creation i loop ...');
+            // Extract the specific entry using the key and safely access `icon_url`
+            const imageDataEntry = imageData[key];
+            const iconUrl = imageDataEntry ? imageDataEntry.icon_url : null;
+            console.log(`Using iconUrl: ${iconUrl}`);  // Print icon URL to confirm
 
             // Check if scraped_images exist and process each image_url
-            const scrapedImages = imageData?.[key]?.scraped_images || [];
+            const scrapedImages = imageDataEntry?.scraped_images || [];
             console.log(`Scraped images length: ${scrapedImages.length}`);
 
             for (let j = 0; j < scrapedImages.length; j++) {
-                const phrase = approvedPhrases[(i * scrapedImages.length + j) % totalPhrases]; // Rotate through phrases
+                const phrase = approvedPhrases[(i * scrapedImages.length + j) % totalPhrases];  // Rotate through phrases
 
                 try {
                     console.log(`Calling createAdImage for email: ${email}, phrase: "${phrase}", image index: ${j}`);
                     // const imageUrl = await createAdImage(i, j, phrase, email, scrapedImages[j], imageData.icon_url, fontDetails);
-                    const imageUrl = await createAdImage(i, j, phrase, email, scrapedImages[j], imageData.icon_url);
+                    const imageUrl = await createAdImage(i, j, phrase, email, scrapedImages[j], iconUrl);
                     await storeCreativeUrlsInMongo(email, imageUrl);
                 } catch (error) {
                     console.error(`Error creating ad for image ${j} of imageData ${i}, phrase: "${phrase}"`, error);
@@ -363,5 +375,6 @@ async function createAdsForAllImages({ email, key }) {
         throw error;
     }
 }
+
 
 export { createAdsForAllImages };
