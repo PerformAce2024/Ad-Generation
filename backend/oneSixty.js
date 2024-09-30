@@ -247,7 +247,16 @@ async function createAdImage(dataIndex, imageIndex, phrase, email, scrapedImage,
         // Only extract icon background color if iconUrl is valid
         if (iconUrl) {
             console.log(`Extracting background color for the icon at: ${iconUrl}`);
+
             iconColor = `rgb${await getBackgroundColor(iconUrl)}`;
+
+            if (iconColor === 'rgb(255, 255, 255)') { // white
+                iconColor = 'rgb(0, 0, 0)'; // black
+            }
+            else if (iconColor === 'rgb(0, 0, 0)') {
+                iconColor = 'rgb(255, 255, 255)';
+            }
+
             console.log(`Icon color for image ${imageIndex}: ${iconColor}`);
         } else {
             console.warn(`No icon URL provided for image ${imageIndex}, using default icon color.`);
